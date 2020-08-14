@@ -70,6 +70,7 @@ namespace Oyadieyie3D
         {
             var intent = new Intent(this, typeof(FullscreenImageActivity));
             intent.PutExtra("extra_transition_name", ViewCompat.GetTransitionName(e.PostImageView));
+            intent.PutExtra("extra_post_data", ListOfPost[e.Position]);
             var options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, e.PostImageView, ViewCompat.GetTransitionName(e.PostImageView));
             StartActivity(intent, options.ToBundle());
         }

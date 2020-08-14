@@ -19,6 +19,7 @@ namespace Oyadieyie3D.Adapters
         public event EventHandler<PostAdapterClickEventArgs> LikeClick;
         public event EventHandler<ImageClickEventArgs> ImageClick;
         List<Post> _items;
+        public static Post item;
 
         public PostAdapter(List<Post> items)
         {
@@ -29,7 +30,7 @@ namespace Oyadieyie3D.Adapters
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             var vh = holder as PostAdapterViewHolder;
-            var item = _items[position];
+            item = _items[position];
             var date = DateTime.UtcNow;
             vh.usernameTextView.Text = item.Author;
             vh.postBodyTextView.Text = item.PostBody;

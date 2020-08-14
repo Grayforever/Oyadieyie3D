@@ -67,6 +67,9 @@
     <BundleAssemblies>false</BundleAssemblies>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Mono.Android.Export">
+      <HintPath>..\..\..\..\..\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\ReferenceAssemblies\Microsoft\Framework\MonoAndroid\v4.4\Mono.Android.Export.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
@@ -96,6 +99,7 @@
     <Compile Include="Fragments\SignInFragment.cs" />
     <Compile Include="HelperClasses\SessionManager.cs" />
     <Compile Include="MainActivity.cs" />
+    <Compile Include="Models\GenericParcelableCreator.cs" />
     <Compile Include="Models\Post.cs" />
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -188,17 +192,17 @@
     <PackageReference Include="Xamarin.Firebase.Auth">
       <Version>119.3.1-preview02</Version>
     </PackageReference>
-    <PackageReference Include="Xamarin.Firebase.Core">
-      <Version>117.4.1-preview02</Version>
-    </PackageReference>
     <PackageReference Include="Xamarin.Firebase.Database">
-      <Version>71.1601.4</Version>
+      <Version>119.3.0-preview02</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Firebase.Storage">
-      <Version>71.1602.4</Version>
+      <Version>119.1.1-preview02</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Google.Android.Material">
       <Version>1.1.0.1-rc3</Version>
+    </PackageReference>
+    <PackageReference Include="XamarinLibrary.Xamarin.Android.ChatKit">
+      <Version>0.3.3</Version>
     </PackageReference>
     <PackageReference Include="yalantis.ucrop.xamarin">
       <Version>2.2.5</Version>

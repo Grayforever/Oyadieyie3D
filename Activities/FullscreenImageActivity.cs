@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-
-using Android.App;
+﻿using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Runtime;
-using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using IGreenWood.LoupeLib;
+using Oyadieyie3D.Models;
+using System;
 
 namespace Oyadieyie3D.Activities
 {
@@ -45,6 +40,9 @@ namespace Oyadieyie3D.Activities
 
                     }
                 );
+
+            Post post = (Post)extras.GetParcelable("extra_post_data");
+            Toast.MakeText(this, post.Author, ToastLength.Long).Show();
         }
 
         internal sealed class OnViewTranslateListener : Java.Lang.Object, Loupe.IOnViewTranslateListener
