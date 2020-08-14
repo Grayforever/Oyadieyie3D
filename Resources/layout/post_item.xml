@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="294dp"
+    app:cardCornerRadius="10dp"
+    app:cardPreventCornerOverlap="true"
+    android:id="@+id/post_card_root"
+    android:layout_margin="16dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="8dp"
+        android:clipToPadding="false"
+        android:id="@+id/post_card_parent">
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/post_img_iv"
+            android:scaleType="centerCrop"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/post_card_const"
+            app:layout_constraintHeight_percent="0.6"
+            />
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/post_card_const"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/post_img_iv"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintHeight_percent="0.4">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:id="@+id/post_user_profile"
+                android:scaleType="centerCrop"
+                android:src="@drawable/user"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/post_septor1"
+                app:layout_constraintTop_toTopOf="parent"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/post_name_tv"
+                android:text="Graham"
+                android:textStyle="bold"
+                android:textAppearance="?attr/textAppearanceBody1"
+                app:layout_constraintStart_toStartOf="@+id/post_comment_btn"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/post_time_tv"
+                app:layout_constraintBottom_toTopOf="@+id/post_caption_tv"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/post_time_tv"
+                android:text="1d"
+                android:textAppearance="?attr/textAppearanceBody2"
+                android:paddingStart="8dp"
+                android:gravity="end"
+                app:layout_constraintStart_toEndOf="@+id/post_name_tv"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/post_caption_tv"
+                android:maxLines="2"
+                android:ellipsize="end"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/post_caption_tv"
+                android:text="Masterpiece"
+                android:textAppearance="?attr/textAppearanceBody2"
+                app:layout_constraintStart_toStartOf="@+id/post_comment_btn"
+                app:layout_constraintTop_toBottomOf="@+id/post_name_tv"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toTopOf="@+id/post_septor1"
+                android:maxLines="2"
+                android:ellipsize="end"
+                />
+
+            <View
+                android:layout_width="0dp"
+                android:layout_height="1dp"
+                android:id="@+id/post_septor1"
+                android:background="#cecece"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintVertical_bias="0.65"
+                />
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:id="@+id/post_like_btn"
+                android:scaleType="centerCrop"
+                android:clickable="true"
+                android:src="@drawable/like"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/post_septor1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+
+            <ImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:id="@+id/post_comment_btn"
+                android:scaleType="centerCrop"
+                android:clickable="true"
+                android:src="@drawable/comment"
+                app:layout_constraintStart_toEndOf="@+id/post_like_btn"
+                app:layout_constraintTop_toBottomOf="@+id/post_septor1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/post_like_count_tv"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="16dp"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/post_like_count_tv"
+                android:text="12 likes"
+                android:gravity="end"
+                android:textAppearance="?attr/textAppearanceBody2"
+                app:layout_constraintStart_toEndOf="@+id/post_comment_btn"
+                app:layout_constraintTop_toBottomOf="@+id/post_septor1"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>
