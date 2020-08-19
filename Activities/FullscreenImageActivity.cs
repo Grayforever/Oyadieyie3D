@@ -4,7 +4,7 @@ using Android.OS;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using IGreenWood.LoupeLib;
-using Oyadieyie3D.Models;
+using Oyadieyie3D.Parcelables;
 using System;
 
 namespace Oyadieyie3D.Activities
@@ -41,8 +41,9 @@ namespace Oyadieyie3D.Activities
                     }
                 );
 
-            Post post = (Post)extras.GetParcelable("extra_post_data");
-            Toast.MakeText(this, post.Author, ToastLength.Long).Show();
+            PostParcelable parcelable = (PostParcelable)extras.GetParcelable("extra_post_data");
+
+            Toast.MakeText(this, parcelable.PostItem.Author, ToastLength.Long).Show();
         }
 
         internal sealed class OnViewTranslateListener : Java.Lang.Object, Loupe.IOnViewTranslateListener

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="16dp"
+    android:clipToPadding="false">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/get_sms_hdr"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="Co\nde"
+        android:textAllCaps="true"
+        android:textAppearance="?attr/textAppearanceHeadline2"
+        android:textStyle="bold"
+        android:gravity="center"
+        android:textColor="@android:color/black"
+        android:layout_marginTop="24dp"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/get_sms_sub"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/get_sms_hdr"
+        android:text="verification"
+        android:textAllCaps="true"
+        android:textAppearance="?attr/textAppearanceSubtitle2"
+        android:gravity="center"
+        android:textStyle="bold"
+        android:textColor="@android:color/black"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/get_sms_sub2"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/otp_view"
+        android:textAppearance="?attr/textAppearanceSubtitle2"
+        android:layout_marginBottom="16dp"
+        android:gravity="center"
+        />
+
+    <com.mukesh.OtpView
+        android:id="@+id/otp_view"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:inputType="number"
+        app:itemCount="6"
+        app:viewType="rectangle"
+        app:lineColor="@color/colorPrimary"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toBottomOf="parent"
+        android:enabled="true"
+        android:cursorVisible="true"
+        />
+
+    <com.google.android.material.button.MaterialButton
+        android:layout_width="0dp"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
+        android:id="@+id/verify_otp_btn"
+        app:layout_constraintStart_toStartOf="@+id/otp_view"
+        app:layout_constraintEnd_toEndOf="@+id/otp_view"
+        app:layout_constraintTop_toBottomOf="@+id/otp_view"
+        android:text="verify otp"
+        android:textSize="16sp"
+        android:layout_marginTop="16dp"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

@@ -39,11 +39,11 @@ namespace Oyadieyie3D.Adapters
 
             if (item.Liked)
             {
-                vh.likeImageView.SetImageResource(Resource.Drawable.redlike);
+                vh.likeButton.SetLiked(true);
             }
             else
             {
-                vh.likeImageView.SetImageResource(Resource.Drawable.like);
+                vh.likeButton.SetLiked(false);
             }
 
             GetImage(item.DownloadUrl, vh.postImageView);
@@ -54,7 +54,7 @@ namespace Oyadieyie3D.Adapters
         private void GetImage(string downloadUrl, ImageView postImageView)
         {
             RequestOptions requestOptions = new RequestOptions();
-            requestOptions.Placeholder(Resource.Drawable.placeholder);
+            requestOptions.Placeholder(Resource.Drawable.img_placeholder);
 
             Glide.With(Application.Context)
                 .SetDefaultRequestOptions(requestOptions)
@@ -84,7 +84,7 @@ namespace Oyadieyie3D.Adapters
             public TextView postBodyTextView { get; set; }
             public TextView likeCountTextView { get; set; }
             public ImageView postImageView { get; set; }
-            public ImageView likeImageView { get; set; }
+            public Like.Lib.LikeButton likeButton { get; set; }
 
             public TextView durationTextView { get; set; }
 
@@ -98,13 +98,13 @@ namespace Oyadieyie3D.Adapters
                 postBodyTextView = (TextView)itemView.FindViewById(Resource.Id.post_caption_tv);
                 likeCountTextView = (TextView)itemView.FindViewById(Resource.Id.post_like_count_tv);
                 postImageView = (ImageView)itemView.FindViewById(Resource.Id.post_img_iv);
-                likeImageView = (ImageView)itemView.FindViewById(Resource.Id.post_like_btn);
+                likeButton = (Like.Lib.LikeButton)itemView.FindViewById(Resource.Id.post_like_btn);
                 profileImageView = (CircleImageView)itemView.FindViewById(Resource.Id.post_user_profile);
                 durationTextView = (TextView)itemView.FindViewById(Resource.Id.post_time_tv);
 
                 itemView.Click += (sender, e) => clickListener(new PostAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
                 itemView.LongClick += (sender, e) => longClickListener(new PostAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
-                likeImageView.Click += (sender, e) => likeClickListener(new PostAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
+                likeButton.Liked += (sender, e) => likeClickListener(new PostAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
                 postImageView.Click += (sender, e) => imageClickListener(new ImageClickEventArgs { View = itemView, Position = AdapterPosition, PostImageView = postImageView });
             }
         }

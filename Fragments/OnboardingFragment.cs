@@ -1,15 +1,16 @@
 ﻿using Android.OS;
 using Android.Views;
 using AndroidX.Fragment.App;
-using Google.Android.Material.Button;
+using Google.Android.Material.TextField;
 using System;
 
 namespace Oyadieyie3D.Fragments
 {
     public class OnboardingFragment : Fragment
     {
-        public event EventHandler OnRegisterBtnClick;
-        public event EventHandler OnSignInBtnClick;
+        private TextInputLayout phoneEt;
+        private const string TAG = "phone_et";
+
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -17,27 +18,24 @@ namespace Oyadieyie3D.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.onboarding_fragment, container, false);
+            return inflater.Inflate(Resource.Layout.get_started_fragment, container, false);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            var registerBtn = view.FindViewById<MaterialButton>(Resource.Id.onboard_register_btn);
-            var signInBtn = view.FindViewById<MaterialButton>(Resource.Id.onboard_signin_btn);
-
-            registerBtn.Click += RegisterBtn_Click;
-            signInBtn.Click += SignInBtn_Click;
+            phoneEt = view.FindViewById<TextInputLayout>(Resource.Id.phone_et);
+            var gsPhoneEt = view.FindViewById<TextInputEditText>(Resource.Id.gs_phone_et);
+            gsPhoneEt.Click += GsPhoneEt_Click;
         }
 
-        private void SignInBtn_Click(object sender, System.EventArgs e)
+        private void GsPhoneEt_Click(object sender, EventArgs e)
         {
-            OnSignInBtnClick?.Invoke(this, new EventArgs());
-        }
-
-        private void RegisterBtn_Click(object sender, System.EventArgs e)
-        {
-            OnRegisterBtnClick?.Invoke(this, new EventArgs());
+            ParentFragmentManager.BeginTransaction()
+                .AddSharedElement(phoneEt, "phone_et")
+                .AddToBackStack(TAG)
+                .Replace(Resource.Id.frag_container, new EnterPhoneFragment())
+                .CommitAllowingStateLoss();
         }
     }
 }

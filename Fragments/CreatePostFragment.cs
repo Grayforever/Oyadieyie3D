@@ -1,17 +1,14 @@
 ﻿using Android;
 using Android.App;
 using Android.Content;
-using Android.Content.PM;
 using Android.Database;
 using Android.OS;
 using Android.Provider;
-using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.Core.Content;
 using BumpTech.GlideLib;
 using Com.Yalantis.Ucrop;
-using Google.Android.Material.AppBar;
 using Google.Android.Material.BottomSheet;
 using Google.Android.Material.Button;
 using Java.IO;
@@ -19,8 +16,6 @@ using Karumi.DexterLib;
 using Oyadieyie3D.Events;
 using System;
 using static AndroidX.Core.Content.FileProvider;
-using static Oyadieyie3D.MainActivity;
-using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 using Uri = Android.Net.Uri;
 
 namespace Oyadieyie3D.Fragments
@@ -51,28 +46,9 @@ namespace Oyadieyie3D.Fragments
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            var appbar = view.FindViewById<AppBarLayout>(Resource.Id.create_post_appbar);
-            var toolbar = appbar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
             var postToggleBtn = view.FindViewById<MaterialButtonToggleGroup>(Resource.Id.photo_choser_togglegrp);
             postImageView = view.FindViewById<ImageView>(Resource.Id.image_to_post);
 
-            toolbar.Title = "Create Post";
-            toolbar.InflateMenu(Resource.Menu.menu_create_post);
-            var saveBtn = toolbar.Menu.FindItem(Resource.Id.action_save);
-
-            toolbar.SetOnMenuItemClickListener(new OnMenuItemClickListener((menuItem)=> 
-            {
-                switch (menuItem.ItemId)
-                {
-                    case Resource.Id.action_save:
-                        break;
-
-                    case Resource.Id.action_close:
-                        ClearCache(Context);
-                        DismissAllowingStateLoss();
-                        break;
-                }
-            }, false));
             RegisterForContextMenu(postImageView);
             postToggleBtn.AddOnButtonCheckedListener(new ButtonCheckedListener((g, id, isChecked) =>
             {
@@ -222,7 +198,7 @@ namespace Oyadieyie3D.Fragments
             return sResult;
         }
 
-        public void ClearCache(Context context)
+        public void ClearCache()
         {
             File path = new File(Context.ExternalCacheDir, "camera");
             if (path.Exists() && path.IsDirectory)
@@ -240,17 +216,6 @@ namespace Oyadieyie3D.Fragments
             menu.SetHeaderTitle("Photo Option");
             menu.Add(0, v.Id, 0, "Remove");
             menu.Add(0, v.Id, 0, "Crop");
-        }
-
-        public override bool OnContextItemSelected(IMenuItem item)
-        {
-            Toast.MakeText(Context, item.ItemId + "", ToastLength.Short).Show();
-            return base.OnContextItemSelected(item);
-        }
-
-        public override void OnRequestPermissionsResult(int requestCode, string[] permissions, [GeneratedEnum] Permission[] grantResults)
-        {
-            base.OnRequestPermissionsResult(requestCode, permissions, grantResults);
         }
     }
 }

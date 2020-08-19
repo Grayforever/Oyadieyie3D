@@ -6,8 +6,7 @@ xmlns:tools="http://schemas.android.com/tools">
   
 <item 
 	android:id="@+id/action_search"
-    app:showAsAction="always"
-	android:orderInCategory="100"
+    app:showAsAction="always|withText"
 	android:icon="@drawable/ic_search"
 	app:actionViewClass="androidx.appcompat.widget.SearchView"
 	/>
@@ -15,14 +14,14 @@ xmlns:tools="http://schemas.android.com/tools">
 <item 
 	android:id="@+id/action_refresh"
     app:showAsAction="never"
-    android:text="Refresh"
+    android:title="Refresh"
 	/>
 
 
 <item
 	android:id="@+id/action_settings"
 	app:showAsAction="never"
-	android:text="Settings"
+	android:title="Settings"
 />
   
 </menu>

@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+
+  <solid android:color="@android:color/white"/>
+    <stroke android:width="2dp"
+       android:color="@color/mtrl_outlined_stroke_color"/>
+       
+
+<corners
+  android:bottomRightRadius ="@dimen/mtrl_textinput_box_corner_radius_medium"
+  android:bottomLeftRadius="@dimen/mtrl_textinput_box_corner_radius_medium"
+  android:topLeftRadius ="@dimen/mtrl_textinput_box_corner_radius_medium"
+  android:topRightRadius="@dimen/mtrl_textinput_box_corner_radius_medium"
+
+/>
+</shape>

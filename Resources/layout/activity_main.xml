@@ -3,7 +3,8 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    tools:ignore="HardcodedText">
 
     <include
         layout="@layout/parent_appbar"
@@ -16,6 +17,7 @@
         android:id="@+id/main_recycler"
         android:scrollbars="none"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        app:layoutManager="LinearLayoutManager"
         />
 
 
@@ -29,5 +31,41 @@
         android:src="@drawable/ic_add"
         app:tint="@android:color/white"
         />
+
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/rv_empty_view"
+        android:padding="16dp"
+        android:clipToPadding="false">
+
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="92dp"
+            android:layout_height="92dp"
+            android:id="@+id/rv_empty_iv"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/rv_empty_hdr"
+            android:src="@drawable/fogg_page_not_found"
+            android:scaleType="centerCrop"
+            android:elevation="2dp"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/rv_empty_hdr"
+            android:text="No data to display"
+            android:textAppearance="?attr/textAppearanceHeadline5"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:gravity="center"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

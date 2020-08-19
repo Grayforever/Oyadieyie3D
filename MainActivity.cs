@@ -2,11 +2,12 @@
 using Android.Content;
 using Android.OS;
 using Android.Views;
-using Android.Widget;
 using AndroidX.AppCompat.App;
+using AndroidX.ConstraintLayout.Widget;
 using AndroidX.Core.App;
 using AndroidX.Core.View;
 using AndroidX.RecyclerView.Widget;
+using EverythingMe.AndroidUI.OverScroll;
 using Google.Android.Material.AppBar;
 using Google.Android.Material.FloatingActionButton;
 using Oyadieyie3D.Activities;
@@ -15,6 +16,8 @@ using Oyadieyie3D.Events;
 using Oyadieyie3D.Fragments;
 using Oyadieyie3D.HelperClasses;
 using Oyadieyie3D.Models;
+using Oyadieyie3D.Parcelables;
+using Oyadieyie3D.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -30,6 +33,7 @@ namespace Oyadieyie3D
         private RecyclerView mainRecycler;
         private PostAdapter postAdapter;
         private CreatePostFragment createPost = new CreatePostFragment();
+        private RecyclerViewEmptyObserver emptyObserver;
 
         //private PostEventListener postEventListener;
         protected override void OnCreate(Bundle savedInstanceState)
@@ -46,10 +50,10 @@ namespace Oyadieyie3D
         {
             ListOfPost = new List<Post>()
             {
-                new Post { PostBody = "The United States has been lobbying for months to prevent its western allies from using Huawei equipment in their 5G deployment, and on Wednesday, Washington made it more difficult for the Chinese telecom ", Author = "Uchenna Nnodim", LikeCount = 12, Liked = true },
-                new Post { PostBody = "TE Connectivity is a technology company that designs and manufactures connectivity and sensor products for harsh environments in a variety of industries, such as automotive, industrial equipment, ", Author = "Johan Gasierel", LikeCount = 34 },
-                new Post { PostBody = "Singapore-based startup YouTrip  thinks consumers of Southeast Asia deserve a taste of the challenger bank revolution happening in the U.S. and Europe, and it has raised $25 million in new funding to bring its app-and-debit-card service to more parts in the region.", Author = "Kylie Jenna", LikeCount = 6 },
-                new Post { PostBody = "TE Connectivity is a technology company that designs and manufactures connectivity and sensor products for harsh environments in a variety of industries, such as automotive, industrial equipment, ", Author = "Johan Gasierel", LikeCount = 78 }
+                new Post { PostBody = "The United States has been lobbying for months to prevent its western allies from using Huawei equipment in their 5G deployment, and on Wednesday, Washington made it more difficult for the Chinese telecom ", Author = "Uchenna", LikeCount = 12, Liked = true },
+                new Post { PostBody = "TE Connectivity is a technology company that designs and manufactures connectivity and sensor products for harsh environments in a variety of industries, such as automotive, industrial equipment, ", Author = "Johan", LikeCount = 34 },
+                new Post { PostBody = "Singapore-based startup YouTrip  thinks consumers of Southeast Asia deserve a taste of the challenger bank revolution happening in the U.S. and Europe, and it has raised $25 million in new funding to bring its app-and-debit-card service to more parts in the region.", Author = "Kylie", LikeCount = 6 },
+                new Post { PostBody = "TE Connectivity is a technology company that designs and manufactures connectivity and sensor products for harsh environments in a variety of industries, such as automotive, industrial equipment, ", Author = "Johan", LikeCount = 78 }
             };
 
         }
@@ -57,9 +61,13 @@ namespace Oyadieyie3D
         private void SetUpRecycler()
         {
             mainRecycler = FindViewById<RecyclerView>(Resource.Id.main_recycler);
-            mainRecycler.SetLayoutManager(new LinearLayoutManager(mainRecycler.Context));
+            var emptyRoot = FindViewById<ConstraintLayout>(Resource.Id.rv_empty_view);
+            OverScrollDecoratorHelper.SetUpOverScroll(mainRecycler, OverScrollDecoratorHelper.OrientationVertical);
             postAdapter = new PostAdapter(ListOfPost);
             mainRecycler.SetAdapter(postAdapter);
+
+            emptyObserver = new RecyclerViewEmptyObserver(mainRecycler, emptyRoot);
+            postAdapter.RegisterAdapterDataObserver(emptyObserver);
 
             postAdapter.ItemLongClick += PostAdapter_ItemLongClick;
             postAdapter.LikeClick += PostAdapter_LikeClick;
@@ -69,9 +77,14 @@ namespace Oyadieyie3D
         private void PostAdapter_ImageClick(object sender, PostAdapter.ImageClickEventArgs e)
         {
             var intent = new Intent(this, typeof(FullscreenImageActivity));
+
+            PostParcelable postParcelable = new PostParcelable();
+            postParcelable.PostItem = ListOfPost[e.Position];
+
             intent.PutExtra("extra_transition_name", ViewCompat.GetTransitionName(e.PostImageView));
-            intent.PutExtra("extra_post_data", ListOfPost[e.Position]);
-            var options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, e.PostImageView, ViewCompat.GetTransitionName(e.PostImageView));
+            intent.PutExtra("extra_post_data", postParcelable);
+            var options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, e.PostImageView, 
+                ViewCompat.GetTransitionName(e.PostImageView));
             StartActivity(intent, options.ToBundle());
         }
 
@@ -82,7 +95,6 @@ namespace Oyadieyie3D
             var mainToolbar = mainAppBar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
             
             SetSupportActionBar(mainToolbar);
-            SupportActionBar.SetDisplayShowTitleEnabled(true);
 
             addPostFab.Click += AddPostFab_Click;
 
@@ -101,8 +113,8 @@ namespace Oyadieyie3D
 
         private void AddPostFab_Click(object sender, EventArgs e)
         {
-            createPost.Cancelable = false;
             var ft = SupportFragmentManager.BeginTransaction();
+            
             ft.Add(createPost, "createPost");
             ft.CommitAllowingStateLoss();
         }
@@ -120,19 +132,29 @@ namespace Oyadieyie3D
 
         private void SearchView_QueryTextChange(object sender, SearchView.QueryTextChangeEventArgs e)
         {
-            List<Post> searchResult =
+            List<Post> searchResult = 
                 (from post in ListOfPost
                  where post.Author.ToLower().Contains(e.NewText.ToLower())
                     || post.PostBody.ToLower().Contains(e.NewText.ToLower())
-                    || post.PostDate.ToString().ToLower().Contains(e.NewText.ToLower())
                  select post).ToList();
 
             postAdapter = new PostAdapter(searchResult);
+            postAdapter.RegisterAdapterDataObserver(emptyObserver);
             mainRecycler.SetAdapter(postAdapter);
+
         }
 
         public override bool OnOptionsItemSelected(IMenuItem item)
         {
+            switch (item.ItemId)
+            {
+                case Resource.Id.action_refresh:
+                    break;
+
+                case Resource.Id.action_settings:
+                    StartActivity(typeof(SettingsActivity));
+                    break;
+            }
             return base.OnOptionsItemSelected(item);
         }
         
@@ -185,13 +207,7 @@ namespace Oyadieyie3D
                 alert.Show();
             }
         }
-
         
-
-        
-
-        
-
         //private void FetchPost()
         //{
         //    postEventListener = new PostEventListener();
