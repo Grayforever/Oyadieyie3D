@@ -1,144 +1,126 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
-    android:layout_height="match_parent"
     android:layout_width="match_parent"
-    app:layout_behavior="@string/appbar_scrolling_view_behavior"
-    android:fillViewport="true"
-    tools:ignore="HardcodedText">
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:padding="16dp"
-        android:clipToPadding="false">
+    android:layout_height="wrap_content"
+    android:padding="16dp"
+    android:clipToPadding="false"
+    tools:ignore="ContentDescription">
             
-        <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="0dp"
-            android:layout_height="128dp"
-            android:id="@+id/create_post_const"
-            android:padding="8dp"
-            android:clipToPadding="false"
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="0dp"
+        android:layout_height="128dp"
+        android:id="@+id/create_post_const"
+        android:padding="8dp"
+        android:clipToPadding="false"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/photo_choser_togglegrp">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:id="@+id/create_post_userProfile"
+            android:scaleType="centerCrop"
+            android:src="@drawable/user"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toTopOf="@+id/photo_choser_togglegrp">
+            app:layout_constraintEnd_toStartOf="@+id/create_post_userName"
+            app:layout_constraintBottom_toTopOf="@+id/create_post_et"
+            />
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:id="@+id/create_post_userProfile"
-                android:scaleType="centerCrop"
-                android:src="@drawable/user"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/create_post_userName"
-                app:layout_constraintBottom_toTopOf="@+id/create_post_et"
-                />
-
-            <TextView
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/create_post_userName"
-                app:layout_constraintStart_toEndOf="@+id/create_post_userProfile"
-                app:layout_constraintEnd_toStartOf="@+id/post_img_card"
-                app:layout_constraintBottom_toTopOf="@+id/create_post_et"
-                app:layout_constraintTop_toTopOf="parent"
-                android:textAppearance="?attr/textAppearanceBody1"
-                android:text="Graham"
-                android:textStyle="bold"
-                android:layout_marginStart="8dp"
-                android:layout_marginEnd="8dp"
-                />
-
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/create_post_et"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/post_img_card"
-                app:layout_constraintTop_toBottomOf="@+id/create_post_userPhoto"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginEnd="8dp"
-                app:counterEnabled="true"
-                app:counterMaxLength="180">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="Add caption"
-                    />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <androidx.cardview.widget.CardView
-                android:layout_width="96dp"
-                android:layout_height="96dp"
-                android:id="@+id/post_img_card"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintStart_toEndOf="@+id/create_post_userName"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:cardCornerRadius="10dp">
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:id="@+id/image_to_post"
-                    android:src="@drawable/img_placeholder"
-                    android:scaleType="centerCrop"
-                    android:clickable="true"
-                    />
-
-            </androidx.cardview.widget.CardView>
-
-        </androidx.constraintlayout.widget.ConstraintLayout>
-
-        <com.google.android.material.button.MaterialButtonToggleGroup
+        <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:id="@+id/photo_choser_togglegrp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/create_post_const"
-            app:singleSelection="true"
-            android:layout_marginTop="16dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/choose_photo_btn"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
-                app:strokeWidth="2dp"
-                android:layout_weight="1"
-                app:icon="@drawable/ic_add_photo"
-                android:text="choose photo"
-                />
-
-            <com.google.android.material.button.MaterialButton
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:id="@+id/open_cam_btn"
-                style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
-                app:strokeWidth="2dp"
-                android:layout_weight="1"
-                app:icon="@drawable/ic_camera"
-                android:text="Take photo"
-                />
-
-        </com.google.android.material.button.MaterialButtonToggleGroup>
-
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="0dp"
-            android:layout_height="0dp"
-            android:id="@+id/create_post_recycler"
-            app:layout_constraintTop_toBottomOf="@+id/photo_choser_togglegrp"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
+            android:id="@+id/create_post_userName"
+            app:layout_constraintStart_toEndOf="@+id/create_post_userProfile"
+            app:layout_constraintEnd_toStartOf="@+id/post_img_card"
+            app:layout_constraintBottom_toTopOf="@+id/create_post_et"
+            app:layout_constraintTop_toTopOf="parent"
+            android:textAppearance="?attr/textAppearanceBody1"
+            android:text="Graham"
+            android:textStyle="bold"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
             />
+
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/create_post_et"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/post_img_card"
+            app:layout_constraintTop_toBottomOf="@+id/create_post_userPhoto"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginEnd="8dp"
+            app:counterEnabled="true"
+            app:counterMaxLength="180">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Add caption"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="96dp"
+            android:layout_height="96dp"
+            android:id="@+id/post_img_card"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@+id/create_post_userName"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:cardCornerRadius="10dp">
+
+            <ImageView
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:id="@+id/image_to_post"
+                android:src="@drawable/img_placeholder"
+                android:scaleType="centerCrop"
+                android:clickable="true"
+                />
+
+        </androidx.cardview.widget.CardView>
 
     </androidx.constraintlayout.widget.ConstraintLayout>
 
-</androidx.core.widget.NestedScrollView>
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:id="@+id/photo_choser_togglegrp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/create_post_const"
+        app:singleSelection="true"
+        android:layout_marginTop="16dp">
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/choose_photo_btn"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+            app:strokeWidth="2dp"
+            android:layout_weight="1"
+            app:icon="@drawable/ic_add_photo"
+            android:text="choose photo"
+            />
+
+        <com.google.android.material.button.MaterialButton
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/open_cam_btn"
+            style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+            app:strokeWidth="2dp"
+            android:layout_weight="1"
+            app:icon="@drawable/ic_camera"
+            android:text="Take photo"
+            />
+
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

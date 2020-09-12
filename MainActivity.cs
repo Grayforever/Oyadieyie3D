@@ -7,7 +7,6 @@ using AndroidX.ConstraintLayout.Widget;
 using AndroidX.Core.App;
 using AndroidX.Core.View;
 using AndroidX.RecyclerView.Widget;
-using EverythingMe.AndroidUI.OverScroll;
 using Google.Android.Material.AppBar;
 using Google.Android.Material.FloatingActionButton;
 using Oyadieyie3D.Activities;
@@ -35,34 +34,21 @@ namespace Oyadieyie3D
         private CreatePostFragment createPost = new CreatePostFragment();
         private RecyclerViewEmptyObserver emptyObserver;
 
-        //private PostEventListener postEventListener;
+        private PostEventListener postEventListener;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
-            //FetchPost();
-            CreateData();
+            FetchPost();
             SetUpRecycler();
             GetControls();
         }
 
-        private void CreateData()
-        {
-            ListOfPost = new List<Post>()
-            {
-                new Post { PostBody = "The United States has been lobbying for months to prevent its western allies from using Huawei equipment in their 5G deployment, and on Wednesday, Washington made it more difficult for the Chinese telecom ", Author = "Uchenna", LikeCount = 12, Liked = true },
-                new Post { PostBody = "TE Connectivity is a technology company that designs and manufactures connectivity and sensor products for harsh environments in a variety of industries, such as automotive, industrial equipment, ", Author = "Johan", LikeCount = 34 },
-                new Post { PostBody = "Singapore-based startup YouTrip  thinks consumers of Southeast Asia deserve a taste of the challenger bank revolution happening in the U.S. and Europe, and it has raised $25 million in new funding to bring its app-and-debit-card service to more parts in the region.", Author = "Kylie", LikeCount = 6 },
-                new Post { PostBody = "TE Connectivity is a technology company that designs and manufactures connectivity and sensor products for harsh environments in a variety of industries, such as automotive, industrial equipment, ", Author = "Johan", LikeCount = 78 }
-            };
-
-        }
 
         private void SetUpRecycler()
         {
             mainRecycler = FindViewById<RecyclerView>(Resource.Id.main_recycler);
             var emptyRoot = FindViewById<ConstraintLayout>(Resource.Id.rv_empty_view);
-            OverScrollDecoratorHelper.SetUpOverScroll(mainRecycler, OverScrollDecoratorHelper.OrientationVertical);
             postAdapter = new PostAdapter(ListOfPost);
             mainRecycler.SetAdapter(postAdapter);
 
@@ -207,25 +193,25 @@ namespace Oyadieyie3D
                 alert.Show();
             }
         }
-        
-        //private void FetchPost()
-        //{
-        //    postEventListener = new PostEventListener();
-        //    postEventListener.FetchPost();
-        //    postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
-        //}
 
-        //private void PostEventListener_OnPostRetrieved(object sender, PostEventListener.PostEventArgs e)
-        //{
-        //    ListOfPost = new List<Post>();
-        //    ListOfPost = e.Posts;
+        private void FetchPost()
+        {
+            //postEventListener = new PostEventListener();
+            //postEventListener.FetchPost();
+            //postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
+        }
 
-        //    if (ListOfPost != null)
-        //    {
-        //        ListOfPost = ListOfPost.OrderByDescending(x => x.PostDate).ToList();
-        //    }
+        private void PostEventListener_OnPostRetrieved(object sender, PostEventListener.PostEventArgs e)
+        {
+            ListOfPost = new List<Post>();
+            ListOfPost = e.Posts;
 
-        //    SetUpRecycler();
-        //}
+            if (ListOfPost != null)
+            {
+                ListOfPost = ListOfPost.OrderByDescending(x => x.PostDate).ToList();
+            }
+
+            SetUpRecycler();
+        }
     }
 }

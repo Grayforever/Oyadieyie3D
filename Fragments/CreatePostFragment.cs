@@ -187,7 +187,7 @@ namespace Oyadieyie3D.Fragments
 
         private string GenerateRandomString(int lenght)
         {
-            System.Random rand = new Random();
+            Random rand = new Random();
             char[] allowchars = "ABCDEFGHIJKLOMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789".ToCharArray();
             string sResult = "";
             for (int i = 0; i <= lenght; i++)

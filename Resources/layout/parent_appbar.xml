@@ -13,6 +13,7 @@
         android:id="@+id/main_toolbar"
         app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
         app:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
+        android:background="@android:color/white"
         />
 
 </com.google.android.material.appbar.AppBarLayout>

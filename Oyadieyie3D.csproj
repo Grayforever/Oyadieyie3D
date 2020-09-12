@@ -114,9 +114,12 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidAsset Include="Assets\abstract-fear-macina.json" />
+    <AndroidAsset Include="Assets\empty-box.json" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
     <None Include="Assets\AboutAssets.txt" />
+    <AndroidResource Include="Resources\font\raleway_regular.ttf" />
+    <AndroidResource Include="Resources\font\raleway_italic.ttf" />
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\layout\activity_main.xml">
@@ -149,10 +152,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Com.Airbnb.Android.Lottie">
-      <Version>3.4.2</Version>
-    </PackageReference>
-    <PackageReference Include="Karamunting.Android.EverythingMe.OverScrollDecor">
-      <Version>1.1.0</Version>
+      <Version>3.4.3</Version>
     </PackageReference>
     <PackageReference Include="Karamunting.Android.HDodenhof.CircleImageView">
       <Version>3.1.0</Version>
@@ -193,38 +193,53 @@
     <PackageReference Include="Xamarin.Android.Support.v7.AppCompat">
       <Version>28.0.0.1</Version>
     </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.AppCompat">
+      <Version>1.2.0.2</Version>
+    </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Browser">
       <Version>1.2.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.CardView">
+      <Version>1.0.0.3</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.ConstraintLayout">
       <Version>1.1.3.2</Version>
     </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.CoordinatorLayout">
+      <Version>1.1.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.Core">
+      <Version>1.3.0.1</Version>
+    </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Fragment">
-      <Version>1.2.4.2</Version>
+      <Version>1.2.5.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Legacy.Support.Core.UI">
-      <Version>1.0.0.2</Version>
+      <Version>1.0.0.3</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Legacy.Support.V4">
-      <Version>1.0.0.2</Version>
+      <Version>1.0.0.3</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Lifecycle.LiveData">
       <Version>2.2.0.2</Version>
     </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.MultiDex">
-      <Version>2.0.1.2</Version>
+    <PackageReference Include="Xamarin.AndroidX.Migration">
+      <Version>1.0.5.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Preference">
-      <Version>1.1.1.2</Version>
+      <Version>1.1.1.3</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.RecyclerView">
-      <Version>1.1.0.2</Version>
+      <Version>1.1.0.3</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.SwipeRefreshLayout">
+      <Version>1.0.0.3</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.VersionedParcelable">
-      <Version>1.1.1.2</Version>
+      <Version>1.1.1.3</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.ViewPager2">
-      <Version>1.0.0.4</Version>
+      <Version>1.0.0.5</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.Firebase.Auth">
       <Version>119.3.1-preview02</Version>
@@ -358,6 +373,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\values\arrays.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\font\raleway_family.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
