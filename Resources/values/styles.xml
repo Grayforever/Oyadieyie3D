@@ -11,8 +11,10 @@
 		<item name="android:fontFamily">@font/raleway_family</item>
     </style>
 
-	<style name="AppTheme.PreferenceTheme" parent="AppTheme">
-		<item name="preferenceTheme">@style/PreferenceThemeOverlay.v14.Material</item>
+	<style name="AppTheme.Splash" parent="Theme.MaterialComponents.Light.NoActionBar">
+		<item name="android:windowFullscreen">true</item>
+		<item name="android:windowBackground">@drawable/splash_drawable</item>
+		<item name="android:windowNoTitle">true</item>
 	</style>
 
 </resources>

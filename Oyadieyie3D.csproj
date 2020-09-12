@@ -80,7 +80,6 @@
   <ItemGroup>
     <Compile Include="Activities\FullscreenImageActivity.cs" />
     <Compile Include="Activities\OnboardingActivity.cs" />
-    <Compile Include="Activities\SettingsActivity.cs" />
     <Compile Include="Activities\SplashActivity.cs" />
     <Compile Include="Adapters\OnboardingAdapter.cs" />
     <Compile Include="Adapters\PostAdapter.cs" />
@@ -376,6 +375,12 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\font\raleway_family.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\splash_drawable.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\oyadieye3d_logo.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

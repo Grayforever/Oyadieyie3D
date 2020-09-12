@@ -138,7 +138,7 @@ namespace Oyadieyie3D
                     break;
 
                 case Resource.Id.action_settings:
-                    StartActivity(typeof(SettingsActivity));
+                    
                     break;
             }
             return base.OnOptionsItemSelected(item);

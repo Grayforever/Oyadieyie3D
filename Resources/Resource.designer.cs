@@ -7209,91 +7209,97 @@ namespace Oyadieyie3D
 			public const int notify_panel_notification_icon_bg = 2131231152;
 			
 			// aapt resource value: 0x7F0801B1
-			public const int placeholder = 2131231153;
+			public const int oyadieye3d_logo = 2131231153;
 			
 			// aapt resource value: 0x7F0801B2
-			public const int preference_list_divider_material = 2131231154;
+			public const int placeholder = 2131231154;
 			
 			// aapt resource value: 0x7F0801B3
-			public const int star_off = 2131231155;
+			public const int preference_list_divider_material = 2131231155;
 			
 			// aapt resource value: 0x7F0801B4
-			public const int star_on = 2131231156;
+			public const int splash_drawable = 2131231156;
 			
 			// aapt resource value: 0x7F0801B5
-			public const int test_custom_background = 2131231157;
+			public const int star_off = 2131231157;
 			
 			// aapt resource value: 0x7F0801B6
-			public const int thumb_off = 2131231158;
+			public const int star_on = 2131231158;
 			
 			// aapt resource value: 0x7F0801B7
-			public const int thumb_on = 2131231159;
+			public const int test_custom_background = 2131231159;
 			
 			// aapt resource value: 0x7F0801B8
-			public const int tooltip_frame_dark = 2131231160;
+			public const int thumb_off = 2131231160;
 			
 			// aapt resource value: 0x7F0801B9
-			public const int tooltip_frame_light = 2131231161;
+			public const int thumb_on = 2131231161;
 			
 			// aapt resource value: 0x7F0801BA
-			public const int ucrop_crop = 2131231162;
+			public const int tooltip_frame_dark = 2131231162;
 			
 			// aapt resource value: 0x7F0801BB
-			public const int ucrop_ic_angle = 2131231163;
+			public const int tooltip_frame_light = 2131231163;
 			
 			// aapt resource value: 0x7F0801BC
-			public const int ucrop_ic_crop = 2131231164;
+			public const int ucrop_crop = 2131231164;
 			
 			// aapt resource value: 0x7F0801BD
-			public const int ucrop_ic_crop_unselected = 2131231165;
+			public const int ucrop_ic_angle = 2131231165;
 			
 			// aapt resource value: 0x7F0801BE
-			public const int ucrop_ic_cross = 2131231166;
+			public const int ucrop_ic_crop = 2131231166;
 			
 			// aapt resource value: 0x7F0801BF
-			public const int ucrop_ic_done = 2131231167;
+			public const int ucrop_ic_crop_unselected = 2131231167;
 			
 			// aapt resource value: 0x7F0801C0
-			public const int ucrop_ic_next = 2131231168;
+			public const int ucrop_ic_cross = 2131231168;
 			
 			// aapt resource value: 0x7F0801C1
-			public const int ucrop_ic_reset = 2131231169;
+			public const int ucrop_ic_done = 2131231169;
 			
 			// aapt resource value: 0x7F0801C2
-			public const int ucrop_ic_rotate = 2131231170;
+			public const int ucrop_ic_next = 2131231170;
 			
 			// aapt resource value: 0x7F0801C3
-			public const int ucrop_ic_rotate_unselected = 2131231171;
+			public const int ucrop_ic_reset = 2131231171;
 			
 			// aapt resource value: 0x7F0801C4
-			public const int ucrop_ic_scale = 2131231172;
+			public const int ucrop_ic_rotate = 2131231172;
 			
 			// aapt resource value: 0x7F0801C5
-			public const int ucrop_ic_scale_unselected = 2131231173;
+			public const int ucrop_ic_rotate_unselected = 2131231173;
 			
 			// aapt resource value: 0x7F0801C6
-			public const int ucrop_rotate = 2131231174;
+			public const int ucrop_ic_scale = 2131231174;
 			
 			// aapt resource value: 0x7F0801C7
-			public const int ucrop_scale = 2131231175;
+			public const int ucrop_ic_scale_unselected = 2131231175;
 			
 			// aapt resource value: 0x7F0801C8
-			public const int ucrop_shadow_upside = 2131231176;
+			public const int ucrop_rotate = 2131231176;
 			
 			// aapt resource value: 0x7F0801C9
-			public const int ucrop_vector_ic_crop = 2131231177;
+			public const int ucrop_scale = 2131231177;
 			
 			// aapt resource value: 0x7F0801CA
-			public const int ucrop_vector_loader = 2131231178;
+			public const int ucrop_shadow_upside = 2131231178;
 			
 			// aapt resource value: 0x7F0801CB
-			public const int ucrop_vector_loader_animated = 2131231179;
+			public const int ucrop_vector_ic_crop = 2131231179;
 			
 			// aapt resource value: 0x7F0801CC
-			public const int ucrop_wrapper_controls_shape = 2131231180;
+			public const int ucrop_vector_loader = 2131231180;
 			
 			// aapt resource value: 0x7F0801CD
-			public const int user = 2131231181;
+			public const int ucrop_vector_loader_animated = 2131231181;
+			
+			// aapt resource value: 0x7F0801CE
+			public const int ucrop_wrapper_controls_shape = 2131231182;
+			
+			// aapt resource value: 0x7F0801CF
+			public const int user = 2131231183;
 			
 			static Drawable()
 			{
@@ -9712,7 +9718,7 @@ namespace Oyadieyie3D
 			public const int AppTheme = 2131886088;
 			
 			// aapt resource value: 0x7F120009
-			public const int AppTheme_PreferenceTheme = 2131886089;
+			public const int AppTheme_Splash = 2131886089;
 			
 			// aapt resource value: 0x7F12000A
 			public const int Base_AlertDialog_AppCompat = 2131886090;
