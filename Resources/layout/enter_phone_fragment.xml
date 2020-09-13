@@ -72,7 +72,6 @@
                 app:layout_constraintStart_toEndOf="@+id/cpicker_lin"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toTopOf="@+id/enter_sms_tv"
-                app:boxStrokeWidth="2dp"
                 android:layout_marginBottom="24dp"
                 android:transitionName="phone_et">
 

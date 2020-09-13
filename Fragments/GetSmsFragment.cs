@@ -3,16 +3,18 @@ using Android.Text;
 using Android.Text.Style;
 using Android.Views;
 using Android.Widget;
+using Com.Goodiebag.Pinview;
 using Google.Android.Material.Button;
-using Mukesh;
 using Oyadieyie3D.Utils;
 using System;
+using static Com.Goodiebag.Pinview.Pinview;
 
 namespace Oyadieyie3D.Fragments
 {
-    public class GetSmsFragment : AndroidX.Fragment.App.Fragment, IOnOtpCompletionListener
+    public class GetSmsFragment : AndroidX.Fragment.App.Fragment, IPinViewEventListener
     {
-        private OtpView otpView;
+        private Pinview otpView;
+        private MaterialButton verifyBtn;
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -27,17 +29,24 @@ namespace Oyadieyie3D.Fragments
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            otpView = view.FindViewById<OtpView>(Resource.Id.otp_view);
-            var verifyBtn = view.FindViewById<MaterialButton>(Resource.Id.verify_otp_btn);
+            otpView = view.FindViewById<Pinview>(Resource.Id.otp_tv);
+            verifyBtn = view.FindViewById<MaterialButton>(Resource.Id.verify_otp_btn);
             var numTv = view.FindViewById<TextView>(Resource.Id.get_sms_sub2);
             SetSpan(numTv);
             verifyBtn.Click += VerifyBtn_Click;
-            otpView.SetOtpCompletionListener(this);
+            otpView.SetPinViewEventListener(this);
+        }
+
+        public void OnDataEntered(Pinview p0, bool p1)
+        {
+            verifyBtn.Enabled = p0.Value.Length == 6;
         }
 
         private void SetSpan(TextView numTv)
         {
-            SpannableString ss = new SpannableString($"Enter one time password sent on {0203870541}");
+            string one = "Enter one time password sent on ";
+            string two = "0203870543";
+            SpannableString ss = new SpannableString(one + two);
             var cs = new MyClickableSpan(((widget) => 
             { 
                 
@@ -57,5 +66,7 @@ namespace Oyadieyie3D.Fragments
         {
 
         }
+
+        
     }
 }

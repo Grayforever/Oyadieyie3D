@@ -11,6 +11,7 @@ using Google.Android.Material.Button;
 using Google.Android.Material.TextField;
 using Oyadieyie3D.Events;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
+using CN.Pedant.SweetAlert;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -73,8 +74,10 @@ namespace Oyadieyie3D.Fragments
 
         private void NextBtn_Click(object sender, System.EventArgs e)
         {
+            ShowLoader();
+            
             ParentFragmentManager.BeginTransaction()
-                .AddToBackStack(TAG)
+                .AddToBackStack(null)
                 .Replace(Resource.Id.frag_container, new GetSmsFragment())
                 .CommitAllowingStateLoss();
         }
@@ -93,6 +96,24 @@ namespace Oyadieyie3D.Fragments
         private void CountryLinear_Click(object sender, System.EventArgs e)
         {
             picker.ShowDialog(Activity);
+        }
+
+        private void ShowLoader()
+        {
+            var loaderDialog = new SweetAlertDialog(Context, SweetAlertDialog.ProgressType);
+            loaderDialog.SetTitleText("Loading");
+            loaderDialog.SetCancelable(false);
+            loaderDialog.ShowCancelButton(false);
+            loaderDialog.SetConfirmText("Cancel");
+            loaderDialog.SetConfirmClickListener(new SweetConfirmClick((p1)=> 
+            {
+                p1.SetTitleText("Canceled");
+                p1.SetConfirmText("OK");
+                p1.SetConfirmClickListener(null);
+                p1.ChangeAlertType(SweetAlertDialog.SuccessType);
+                p1.Show();
+            }));
+            loaderDialog.Show();
         }
     }
 }
