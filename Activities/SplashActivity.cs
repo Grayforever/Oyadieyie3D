@@ -2,6 +2,7 @@
 using Android.App;
 using Android.OS;
 using AndroidX.AppCompat.App;
+using Oyadieyie3D.HelperClasses;
 
 namespace Oyadieyie3D.Activities
 {
@@ -17,7 +18,16 @@ namespace Oyadieyie3D.Activities
         protected override void OnResume()
         {
             base.OnResume();
-            StartActivity(typeof(OnboardingActivity));
+            switch (SessionManager.GetFirebaseAuth().CurrentUser)
+            {
+                case null:
+                    StartActivity(typeof(OnboardingActivity));
+                    break;
+                default:
+                    StartActivity(typeof(MainActivity));
+                    break;
+            }
+            
         }
     }
 }

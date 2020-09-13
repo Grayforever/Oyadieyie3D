@@ -52,7 +52,7 @@
             app:lottie_renderMode="hardware"
             app:lottie_fileName="empty-box.json"
             app:lottie_autoPlay="true"
-            app:lottie_loop="true"
+            app:lottie_loop="false"
             />
 
 

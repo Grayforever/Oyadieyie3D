@@ -25,11 +25,13 @@ using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
 namespace Oyadieyie3D
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = false)]
+    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
+        ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
     public class MainActivity : AppCompatActivity
     {
         private List<Post> ListOfPost;
         private RecyclerView mainRecycler;
+        private ConstraintLayout emptyRoot;
         private PostAdapter postAdapter;
         private CreatePostFragment createPost = new CreatePostFragment();
         private RecyclerViewEmptyObserver emptyObserver;
@@ -39,16 +41,14 @@ namespace Oyadieyie3D
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
-            FetchPost();
-            SetUpRecycler();
+            //FetchPost();
+            //SetUpRecycler();
             GetControls();
         }
 
 
         private void SetUpRecycler()
         {
-            mainRecycler = FindViewById<RecyclerView>(Resource.Id.main_recycler);
-            var emptyRoot = FindViewById<ConstraintLayout>(Resource.Id.rv_empty_view);
             postAdapter = new PostAdapter(ListOfPost);
             mainRecycler.SetAdapter(postAdapter);
 
@@ -76,6 +76,8 @@ namespace Oyadieyie3D
 
         private void GetControls()
         {
+            mainRecycler = FindViewById<RecyclerView>(Resource.Id.main_recycler);
+            emptyRoot = FindViewById<ConstraintLayout>(Resource.Id.rv_empty_view);
             var addPostFab = FindViewById<FloatingActionButton>(Resource.Id.post_fab);
             var mainAppBar = FindViewById<AppBarLayout>(Resource.Id.activity_main_appbar);
             var mainToolbar = mainAppBar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
@@ -138,7 +140,7 @@ namespace Oyadieyie3D
                     break;
 
                 case Resource.Id.action_settings:
-                    
+                    StartActivity(typeof(SettingsActivity));
                     break;
             }
             return base.OnOptionsItemSelected(item);

@@ -37,6 +37,7 @@
         app:hint="0"
         app:forceKeyboard="false"
         app:cursorVisible="false"
+        app:inputType="number"
         />
 
 

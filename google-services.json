@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "397218872113",
+    "firebase_url": "https://oyadieyie3d.firebaseio.com",
+    "project_id": "oyadieyie3d",
+    "storage_bucket": "oyadieyie3d.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:397218872113:android:b37e5b75f1bcf53288ce10",
+        "android_client_info": {
+          "package_name": "com.graylabs.oyadieyie3d"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "397218872113-fbuanv4tsrboer43njoj2rea3ddgqmvo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.graylabs.oyadieyie3d",
+            "certificate_hash": "be473ac16b537b78e5ab6d9bce6f92f504abdb6b"
+          }
+        },
+        {
+          "client_id": "397218872113-0j0bpn5epevcb4aj14mchmjvje7pspbb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyD_uotb9-fNmlfII93imcZFNM-oALIisHw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "397218872113-0j0bpn5epevcb4aj14mchmjvje7pspbb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

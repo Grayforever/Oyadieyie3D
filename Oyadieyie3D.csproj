@@ -80,9 +80,12 @@
   <ItemGroup>
     <Compile Include="Activities\FullscreenImageActivity.cs" />
     <Compile Include="Activities\OnboardingActivity.cs" />
+    <Compile Include="Activities\SettingsActivity.cs" />
     <Compile Include="Activities\SplashActivity.cs" />
     <Compile Include="Adapters\OnboardingAdapter.cs" />
     <Compile Include="Adapters\PostAdapter.cs" />
+    <Compile Include="Callbacks\BackPressedCallback.cs" />
+    <Compile Include="Callbacks\PhoneVerificationCallbacks.cs" />
     <Compile Include="Events\ButtonCheckedListener.cs" />
     <Compile Include="Events\CountryPickerListener.cs" />
     <Compile Include="Events\LikeEventListener.cs" />
@@ -91,6 +94,7 @@
     <Compile Include="Events\OnMenuItemClickListener.cs" />
     <Compile Include="Events\OnScrollListener.cs" />
     <Compile Include="Events\PostEventListener.cs" />
+    <Compile Include="Events\SingleValueListener.cs" />
     <Compile Include="Events\SweetConfirmClick.cs" />
     <Compile Include="Fragments\ClientFragment.cs" />
     <Compile Include="Fragments\CreatePostFragment.cs" />
@@ -115,6 +119,7 @@
   <ItemGroup>
     <AndroidAsset Include="Assets\abstract-fear-macina.json" />
     <AndroidAsset Include="Assets\empty-box.json" />
+    <GoogleServicesJson Include="google-services.json" />
     <None Include="Resources\AboutResources.txt" />
     <None Include="Properties\AndroidManifest.xml" />
     <None Include="Assets\AboutAssets.txt" />
@@ -187,14 +192,11 @@
     <PackageReference Include="Xamarin.Android.Support.Fragment">
       <Version>28.0.0.1</Version>
     </PackageReference>
-    <PackageReference Include="Xamarin.Android.Support.Media.Compat">
-      <Version>28.0.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.Android.Support.v7.AppCompat">
-      <Version>28.0.0.1</Version>
-    </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.AppCompat">
       <Version>1.2.0.2</Version>
+    </PackageReference>
+    <PackageReference Include="Xamarin.AndroidX.AppCompat.Resources">
+      <Version>1.1.0.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Browser">
       <Version>1.2.0.2</Version>
@@ -207,9 +209,6 @@
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.CoordinatorLayout">
       <Version>1.1.0.3</Version>
-    </PackageReference>
-    <PackageReference Include="Xamarin.AndroidX.Core">
-      <Version>1.3.0.1</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Fragment">
       <Version>1.2.5.1</Version>
@@ -224,7 +223,7 @@
       <Version>2.2.0.2</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Migration">
-      <Version>1.0.5.1</Version>
+      <Version>1.0.6</Version>
     </PackageReference>
     <PackageReference Include="Xamarin.AndroidX.Preference">
       <Version>1.1.1.3</Version>
@@ -377,6 +376,16 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable\oyadieye3d_logo.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\settings_activity.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\layout1.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

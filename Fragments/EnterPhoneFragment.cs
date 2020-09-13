@@ -1,5 +1,4 @@
 ﻿using Android.OS;
-
 using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
@@ -12,6 +11,7 @@ using Google.Android.Material.TextField;
 using Oyadieyie3D.Events;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 using CN.Pedant.SweetAlert;
+using Oyadieyie3D.Callbacks;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -23,7 +23,8 @@ namespace Oyadieyie3D.Fragments
         private MaterialButton nextBtn;
         private ImageView countryFlagIv;
         private TextView dialcodeTv;
-        private const string TAG = "partnerFrag";
+        public static string phoneKey = "phoneNumber";
+        private GetSmsFragment smsFragment = new GetSmsFragment();
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -51,6 +52,7 @@ namespace Oyadieyie3D.Fragments
             ((AppCompatActivity)Activity).SetSupportActionBar(toolbarMain);
             ((AppCompatActivity)Activity).SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             toolbarMain.Title = "Enter phone";
+            toolbarMain.NavigationClick += ToolbarMain_NavigationClick;
 
             
             builder = new CountryPicker.Builder().With(Context).Listener(new CountryPickerListener((c) =>
@@ -72,14 +74,22 @@ namespace Oyadieyie3D.Fragments
             nextBtn.Click += NextBtn_Click;
         }
 
+        private void ToolbarMain_NavigationClick(object sender, Toolbar.NavigationClickEventArgs e) => Activity.OnBackPressed();
+
         private void NextBtn_Click(object sender, System.EventArgs e)
         {
-            ShowLoader();
-            
-            ParentFragmentManager.BeginTransaction()
-                .AddToBackStack(null)
-                .Replace(Resource.Id.frag_container, new GetSmsFragment())
-                .CommitAllowingStateLoss();
+            nextBtn.Post(() =>
+            {
+                var extras = new Bundle();
+                var phone = dialcodeTv.Text + phoneEt.EditText.Text;
+                extras.PutString(phoneKey, phone);
+                smsFragment.Arguments = extras;
+
+                ParentFragmentManager.BeginTransaction()
+                    .AddToBackStack(null)
+                    .Replace(Resource.Id.frag_container, smsFragment)
+                    .CommitAllowingStateLoss();
+            });
         }
 
         private void EditText_TextChanged(object sender, Android.Text.TextChangedEventArgs e)
@@ -93,27 +103,16 @@ namespace Oyadieyie3D.Fragments
             nextBtn.Enabled = v;
         }
 
-        private void CountryLinear_Click(object sender, System.EventArgs e)
-        {
-            picker.ShowDialog(Activity);
-        }
+        private void CountryLinear_Click(object sender, System.EventArgs e) => picker.ShowDialog(Activity);
 
-        private void ShowLoader()
+        public void ShowLoader()
         {
             var loaderDialog = new SweetAlertDialog(Context, SweetAlertDialog.ProgressType);
             loaderDialog.SetTitleText("Loading");
-            loaderDialog.SetCancelable(false);
             loaderDialog.ShowCancelButton(false);
-            loaderDialog.SetConfirmText("Cancel");
-            loaderDialog.SetConfirmClickListener(new SweetConfirmClick((p1)=> 
-            {
-                p1.SetTitleText("Canceled");
-                p1.SetConfirmText("OK");
-                p1.SetConfirmClickListener(null);
-                p1.ChangeAlertType(SweetAlertDialog.SuccessType);
-                p1.Show();
-            }));
             loaderDialog.Show();
         }
+
+        
     }
 }
