@@ -4,14 +4,11 @@ using Android.Database;
 using Android.OS;
 using Android.Provider;
 using Android.Views;
-using Android.Widget;
 using AndroidX.Core.Content;
-using BumpTech.GlideLib;
 using Com.Yalantis.Ucrop;
+using DE.Hdodenhof.CircleImageViewLib;
 using Google.Android.Material.BottomSheet;
-using Google.Android.Material.Button;
 using Java.IO;
-using Oyadieyie3D.Events;
 using Oyadieyie3D.Utils;
 using System;
 using static AndroidX.Core.Content.FileProvider;
@@ -19,19 +16,23 @@ using Uri = Android.Net.Uri;
 
 namespace Oyadieyie3D.Fragments
 {
-    public class CreatePostFragment : BottomSheetDialogFragment
+    public class ProfileChooserFragment : BottomSheetDialogFragment
     {
-        private const int UCROP_REQUEST = 69;
-        private static int SELECT_PICTURE = 1;
-        private ImageView postImageView;
+        private const int SELECT_PICTURE = 500;
+        private int REQUEST_IMAGE_CAPTURE = 600;
+        private ImageCaptureUtils icu;
+        
+        private string fileName;
 
-        public   int REQUEST_IMAGE_CAPTURE = 500;
         private bool lockAspectRatio = false, setBitmapMaxWidthHeight = false;
         private int ASPECT_RATIO_X = 16, ASPECT_RATIO_Y = 9, bitmapMaxWidth = 1000, bitmapMaxHeight = 1000;
         private int IMAGE_COMPRESSION = 80;
-        public static string fileName;
 
-        private ImageCaptureUtils icu;
+        public event EventHandler<CropCompleteEventArgs> OnCropComplete;
+        public class CropCompleteEventArgs : EventArgs
+        {
+            public Uri imageUri { get; set; }
+        }
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -41,46 +42,36 @@ namespace Oyadieyie3D.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.create_post_fragment, container, false);
+            return inflater.Inflate(Resource.Layout.change_profile_bottomsheet, container, false);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            var postToggleBtn = view.FindViewById<MaterialButtonToggleGroup>(Resource.Id.photo_choser_togglegrp);
-            postImageView = view.FindViewById<ImageView>(Resource.Id.image_to_post);
-
-            RegisterForContextMenu(postImageView);
-            postToggleBtn.AddOnButtonCheckedListener(new ButtonCheckedListener((g, id, isChecked) =>
-            {
-            if (isChecked)
-            {
-                switch (id)
-                {
-                    case Resource.Id.open_cam_btn:
-                            icu.TakeCameraImage();
-                            icu.OnImageCaptured += Icu_OnImageCaptured;
-                            break;
-                        case Resource.Id.choose_photo_btn:
-                            icu.FetchImageFromGallery();
-                            icu.OnImageSelected += Icu_OnImageSelected;
-                            break;
-                    }
-                }
-            }));
-
+            var camBtn = view.FindViewById<CircleImageView>(Resource.Id.camera_btn);
+            var galBtn = view.FindViewById<CircleImageView>(Resource.Id.gallery_btn);
+            var remBtn = view.FindViewById<CircleImageView>(Resource.Id.remove_btn);
             
+            camBtn.Click += CamBtn_Click;
+            galBtn.Click += GalBtn_Click;
+            remBtn.Click += RemBtn_Click;
+        }
+
+        private void RemBtn_Click(object sender, System.EventArgs e)
+        {
+            
+        }
+
+        private void GalBtn_Click(object sender, System.EventArgs e)
+        {
+            
+            icu.FetchImageFromGallery();
+            icu.OnImageSelected += Icu_OnImageSelected;
         }
 
         private void Icu_OnImageSelected(object sender, ImageCaptureUtils.ImageSelectedEventArgs e)
         {
             StartActivityForResult(Intent.CreateChooser(e.imageIntent, "Select Picture"), SELECT_PICTURE);
-        }
-
-        private void Icu_OnImageCaptured(object sender, ImageCaptureUtils.ImageSelectedEventArgs e)
-        {
-            StartActivityForResult(e.imageIntent, REQUEST_IMAGE_CAPTURE);
-            fileName = e.fileName;
         }
 
         public override void OnActivityResult(int requestCode, int resultCode, Intent data)
@@ -95,19 +86,19 @@ namespace Oyadieyie3D.Fragments
                         Uri selectedImageURI = data.Data;
                         CropImage(selectedImageURI);
                     }
-                    else if(requestCode == REQUEST_IMAGE_CAPTURE)
+                    else if (requestCode == REQUEST_IMAGE_CAPTURE)
                     {
                         CropImage(GetCacheImagePath(fileName));
                     }
-                    else if (requestCode == UCROP_REQUEST)
+                    else if (requestCode == UCrop.RequestCrop)
                     {
                         var uri = UCrop.GetOutput(data);
-                        Glide.With(this).Load(uri).Into(postImageView);
+                        OnCropComplete?.Invoke(this, new CropCompleteEventArgs { imageUri = uri });
+                        DismissAllowingStateLoss();
                     }
                     else if (requestCode == UCrop.ResultError)
                     {
                         throw UCrop.GetError(data);
-                        
                     }
                 }
             }
@@ -134,7 +125,15 @@ namespace Oyadieyie3D.Fragments
 
             UCrop.Of(selectedImageURI, destinationUri)
                 .WithOptions(options)
-                .Start(Context, this, UCROP_REQUEST);
+                .Start(Context, this, UCrop.RequestCrop);
+        }
+
+        private Uri GetCacheImagePath(string fileName)
+        {
+            File path = new File(Activity.ExternalCacheDir, "camera");
+            if (!path.Exists()) path.Mkdirs();
+            File image = new File(path, fileName);
+            return GetUriForFile(Context, Context.PackageName + ".fileprovider", image);
         }
 
         private static string QueryName(ContentResolver contentResolver, Uri uri)
@@ -148,33 +147,16 @@ namespace Oyadieyie3D.Fragments
             return name;
         }
 
-
-        private Uri GetCacheImagePath(string fileName)
+        private void CamBtn_Click(object sender, System.EventArgs e)
         {
-            File path = new File(Activity.ExternalCacheDir, "camera");
-            if (!path.Exists()) path.Mkdirs();
-            File image = new File(path, fileName);
-            return GetUriForFile(Context, Context.PackageName + ".fileprovider", image);
+            icu.TakeCameraImage();
+            icu.OnImageCaptured += Icu_OnImageCaptured;
         }
 
-        public void ClearCache()
+        private void Icu_OnImageCaptured(object sender, ImageCaptureUtils.ImageSelectedEventArgs e)
         {
-            File path = new File(Context.ExternalCacheDir, "camera");
-            if (path.Exists() && path.IsDirectory)
-            {
-                foreach (File child in path.ListFiles())
-                {
-                    child.Delete();
-                }
-            }
-        }
-
-        public override void OnCreateContextMenu(IContextMenu menu, View v, IContextMenuContextMenuInfo menuInfo)
-        {
-            base.OnCreateContextMenu(menu, v, menuInfo);
-            menu.SetHeaderTitle("Photo Option");
-            menu.Add(0, v.Id, 0, "Remove");
-            menu.Add(0, v.Id, 0, "Crop");
+            StartActivityForResult(e.imageIntent, REQUEST_IMAGE_CAPTURE);
+            fileName = e.fileName;
         }
     }
 }

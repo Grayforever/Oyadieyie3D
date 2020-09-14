@@ -1,5 +1,4 @@
-﻿
-using Android.App;
+﻿using Android.App;
 using Android.OS;
 using AndroidX.AppCompat.App;
 using Oyadieyie3D.HelperClasses;
@@ -27,7 +26,6 @@ namespace Oyadieyie3D.Activities
                     StartActivity(typeof(MainActivity));
                     break;
             }
-            
         }
     }
 }

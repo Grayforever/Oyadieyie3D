@@ -2,13 +2,26 @@
 <PreferenceScreen
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-	<SwitchPreferenceCompat
-        app:key="notifications"
-        app:title="Enable message notifications"/>
+	<Preference
+		app:fragment="com.graylabs.oyadieyie3d.Fragments.AccountFragment"
+        app:key="account"
+        app:title="Account"
+        app:summary="Privacy, security, change number"
+		app:icon="@drawable/ic_account"
+		/>
 
 	<Preference
-        app:key="feedback"
-        app:title="Send feedback"
-        app:summary="Report technical issues or suggest new features"/>
+		app:fragment="com.graylabs.oyadieyie3d.Fragments.Notifications"
+        app:key="notification"
+        app:title="Notifications"
+        app:summary="In-app and app alert tones"
+		app:icon="@drawable/ic_notifiction"
+		/>
+
+	<Preference
+        app:key="help"
+        app:title="Help"
+        app:summary="Terms, privacy policy, contact us"
+		app:icon="@drawable/ic_help"/>
 
 </PreferenceScreen>

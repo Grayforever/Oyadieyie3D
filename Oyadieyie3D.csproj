@@ -80,6 +80,7 @@
   <ItemGroup>
     <Compile Include="Activities\FullscreenImageActivity.cs" />
     <Compile Include="Activities\OnboardingActivity.cs" />
+    <Compile Include="Activities\ProfileActivity.cs" />
     <Compile Include="Activities\SettingsActivity.cs" />
     <Compile Include="Activities\SplashActivity.cs" />
     <Compile Include="Adapters\OnboardingAdapter.cs" />
@@ -102,8 +103,10 @@
     <Compile Include="Fragments\EnterPhoneFragment.cs" />
     <Compile Include="Fragments\GetSmsFragment.cs" />
     <Compile Include="Fragments\GetStartedFragment.cs" />
+    <Compile Include="Fragments\NotificationsFragment.cs" />
     <Compile Include="Fragments\OnboardingFragment.cs" />
     <Compile Include="Fragments\PartnerFragment.cs" />
+    <Compile Include="Fragments\ProfileChooserFragment.cs" />
     <Compile Include="Fragments\SettingsFragment.cs" />
     <Compile Include="HelperClasses\SessionManager.cs" />
     <Compile Include="MainActivity.cs" />
@@ -113,6 +116,7 @@
     <Compile Include="Resources\Resource.designer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Utils\GlideModule.cs" />
+    <Compile Include="Utils\ImageCaptureUtils.cs" />
     <Compile Include="Utils\MyClickableSpan.cs" />
     <Compile Include="Utils\RecyclerViewEmptyObserver.cs" />
   </ItemGroup>
@@ -342,9 +346,6 @@
     <AndroidResource Include="Resources\drawable\img_placeholder.png" />
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\drawable\fogg_page_not_found.png" />
-  </ItemGroup>
-  <ItemGroup>
     <AndroidResource Include="Resources\layout\get_started_fragment.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
@@ -383,9 +384,35 @@
     </AndroidResource>
   </ItemGroup>
   <ItemGroup>
-    <AndroidResource Include="Resources\layout\layout1.xml">
+    <AndroidResource Include="Resources\drawable\ic_account.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\ic_notifiction.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\ic_help.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\profile_activity.xml">
       <SubType>Designer</SubType>
     </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\ic_edit.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\layout\change_profile_bottomsheet.xml">
+      <SubType>Designer</SubType>
+    </AndroidResource>
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\camera_img.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\gallery_img.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\drawable\delete_img.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
