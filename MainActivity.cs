@@ -1,4 +1,5 @@
-﻿using Android.App;
+﻿using Android;
+using Android.App;
 using Android.Content;
 using Android.OS;
 using Android.Views;
@@ -7,8 +8,11 @@ using AndroidX.ConstraintLayout.Widget;
 using AndroidX.Core.App;
 using AndroidX.Core.View;
 using AndroidX.RecyclerView.Widget;
+using CN.Pedant.SweetAlert;
+using Firebase.Storage;
 using Google.Android.Material.AppBar;
 using Google.Android.Material.FloatingActionButton;
+using Karumi.DexterLib;
 using Oyadieyie3D.Activities;
 using Oyadieyie3D.Adapters;
 using Oyadieyie3D.Events;
@@ -33,44 +37,77 @@ namespace Oyadieyie3D
         private RecyclerView mainRecycler;
         private ConstraintLayout emptyRoot;
         private PostAdapter postAdapter;
-        private CreatePostFragment createPost = new CreatePostFragment();
+        private CreatePostFragment createPost;
         private RecyclerViewEmptyObserver emptyObserver;
-
+        private GetProfileData getProfile = new GetProfileData();
         private PostEventListener postEventListener;
+        private User _user;
+        private ProfileParcelable profileParcelable = new ProfileParcelable();
+        private static SweetAlertDialog loaderDialog;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
-            //FetchPost();
-            //SetUpRecycler();
+            createPost = new CreatePostFragment(this);
+            createPost.Cancelable = false;
+            createPost.OnPostComplete += CreatePost_OnPostComplete;
+            createPost.OnErrorEncounted += CreatePost_OnErrorEncounted;
             GetControls();
+            FetchPost();
+            getProfile.GetUserFromFire();
+            getProfile.OnProfileRetrieved += GetProfile_OnProfileRetrieved;
         }
 
+        private void GetProfile_OnProfileRetrieved(object sender, GetProfileData.ProfileEventArgs e) => _user = e.user;
+
+        private void CreatePost_OnErrorEncounted(object sender, CreatePostFragment.ErrorEventArgs e) => ShowError(e.ErrorMsg);
+
+        private void ShowError(string errorMsg)
+        {
+            new SweetAlertDialog(this, SweetAlertDialog.ErrorType)
+                .SetTitleText("OOps...")
+                .SetContentText(errorMsg)
+                .SetConfirmText("OK")
+                .ShowCancelButton(false)
+                .SetConfirmClickListener(null)
+                .Show();
+        }
+
+        private void CreatePost_OnPostComplete(object sender, EventArgs e) => ShowSuccess();
+
+        private void ShowSuccess()
+        {
+            new SweetAlertDialog(this, SweetAlertDialog.SuccessType)
+                .SetTitleText("Success")
+                .SetConfirmText("OK")
+                .SetConfirmClickListener(null)
+                .ShowCancelButton(false)
+                .Show();
+        }
 
         private void SetUpRecycler()
         {
             postAdapter = new PostAdapter(ListOfPost);
             mainRecycler.SetAdapter(postAdapter);
-
             emptyObserver = new RecyclerViewEmptyObserver(mainRecycler, emptyRoot);
             postAdapter.RegisterAdapterDataObserver(emptyObserver);
-
             postAdapter.ItemLongClick += PostAdapter_ItemLongClick;
-            postAdapter.LikeClick += PostAdapter_LikeClick;
-            postAdapter.ImageClick += PostAdapter_ImageClick;
+            postAdapter.ItemClick += PostAdapter_ItemClick;
         }
 
-        private void PostAdapter_ImageClick(object sender, PostAdapter.ImageClickEventArgs e)
+        private void PostAdapter_ItemClick(object sender, PostAdapter.PostAdapterClickEventArgs e)
         {
             var intent = new Intent(this, typeof(FullscreenImageActivity));
 
             PostParcelable postParcelable = new PostParcelable();
             postParcelable.PostItem = ListOfPost[e.Position];
 
-            intent.PutExtra("extra_transition_name", ViewCompat.GetTransitionName(e.PostImageView));
+            intent.PutExtra("extra_transition_name", ViewCompat.GetTransitionName(e.ImageView));
             intent.PutExtra("extra_post_data", postParcelable);
-            var options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, e.PostImageView, 
-                ViewCompat.GetTransitionName(e.PostImageView));
+            intent.PutExtra("parcel_type", 0);
+            var options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, e.ImageView,
+                ViewCompat.GetTransitionName(e.ImageView));
             StartActivity(intent, options.ToBundle());
         }
 
@@ -81,6 +118,7 @@ namespace Oyadieyie3D
             var addPostFab = FindViewById<FloatingActionButton>(Resource.Id.post_fab);
             var mainAppBar = FindViewById<AppBarLayout>(Resource.Id.activity_main_appbar);
             var mainToolbar = mainAppBar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
+            var itemDecor = new DividerItemDecoration(this, DividerItemDecoration.Horizontal);
             
             SetSupportActionBar(mainToolbar);
 
@@ -97,12 +135,12 @@ namespace Oyadieyie3D
                     addPostFab.Show();
                 }
             }));
+            mainRecycler.AddItemDecoration(itemDecor);
         }
 
         private void AddPostFab_Click(object sender, EventArgs e)
         {
             var ft = SupportFragmentManager.BeginTransaction();
-            
             ft.Add(createPost, "createPost");
             ft.CommitAllowingStateLoss();
         }
@@ -122,14 +160,14 @@ namespace Oyadieyie3D
         {
             List<Post> searchResult = 
                 (from post in ListOfPost
-                 where post.Author.ToLower().Contains(e.NewText.ToLower())
-                    || post.PostBody.ToLower().Contains(e.NewText.ToLower())
+                 where post.PostBody.ToLower().Contains(e.NewText.ToLower())
                  select post).ToList();
 
             postAdapter = new PostAdapter(searchResult);
             postAdapter.RegisterAdapterDataObserver(emptyObserver);
             mainRecycler.SetAdapter(postAdapter);
-
+            postAdapter.ItemClick += PostAdapter_ItemClick;
+            postAdapter.ItemLongClick += PostAdapter_ItemLongClick;
         }
 
         public override bool OnOptionsItemSelected(IMenuItem item)
@@ -139,29 +177,55 @@ namespace Oyadieyie3D
                 case Resource.Id.action_refresh:
                     break;
 
+                case Resource.Id.action_finder:
+                    ShowFinderDialog();
+                    break;
+
                 case Resource.Id.action_settings:
-                    StartActivity(typeof(SettingsActivity));
+                    var intent = new Intent(this, typeof(SettingsActivity));
+                    profileParcelable.UserProfile = _user;
+                    intent.PutExtra("extra_profile_data", profileParcelable);
+                    StartActivity(intent);
                     break;
             }
             return base.OnOptionsItemSelected(item);
         }
-        
 
-        private void PostAdapter_LikeClick(object sender, PostAdapter.PostAdapterClickEventArgs e)
+        private void ShowFinderDialog()
         {
-            Post post = ListOfPost[e.Position];
-            //LikeEventListener likeEventListener = new LikeEventListener(post.ID);
+            Dexter.WithActivity(this)
+                .WithPermissions(Manifest.Permission.AccessCoarseLocation, Manifest.Permission.AccessFineLocation)
+                .WithListener(new MultiplePermissionsListener((permission, token) =>
+                {
+                    token.ContinuePermissionRequest();
+                }, (report)=> 
+                {
+                    if (report.AreAllPermissionsGranted())
+                    {
+                        ShowLoading();
 
-            if (!post.Liked)
-            {
-                //likeEventListener.LikePost();
-                post.Liked = true;
-            }
-            else
-            {
-                //likeEventListener.UnlikePost();
-                post.Liked = false;
-            }
+                    }
+                    else
+                    {
+                        
+                    }
+                })).Check();
+        }
+
+        private void ShowLoading()
+        {
+            loaderDialog = new SweetAlertDialog(this, SweetAlertDialog.ProgressType);
+            loaderDialog.SetTitleText("Finding the nearest Oyadieyie...");
+            loaderDialog.ShowCancelButton(false);
+            loaderDialog.Show();
+        }
+
+        private void DismissLoading()
+        {
+            if (!loaderDialog.IsShowing)
+                return;
+
+            loaderDialog.DismissWithAnimation();
         }
 
         private void PostAdapter_ItemLongClick(object sender, PostAdapter.PostAdapterClickEventArgs e)
@@ -169,38 +233,49 @@ namespace Oyadieyie3D
             string postID = ListOfPost[e.Position].ID;
             string ownerID = ListOfPost[e.Position].OwnerId;
 
-            if (SessionManager.GetFirebaseAuth().CurrentUser.Uid == ownerID)
+            if (SessionManager.GetFirebaseAuth().CurrentUser.Uid != ownerID)
+                return;
+
+            var sweetDialog = new SweetAlertDialog(this, SweetAlertDialog.WarningType);
+            sweetDialog.SetTitleText("Post Options");
+            sweetDialog.SetContentText("Do you want to edit or delete selected post?");
+            sweetDialog.SetCancelText("Delete");
+            sweetDialog.SetConfirmText("Edit");
+            sweetDialog.SetConfirmClickListener(new SweetConfirmClick(
+            onClick: d1 =>
             {
-                var alert = new AndroidX.AppCompat.App.AlertDialog.Builder(this);
-                alert.SetTitle("Edit or Delete Post");
-                alert.SetMessage("Are you sure");
+                d1.ChangeAlertType(SweetAlertDialog.SuccessType);
+                d1.SetTitleText("Done");
+                d1.SetContentText("");
+                d1.ShowCancelButton(false);
+                d1.SetConfirmText("OK");
+                d1.SetConfirmClickListener(null);
+                d1.Show();
+            }));
+            sweetDialog.SetCancelClickListener(new SweetConfirmClick(
+            onClick: async d2 =>
+            {
+                await SessionManager.GetFireDB().GetReference("posts").Child(postID).RemoveValueAsync();
+                StorageReference storageReference = FirebaseStorage.Instance.GetReference("postImages/" + postID);
+                storageReference.Delete();
+                postAdapter.NotifyDataSetChanged();
 
-                // Edit Post on Firestore
-                alert.SetNegativeButton("Edit Post", (o, args) =>
-                {
-                    //EditPostFragment editPostFragment = new EditPostFragment(ListOfPost[e.Position]);
-                    //var trans = SupportFragmentManager.BeginTransaction();
-                    //editPostFragment.Show(trans, "edit");
-
-                });
-
-                // Delete Post from Firestore and Storage
-                alert.SetPositiveButton("Delete", (o, args) =>
-                {
-                    //SessionManager.GetFirestore().Collection("posts").Document(postID).Delete();
-                    //StorageReference storageReference = FirebaseStorage.Instance.GetReference("postImages/" + postID);
-                    //storageReference.Delete();
-                });
-
-                alert.Show();
-            }
+                d2.ChangeAlertType(SweetAlertDialog.SuccessType);
+                d2.SetTitleText("Deleted");
+                d2.SetContentText("");
+                d2.ShowCancelButton(false);
+                d2.SetConfirmText("OK");
+                d2.SetConfirmClickListener(null);
+                d2.Show();
+            }));
+            sweetDialog.Show();
         }
 
         private void FetchPost()
         {
-            //postEventListener = new PostEventListener();
-            //postEventListener.FetchPost();
-            //postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
+            postEventListener = new PostEventListener();
+            postEventListener.FetchPost();
+            postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
         }
 
         private void PostEventListener_OnPostRetrieved(object sender, PostEventListener.PostEventArgs e)
@@ -208,12 +283,54 @@ namespace Oyadieyie3D
             ListOfPost = new List<Post>();
             ListOfPost = e.Posts;
 
-            if (ListOfPost != null)
-            {
-                ListOfPost = ListOfPost.OrderByDescending(x => x.PostDate).ToList();
-            }
+            if (ListOfPost == null)
+                return;
 
             SetUpRecycler();
+        }
+
+
+
+        internal sealed class GetProfileData
+        {
+            public event EventHandler<ProfileEventArgs> OnProfileRetrieved;
+            public class ProfileEventArgs : EventArgs
+            {
+                public User user { get; set; }
+            }
+
+            public void GetUserFromFire()
+            {
+                try
+                {
+                    string userId = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
+                    var userRef = SessionManager.GetFireDB().GetReference($"users/{userId}/profile");
+                    userRef.AddValueEventListener(new SingleValueListener(
+                    onDataChange: (snapshot) =>
+                    {
+                        if (!snapshot.Exists())
+                            return;
+
+                        var _user = new User();
+                        _user.ID = snapshot.Key;
+                        _user.Username = snapshot.Child("fname") != null ? snapshot.Child("fname").Value.ToString() : "";
+                        _user.Status = snapshot.Child("gender") != null ? snapshot.Child("gender").Value.ToString() : "";
+                        _user.ProfileImgUrl = snapshot.Child("photoUrl") != null ? snapshot.Child("photoUrl").Value.ToString() : "";
+                        _user.Email = snapshot.Child("email") != null ? snapshot.Child("email").Value.ToString() : "";
+                        _user.Phone = snapshot.Child("phone") != null ? snapshot.Child("phone").Value.ToString() : "";
+
+                        OnProfileRetrieved?.Invoke(this, new ProfileEventArgs { user = _user });
+                    }, onCancelled: (exception) =>
+                    {
+                        
+                    }));
+                    userRef.KeepSynced(true);
+                }
+                catch (Exception e)
+                {
+                    return;
+                }
+            }
         }
     }
 }

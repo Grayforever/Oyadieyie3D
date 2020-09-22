@@ -1,4 +1,6 @@
-﻿namespace Oyadieyie3D.Models
+﻿using System;
+
+namespace Oyadieyie3D.Models
 {
     public class Post
     {
@@ -10,7 +12,7 @@
         public bool Liked { get; set; }
         public string ID { get; set; }
         public string OwnerId { get; set; }
-        public string PostDate { get; set; }
+        public DateTime PostDate { get; set; }
 
     }
 }

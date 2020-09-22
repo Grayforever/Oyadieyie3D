@@ -12,8 +12,7 @@
         android:layout_height="wrap_content"
         android:id="@+id/main_toolbar"
         app:popupTheme="@style/ThemeOverlay.MaterialComponents.Light"
-        app:theme="@style/ThemeOverlay.MaterialComponents.Light"
-        android:background="@android:color/white"
+        app:theme="@style/ThemeOverlay.MaterialComponents.Dark"
         />
 
 </com.google.android.material.appbar.AppBarLayout>

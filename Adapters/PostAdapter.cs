@@ -17,7 +17,6 @@ namespace Oyadieyie3D.Adapters
         public event EventHandler<PostAdapterClickEventArgs> ItemClick;
         public event EventHandler<PostAdapterClickEventArgs> ItemLongClick;
         public event EventHandler<PostAdapterClickEventArgs> LikeClick;
-        public event EventHandler<ImageClickEventArgs> ImageClick;
         List<Post> _items;
         public static Post item;
 
@@ -57,7 +56,7 @@ namespace Oyadieyie3D.Adapters
         {
             View itemView = null;
             itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.post_item, parent, false);
-            var vh = new PostAdapterViewHolder(itemView, OnClick, OnLongClick, OnLike, OnFullScreen);
+            var vh = new PostAdapterViewHolder(itemView, OnClick, OnLongClick, OnLike);
 
             return vh;
         }
@@ -65,7 +64,6 @@ namespace Oyadieyie3D.Adapters
         void OnClick(PostAdapterClickEventArgs args) => ItemClick?.Invoke(this, args);
         void OnLongClick(PostAdapterClickEventArgs args) => ItemLongClick?.Invoke(this, args);
         void OnLike(PostAdapterClickEventArgs args) => LikeClick?.Invoke(this, args);
-        void OnFullScreen(ImageClickEventArgs args) => ImageClick?.Invoke(this, args);
 
         public class PostAdapterViewHolder : RecyclerView.ViewHolder
         {
@@ -81,8 +79,7 @@ namespace Oyadieyie3D.Adapters
             public CircleImageView profileImageView { get; set; }
 
             public PostAdapterViewHolder(View itemView, Action<PostAdapterClickEventArgs> clickListener,
-                                Action<PostAdapterClickEventArgs> longClickListener, Action<PostAdapterClickEventArgs> likeClickListener,
-                                Action<ImageClickEventArgs> imageClickListener) : base(itemView)
+                                Action<PostAdapterClickEventArgs> longClickListener, Action<PostAdapterClickEventArgs> likeClickListener) : base(itemView)
             {
                 usernameTextView = (TextView)itemView.FindViewById(Resource.Id.post_name_tv);
                 postBodyTextView = (TextView)itemView.FindViewById(Resource.Id.post_caption_tv);
@@ -91,9 +88,9 @@ namespace Oyadieyie3D.Adapters
                 profileImageView = (CircleImageView)itemView.FindViewById(Resource.Id.post_user_profile);
                 durationTextView = (TextView)itemView.FindViewById(Resource.Id.post_time_tv);
 
-                itemView.Click += (sender, e) => clickListener(new PostAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
+                itemView.Click += (sender, e) => clickListener(new PostAdapterClickEventArgs { View = itemView, Position = AdapterPosition, ImageView = postImageView });
                 itemView.LongClick += (sender, e) => longClickListener(new PostAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
-                postImageView.Click += (sender, e) => imageClickListener(new ImageClickEventArgs { View = itemView, Position = AdapterPosition, PostImageView = postImageView });
+                
             }
         }
 
@@ -101,14 +98,8 @@ namespace Oyadieyie3D.Adapters
         {
             public View View { get; set; }
             public int Position { get; set; }
-        }
 
-        public class ImageClickEventArgs : EventArgs
-        {
-            public View View { get; set; }
-            public int Position { get; set; }
-
-            public ImageView PostImageView { get; set; }
+            public ImageView ImageView { get; set; }
         }
     }
 }

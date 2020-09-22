@@ -2,6 +2,7 @@
 using Android.Runtime;
 using Java.Interop;
 using Oyadieyie3D.Models;
+using System;
 
 namespace Oyadieyie3D.Parcelables
 {
@@ -18,8 +19,7 @@ namespace Oyadieyie3D.Parcelables
                 PostBody = parcel.ReadString(),
                 ID = parcel.ReadString(),
                 OwnerId = parcel.ReadString(),
-                PostDate = parcel.ReadString(),
-
+                PostDate = DateTime.Parse(parcel.ReadString()),
                 LikeCount = parcel.ReadInt(),
                 Liked = parcel.ReadBoolean()
             };
@@ -43,8 +43,7 @@ namespace Oyadieyie3D.Parcelables
             dest.WriteString(PostItem.PostBody);
             dest.WriteString(PostItem.ID);
             dest.WriteString(PostItem.OwnerId);
-            dest.WriteString(PostItem.PostDate);
-
+            dest.WriteString(PostItem.PostDate.ToString());
             dest.WriteInt(PostItem.LikeCount);
             dest.WriteBoolean(PostItem.Liked);
         }

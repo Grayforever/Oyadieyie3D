@@ -3,6 +3,7 @@ using Android.Content;
 using Android.OS;
 using Android.Widget;
 using AndroidX.AppCompat.App;
+using BumpTech.GlideLib;
 using IGreenWood.LoupeLib;
 using Oyadieyie3D.Parcelables;
 using System;
@@ -16,12 +17,7 @@ namespace Oyadieyie3D.Activities
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.fullscreen_imageviewer);
-            
-            Bundle extras = Intent.Extras;
             ImageView imageView = (ImageView)FindViewById(Resource.Id.image);
-            string imageTransitionName = extras.GetString("extra_transition_name");
-            imageView.TransitionName = imageTransitionName;
-
             var loupe = new Loupe(imageView);
             loupe.UseDismissAnimation = false;
             loupe.OnViewTranslateListener = new OnViewTranslateListener
@@ -29,21 +25,41 @@ namespace Oyadieyie3D.Activities
                     onDismiss: (v1) =>
                     {
                         SupportFinishAfterTransition();
-                    }, onRestore: (v2) => 
+                    }, onRestore: (v2) =>
                     {
 
-                    }, onStart: (v3) => 
-                    { 
-                
-                    }, onViewTranslate: (v4, f) => 
-                    { 
+                    }, onStart: (v3) =>
+                    {
+
+                    }, onViewTranslate: (v4, f) =>
+                    {
 
                     }
                 );
 
-            PostParcelable parcelable = (PostParcelable)extras.GetParcelable("extra_post_data");
+            try
+            {
+                Bundle extras = Intent.Extras;
+                int type = extras.GetInt("parcel_type");
+                switch (type)
+                {
+                    case 0:
+                        PostParcelable postParcel = (PostParcelable)extras.GetParcelable("extra_post_data");
+                        Glide.With(this).Load(postParcel.PostItem.DownloadUrl).Into(imageView);
+                        break;
+                    default:
+                        ProfileParcelable profileParcel = (ProfileParcelable)extras.GetParcelable("extra_post_data");
+                        Glide.With(this).Load(profileParcel.UserProfile.ProfileImgUrl).Into(imageView);
+                        break;
+                }
+                string imageTransitionName = extras.GetString("extra_transition_name");
+                imageView.TransitionName = imageTransitionName;
 
-            Toast.MakeText(this, parcelable.PostItem.Author, ToastLength.Long).Show();
+            }
+            catch (Exception e)
+            {
+                Toast.MakeText(this, e.Message, ToastLength.Short).Show();
+            }
         }
 
         internal sealed class OnViewTranslateListener : Java.Lang.Object, Loupe.IOnViewTranslateListener
