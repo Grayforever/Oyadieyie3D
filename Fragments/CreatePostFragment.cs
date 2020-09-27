@@ -9,7 +9,9 @@ using Android.Views;
 using Android.Widget;
 using AndroidX.Core.Content;
 using BumpTech.GlideLib;
+using BumpTech.GlideLib.Requests;
 using Com.Yalantis.Ucrop;
+using DE.Hdodenhof.CircleImageViewLib;
 using Firebase;
 using Firebase.Auth;
 using Firebase.Database;
@@ -23,7 +25,6 @@ using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
 using Oyadieyie3D.Utils;
 using System;
-using System.Threading.Tasks;
 using static AndroidX.Core.Content.FileProvider;
 using Task = Android.Gms.Tasks.Task;
 using Uri = Android.Net.Uri;
@@ -33,8 +34,10 @@ namespace Oyadieyie3D.Fragments
     public class CreatePostFragment : BottomSheetDialogFragment
     {
         private const int UCROP_REQUEST = 69;
+        private const string HAS_IMAGE_KEY = "has_image";
         private static int SELECT_PICTURE = 1;
         private ImageView postImageView;
+        private CircleImageView profile_image_view;
         private TextInputLayout commentEt;
         private MaterialButton doneBtn;
         public   int REQUEST_IMAGE_CAPTURE = 500;
@@ -42,14 +45,14 @@ namespace Oyadieyie3D.Fragments
         private int ASPECT_RATIO_X = 16, ASPECT_RATIO_Y = 9, bitmapMaxWidth = 1000, bitmapMaxHeight = 1000;
         private int IMAGE_COMPRESSION = 80;
         public static string fileName;
-
+        private string profile_url;
         private ImageCaptureUtils icu;
         private bool hasImage = false;
         private ProgressBar postProgress;
         private static StorageReference imageRef;
         private ImageButton closeBtn;
         private Uri uri;
-        private Context _context;
+        private RequestOptions requestOptions;
 
         public event EventHandler OnPostComplete;
         public event EventHandler<ErrorEventArgs> OnErrorEncounted;
@@ -58,18 +61,20 @@ namespace Oyadieyie3D.Fragments
             public string ErrorMsg { get; set; }
         }
 
-        public CreatePostFragment(Context context)
-        {
-            _context = context;
-        }
-
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            profile_url = Arguments.GetString(MainActivity.IMG_URL_KEY);
             icu = new ImageCaptureUtils(Context);
             icu.OnImageCaptured += Icu_OnImageCaptured;
             icu.OnImageSelected += Icu_OnImageSelected;
+
+            requestOptions = new RequestOptions();
+            requestOptions.Placeholder(Resource.Drawable.img_placeholder);
+            requestOptions.SkipMemoryCache(true);
         }
+
+        public override int Theme => Resource.Style.BottomSheetDialog_Rounded;
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
@@ -81,6 +86,7 @@ namespace Oyadieyie3D.Fragments
             base.OnViewCreated(view, savedInstanceState);
             var postToggleBtn = view.FindViewById<MaterialButtonToggleGroup>(Resource.Id.photo_choser_togglegrp);
             postImageView = view.FindViewById<ImageView>(Resource.Id.image_to_post);
+            profile_image_view = view.FindViewById<CircleImageView>(Resource.Id.create_post_userProfile);
             commentEt = view.FindViewById<TextInputLayout>(Resource.Id.create_post_et);
             doneBtn = view.FindViewById<MaterialButton>(Resource.Id.done_btn);
             postProgress = view.FindViewById<ProgressBar>(Resource.Id.post_progress);
@@ -106,6 +112,7 @@ namespace Oyadieyie3D.Fragments
 
             doneBtn.Click += DoneBtn_Click;
             commentEt.EditText.TextChanged += EditText_TextChanged;
+            Glide.With(this).SetDefaultRequestOptions(requestOptions).Load(profile_url).Into(profile_image_view);
         }
 
         private void CloseBtn_Click(object sender, EventArgs e)
@@ -152,11 +159,19 @@ namespace Oyadieyie3D.Fragments
                         postRef.SetValue(postMap).AddOnCompleteListener(new OncompleteListener(
                         onComplete: task =>
                         {
-                            if (!task.IsSuccessful)
-                                throw task.Exception;
+                            try
+                            {
+                                if (!task.IsSuccessful)
+                                    throw task.Exception;
 
-                            OnPostComplete?.Invoke(this, new EventArgs());
-                            DismissAllowingStateLoss();
+                                DismissAllowingStateLoss();
+                                OnPostComplete?.Invoke(this, new EventArgs());
+                            }
+                            catch (DatabaseException de)
+                            {
+                                DismissAllowingStateLoss();
+                                OnErrorEncounted?.Invoke(this, new ErrorEventArgs { ErrorMsg = de.Message});
+                            }
 
                         }));
                         postRef.KeepSynced(true);
@@ -166,18 +181,18 @@ namespace Oyadieyie3D.Fragments
                 }
                 catch (DatabaseException fde)
                 {
-                    OnErrorEncounted?.Invoke(this, new ErrorEventArgs { ErrorMsg = fde.Message });
                     DismissAllowingStateLoss();
+                    OnErrorEncounted?.Invoke(this, new ErrorEventArgs { ErrorMsg = fde.Message });
                 }
                 catch (FirebaseNetworkException fne)
                 {
-                    OnErrorEncounted?.Invoke(this, new ErrorEventArgs { ErrorMsg = fne.Message });
                     DismissAllowingStateLoss();
+                    OnErrorEncounted?.Invoke(this, new ErrorEventArgs { ErrorMsg = fne.Message });
                 }
                 catch (StorageException se)
                 {
-                    OnErrorEncounted?.Invoke(this, new ErrorEventArgs { ErrorMsg = se.Message });
                     DismissAllowingStateLoss();
+                    OnErrorEncounted?.Invoke(this, new ErrorEventArgs { ErrorMsg = se.Message });
                 }
                 catch (FirebaseAuthException fae)
                 {
@@ -186,8 +201,8 @@ namespace Oyadieyie3D.Fragments
                 }
                 catch (Exception ex)
                 {
-                    OnErrorEncounted?.Invoke(this, new ErrorEventArgs { ErrorMsg = ex.Message });
                     DismissAllowingStateLoss();
+                    OnErrorEncounted?.Invoke(this, new ErrorEventArgs { ErrorMsg = ex.Message });
                 }
             });
         }
@@ -224,7 +239,7 @@ namespace Oyadieyie3D.Fragments
                     {
                         CropImage(GetCacheImagePath(fileName));
                     }
-                    else if (requestCode == UCROP_REQUEST)
+                    else if (requestCode == UCrop.RequestCrop)
                     {
                         uri = UCrop.GetOutput(data);
                         Glide.With(this).Load(uri).Into(postImageView);
@@ -298,7 +313,10 @@ namespace Oyadieyie3D.Fragments
         {
             private Action<Task> _then;
 
-            public ContinuationTask(Action<Task> then) => _then = then;
+            public ContinuationTask(Action<Task> then)
+            {
+                _then = then;
+            }
 
             public Java.Lang.Object Then(Task task)
             {

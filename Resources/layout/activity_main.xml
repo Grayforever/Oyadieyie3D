@@ -11,25 +11,34 @@
         android:id="@+id/activity_main_appbar"
         />
 
-    <androidx.recyclerview.widget.RecyclerView
+    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/main_recycler"
-        android:scrollbars="none"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        app:layoutManager="LinearLayoutManager"
-        />
+        android:id="@+id/main_refresher"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+        <androidx.recyclerview.widget.RecyclerView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/main_recycler"
+            android:scrollbars="none"
+            app:layoutManager="LinearLayoutManager"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentTop="true"
+            />
+
+    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/post_fab"
-        app:layout_anchor="@+id/main_recycler"
+        app:layout_anchor="@+id/main_refresher"
         app:layout_anchorGravity="end|bottom"
         app:useCompatPadding="true"
         android:src="@drawable/ic_add"
         app:tint="@android:color/white"
+        app:backgroundTint="@color/colorAccent"
         />
 
 
@@ -50,9 +59,9 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:lottie_renderMode="hardware"
-            app:lottie_fileName="empty-box.json"
+            app:lottie_fileName="loading-or-empty-state.json"
             app:lottie_autoPlay="true"
-            app:lottie_loop="false"
+            app:lottie_loop="true"
             />
 
 

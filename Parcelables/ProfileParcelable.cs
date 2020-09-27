@@ -2,12 +2,14 @@
 using Android.Runtime;
 using Java.Interop;
 using Oyadieyie3D.Models;
+using System;
 
 namespace Oyadieyie3D.Parcelables
 {
     internal sealed class ProfileParcelable : Java.Lang.Object, IParcelable
     {
         public User UserProfile { get; set; }
+        public event EventHandler WriteTOParcelFailed;
         public ProfileParcelable()
         {
 
@@ -32,12 +34,20 @@ namespace Oyadieyie3D.Parcelables
 
         public void WriteToParcel(Parcel dest, [GeneratedEnum] ParcelableWriteFlags flags)
         {
-            dest.WriteString(UserProfile.ID);
-            dest.WriteString(UserProfile.Username);
-            dest.WriteString(UserProfile.ProfileImgUrl);
-            dest.WriteString(UserProfile.Status);
-            dest.WriteString(UserProfile.Email);
-            dest.WriteString(UserProfile.Phone);
+            try
+            {
+                dest.WriteString(UserProfile.ID);
+                dest.WriteString(UserProfile.Username);
+                dest.WriteString(UserProfile.ProfileImgUrl);
+                dest.WriteString(UserProfile.Status);
+                dest.WriteString(UserProfile.Email);
+                dest.WriteString(UserProfile.Phone);
+            }
+            catch (System.Exception)
+            {
+
+                WriteTOParcelFailed?.Invoke(this, new EventArgs());
+            }
         }
 
         private static readonly GenericParcelableCreator<ProfileParcelable> _creator

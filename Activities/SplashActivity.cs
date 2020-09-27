@@ -21,9 +21,11 @@ namespace Oyadieyie3D.Activities
             {
                 case null:
                     StartActivity(typeof(OnboardingActivity));
+                    Finish();
                     break;
                 default:
                     StartActivity(typeof(MainActivity));
+                    Finish();
                     break;
             }
         }

@@ -4,9 +4,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="8dp"
+    android:padding="12dp"
     android:clipToPadding="false"
-    tools:ignore="ContentDescription">
+    tools:ignore="ContentDescription,HardcodedText">
 
     <de.hdodenhof.circleimageview.CircleImageView
         android:layout_width="32dp"
@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toStartOf="@+id/create_post_userName"
-        app:layout_constraintBottom_toTopOf="@+id/create_post_et"
+        app:layout_constraintBottom_toTopOf="@+id/categs_scroller"
         />
 
     <TextView
@@ -26,13 +26,13 @@
         android:id="@+id/create_post_userName"
         app:layout_constraintStart_toEndOf="@+id/create_post_userProfile"
         app:layout_constraintEnd_toStartOf="@+id/post_progress"
-        app:layout_constraintBottom_toTopOf="@+id/create_post_et"
+        app:layout_constraintBottom_toTopOf="@+id/categs_scroller"
         app:layout_constraintTop_toTopOf="parent"
         android:textAppearance="?attr/textAppearanceBody1"
-        android:text="Graham"
-        android:textStyle="bold"
+        android:text="Create Post"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
+        android:gravity="center"
         />
 
     <ProgressBar
@@ -52,6 +52,7 @@
         android:id="@+id/done_btn"
         app:layout_constraintEnd_toStartOf="@+id/post_cancel_btn"
         app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintBottom_toTopOf="@+id/categs_scroller"
         android:text="Post"
         android:enabled="false"
         style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
@@ -69,18 +70,89 @@
         android:padding="4dp"
         android:tint="@android:color/holo_red_light"
         />
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/categs_scroller"
+        android:scrollbars="none"
+        android:overScrollMode="ifContentScrolls"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/create_post_userPhoto"
+        app:layout_constraintBottom_toTopOf="@+id/create_post_et">
+
+        <com.google.android.material.chip.ChipGroup
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            app:singleLine="true"
+            android:id="@+id/cat_chip_group">
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/chip_men"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:text="Menswear"
+                app:chipIconEnabled="true"
+                app:chipIcon="@drawable/ic_user_male"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/chip_women"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:text="Wemen wear"
+                app:chipIconEnabled="true"
+                app:chipIcon="@drawable/ic_female"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/chip_kids"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:text="Children"
+                app:chipIconEnabled="true"
+                app:chipIcon="@drawable/ic_children"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/chip_unisex"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:text="Unisex"
+                app:chipIconEnabled="true"
+                app:chipIcon="@drawable/ic_unisex"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/chip_ppe"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:text="PPEs"
+                app:chipIconEnabled="true"
+                app:chipIcon="@drawable/ic_protection_mask"
+                />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </HorizontalScrollView>
             
     <com.google.android.material.textfield.TextInputLayout
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:id="@+id/create_post_et"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/post_img_card"
-        app:layout_constraintTop_toBottomOf="@+id/create_post_userPhoto"
-        app:layout_constraintBottom_toTopOf="@+id/photo_choser_togglegrp"
+        app:layout_constraintEnd_toStartOf="@+id/image_to_post"
+        app:layout_constraintTop_toBottomOf="@+id/categs_scroller"
         android:layout_marginEnd="8dp"
         app:counterEnabled="true"
-        app:counterMaxLength="48">
+        app:counterMaxLength="48"
+        android:layout_marginTop="16dp">
 
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
@@ -90,26 +162,17 @@
             />
     </com.google.android.material.textfield.TextInputLayout>
 
-    <androidx.cardview.widget.CardView
-        android:layout_width="96dp"
-        android:layout_height="96dp"
-        android:id="@+id/post_img_card"
+    <ImageView
+        android:layout_width="74dp"
+        android:layout_height="0dp"
+        android:id="@+id/image_to_post"
+        android:src="@drawable/img_placeholder"
+        android:scaleType="centerCrop"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toEndOf="@+id/create_post_et"
-        app:layout_constraintTop_toBottomOf="@+id/done_btn"
-        app:layout_constraintBottom_toTopOf="@+id/photo_choser_togglegrp"
-        app:cardCornerRadius="10dp">
-
-        <ImageView
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:id="@+id/image_to_post"
-            android:src="@drawable/img_placeholder"
-            android:scaleType="centerCrop"
-            android:clickable="true"
-            />
-
-    </androidx.cardview.widget.CardView>
+        app:layout_constraintTop_toTopOf="@+id/create_post_et"
+        app:layout_constraintBottom_toBottomOf="@+id/create_post_et"
+        />
 
     <com.google.android.material.button.MaterialButtonToggleGroup
         android:layout_width="0dp"

@@ -12,6 +12,9 @@ namespace Oyadieyie3D.Models
         public bool Liked { get; set; }
         public string ID { get; set; }
         public string OwnerId { get; set; }
+
+        public string OwnerImg { get; set; }
+
         public DateTime PostDate { get; set; }
 
     }

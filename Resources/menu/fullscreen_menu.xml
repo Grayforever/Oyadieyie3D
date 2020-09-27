@@ -1,0 +1,17 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<item android:id="@+id/action_whatsapp"
+		android:icon="@drawable/ic_whatsapp"
+		android:title="Message on whatsapp"
+		app:showAsAction="never"
+        />
+
+	<item android:id="@+id/action_call"
+		android:title="Call"
+		android:icon="@drawable/ic_phone"
+		app:showAsAction="never"
+        />
+
+</menu>

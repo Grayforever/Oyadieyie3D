@@ -1,4 +1,6 @@
-﻿using Firebase.Database;
+﻿using Android.App;
+using Android.Widget;
+using Firebase.Database;
 using Oyadieyie3D.HelperClasses;
 using Oyadieyie3D.Models;
 using System;
@@ -23,6 +25,7 @@ namespace Oyadieyie3D.Events
         {
             retrievalRef = SessionManager.GetFireDB().GetReference("posts");
             retrievalRef.AddValueEventListener(this);
+            retrievalRef.KeepSynced(true);
         }
 
         public void OnCancelled(DatabaseError error)
@@ -32,28 +35,43 @@ namespace Oyadieyie3D.Events
 
         public void OnDataChange(DataSnapshot snapshot)
         {
-            if (!snapshot.Exists())
-                return;
-
-            if (ListOfPost.Count > 0)
+            switch (snapshot.Exists())
             {
-                ListOfPost.Clear();
+                case false:
+                    break;
+                default:
+                    ListOfPost.Clear();
+                    foreach (var (item, post) in from item in snapshot.Children.ToEnumerable<DataSnapshot>()
+                                                 let post = new Post()
+                                                 select (item, post))
+                    {
+                        post.ID = item.Key;
+                        post.PostBody = item.Child("post_body") != null ? item.Child("post_body").Value.ToString() : "";
+                        post.ImageId = item.Child("image_id") != null ? item.Child("image_id").Value.ToString() : "";
+                        var userID = item.Child("owner_id") != null ? item.Child("owner_id").Value.ToString() : "";
+                        post.OwnerId = userID;
+                        post.DownloadUrl = item.Child("download_url") != null ? item.Child("download_url").Value.ToString() : "";
+                        string datestring = item.Child("post_date") != null ? item.Child("post_date").Value.ToString() : "";
+                        post.PostDate = DateTime.Parse(datestring);
+                        var ownerRef = SessionManager.GetFireDB().GetReference($"users/{userID}/profile");
+                        ownerRef.AddValueEventListener(new SingleValueListener(
+                        onDataChange: (s) =>
+                        {
+                            if (!s.Exists())
+                                return;
+                            post.Author = s.Child("fname") != null ? s.Child("fname").Value.ToString() : "";
+                            post.OwnerImg = s.Child("photoUrl") != null ? s.Child("photoUrl").Value.ToString() : "";
+                            
+                        },
+                        onCancelled: (e)=> 
+                        {
+                            Toast.MakeText(Application.Context, e.Message, ToastLength.Short).Show();
+                        }));
+                        ListOfPost.Add(post);
+                    }
+                    OnPostRetrieved?.Invoke(this, new PostEventArgs { Posts = ListOfPost });
+                    break;
             }
-
-            foreach (var (item, post) in from item in snapshot.Children.ToEnumerable<DataSnapshot>()
-                                         let post = new Post()
-                                         select (item, post))
-            {
-                post.ID = item.Key;
-                post.PostBody = item.Child("post_body") != null ? item.Child("post_body").Value.ToString() : "";
-                post.ImageId = item.Child("image_id") != null ? item.Child("image_id").Value.ToString() : "";
-                post.OwnerId = item.Child("owner_id") != null ? item.Child("owner_id").Value.ToString() : "";
-                post.DownloadUrl = item.Child("download_url") != null ? item.Child("download_url").Value.ToString() : "";
-                string datestring = item.Child("post_date") != null ? item.Child("post_date").Value.ToString() : "";
-                post.PostDate = DateTime.Parse(datestring);
-                ListOfPost.Add(post);
-            }
-            OnPostRetrieved?.Invoke(this, new PostEventArgs { Posts = ListOfPost });
         }
     }
 }

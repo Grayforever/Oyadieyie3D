@@ -23,6 +23,7 @@ namespace Oyadieyie3D.Adapters
         public PostAdapter(List<Post> items)
         {
             _items = items;
+            NotifyDataSetChanged();
         }
         public override int ItemCount => _items.Count;
 
@@ -35,9 +36,9 @@ namespace Oyadieyie3D.Adapters
             vh.postBodyTextView.Text = item.PostBody;
             vh.likeCountTextView.Text = item.LikeCount.ToString() + " Likes";
             vh.durationTextView.Text = date.ToString("HH:mm");
-
+            
             GetImage(item.DownloadUrl, vh.postImageView);
-
+            GetImage(item.OwnerImg, vh.profileImageView);
             ViewCompat.SetTransitionName(vh.postImageView, "open_gate");
         }
 
@@ -45,6 +46,7 @@ namespace Oyadieyie3D.Adapters
         {
             RequestOptions requestOptions = new RequestOptions();
             requestOptions.Placeholder(Resource.Drawable.img_placeholder);
+            requestOptions.SkipMemoryCache(true);
 
             Glide.With(Application.Context)
                 .SetDefaultRequestOptions(requestOptions)

@@ -2,6 +2,15 @@
 <PreferenceScreen
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
+	<SwitchPreferenceCompat
+        app:key="online_switch"
+        app:summaryOff="Offline"
+        app:summaryOn="Online"
+        app:defaultValue="false"
+        app:title="Online status"
+		app:icon="@drawable/ic_public"
+		/>
+
 	<Preference
 		app:fragment="com.graylabs.oyadieyie3d.Fragments.AccountFragment"
         app:key="account"
