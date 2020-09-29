@@ -12,9 +12,12 @@ using AndroidX.Preference;
 using AndroidX.RecyclerView.Widget;
 using AndroidX.SwipeRefreshLayout.Widget;
 using CN.Pedant.SweetAlert;
+using Firebase.Database;
 using Firebase.Storage;
 using Google.Android.Material.AppBar;
 using Google.Android.Material.FloatingActionButton;
+using Java.Util;
+using Like.Lib;
 using Oyadieyie3D.Activities;
 using Oyadieyie3D.Adapters;
 using Oyadieyie3D.Events;
@@ -35,6 +38,7 @@ namespace Oyadieyie3D
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
     public class MainActivity : AppCompatActivity
     {
+        
         private RecyclerView mainRecycler;
         private ConstraintLayout emptyRoot;
         private SwipeRefreshLayout swipe_container;
@@ -47,7 +51,9 @@ namespace Oyadieyie3D
         private User _user;
         private ProfileParcelable profileParcelable = new ProfileParcelable();
         private SweetAlertDialog loaderDialog;
-        public static string IMG_URL_KEY = "img_url";
+
+        private DatabaseReference likeRef;
+
         private ISharedPreferences prefs;
 
         protected override void OnCreate(Bundle savedInstanceState)
@@ -74,9 +80,6 @@ namespace Oyadieyie3D
                 }, 4000);
                 
             };
-
-
-
             addPostFab.Click += AddPostFab_Click;
             mainRecycler.AddOnScrollListener(new OnscrollListener(
             onScrolled: (r, dx, dy) =>
@@ -108,7 +111,7 @@ namespace Oyadieyie3D
                     createPost = new CreatePostFragment();
                     createPost.Cancelable = false;
                     var b = new Bundle();
-                    b.PutString(IMG_URL_KEY, _user.ProfileImgUrl);
+                    b.PutString(Constants.IMG_URL_KEY, _user.ProfileImgUrl);
                     createPost.Arguments = b;
                     createPost.OnPostComplete += CreatePost_OnPostComplete;
                     createPost.OnErrorEncounted += CreatePost_OnErrorEncounted;
@@ -192,7 +195,6 @@ namespace Oyadieyie3D
                                 default:
                                     StorageReference storageReference = FirebaseStorage.Instance.GetReference("postImages/" + postID);
                                     storageReference.DeleteAsync();
-                                    postAdapter.NotifyItemRemoved(e1.Position);
                                     break;
                             }
                         }));
@@ -206,6 +208,7 @@ namespace Oyadieyie3D
                 }));
                 sweetDialog.Show();
             };
+
             postAdapter.ItemClick += (s2, e2) =>
             {
                 var intent = new Intent(this, typeof(FullscreenImageActivity));
@@ -213,12 +216,41 @@ namespace Oyadieyie3D
                 PostParcelable postParcelable = new PostParcelable();
                 postParcelable.PostItem = list_of_post[e2.Position];
 
-                intent.PutExtra("extra_transition_name", ViewCompat.GetTransitionName(e2.ImageView));
-                intent.PutExtra("extra_post_data", postParcelable);
-                intent.PutExtra("parcel_type", 0);
+                intent.PutExtra(Constants.TRANSITION_NAME, ViewCompat.GetTransitionName(e2.ImageView));
+                intent.PutExtra(Constants.POST_DATA_EXTRA, postParcelable);
+                intent.PutExtra(Constants.PARCEL_TYPE, 0);
                 var options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, e2.ImageView,
                     ViewCompat.GetTransitionName(e2.ImageView));
                 StartActivity(intent, options.ToBundle());
+            };
+
+            postAdapter.ItemLiked += (s3, e3) =>
+            {
+                var id = list_of_post[e3.Position].ID;
+                var likeRef = SessionManager.GetFireDB().GetReference($"posts/{id}/likes");
+                var map = new HashMap();
+                map.Put(SessionManager.GetFirebaseAuth().CurrentUser.Uid, true);
+                likeRef.SetValueAsync(map);
+            };
+
+            postAdapter.ItemUnliked += (s4, e4) =>
+            {
+                var id = list_of_post[e4.Position].ID;
+                var likeRef = SessionManager.GetFireDB().GetReference($"posts/{id}/likes");
+                likeRef.AddValueEventListener(new SingleValueListener((s) =>
+                {
+                    if (!s.Exists())
+                        return;
+
+                    if (!s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Exists())
+                        return;
+
+                    likeRef.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).RemoveValueAsync();
+                    
+                }, (e)=> 
+                {
+                    return;
+                }));
             };
         }
 
@@ -269,7 +301,7 @@ namespace Oyadieyie3D
                     break;
                     
                 case Resource.Id.action_finder:
-                    bool isOnline = prefs.GetBoolean("online_switch", false);
+                    bool isOnline = prefs.GetBoolean(Constants.SWITCH_VALUE_EXTRA, false);
                     switch (isOnline)
                     {
                         case false:
@@ -284,7 +316,7 @@ namespace Oyadieyie3D
                 case Resource.Id.action_settings:
                     var intent = new Intent(this, typeof(SettingsActivity));
                     profileParcelable.UserProfile = _user;
-                    intent.PutExtra("extra_profile_data", profileParcelable);
+                    intent.PutExtra(Constants.PROFILE_DATA_EXTRA, profileParcelable);
                     StartActivity(intent);
                     break;
             }
@@ -441,14 +473,15 @@ namespace Oyadieyie3D
                         if (!snapshot.Exists())
                             return;
 
-                        var _user = new User();
-                        _user.ID = snapshot.Key;
-                        _user.Username = snapshot.Child("fname") != null ? snapshot.Child("fname").Value.ToString() : "";
-                        _user.Status = snapshot.Child("gender") != null ? snapshot.Child("gender").Value.ToString() : "";
-                        _user.ProfileImgUrl = snapshot.Child("photoUrl") != null ? snapshot.Child("photoUrl").Value.ToString() : "";
-                        _user.Email = snapshot.Child("email") != null ? snapshot.Child("email").Value.ToString() : "";
-                        _user.Phone = snapshot.Child("phone") != null ? snapshot.Child("phone").Value.ToString() : "";
-
+                        var _user = new User
+                        {
+                            ID = snapshot.Key,
+                            Username = snapshot.Child(Constants.SNAPSHOT_FNAME) != null ? snapshot.Child(Constants.SNAPSHOT_FNAME).Value.ToString() : "",
+                            Status = snapshot.Child(Constants.SNAPSHOT_GENDER) != null ? snapshot.Child(Constants.SNAPSHOT_GENDER).Value.ToString() : "",
+                            ProfileImgUrl = snapshot.Child(Constants.SNAPSHOT_PHOTO_URL) != null ? snapshot.Child(Constants.SNAPSHOT_PHOTO_URL).Value.ToString() : "",
+                            Email = snapshot.Child(Constants.SNAPSHOT_EMAIL) != null ? snapshot.Child(Constants.SNAPSHOT_EMAIL).Value.ToString() : "",
+                            Phone = snapshot.Child(Constants.SNAPSHOT_PHONE) != null ? snapshot.Child(Constants.SNAPSHOT_PHONE).Value.ToString() : ""
+                        };
                         OnProfileRetrieved?.Invoke(this, new ProfileEventArgs { user = _user });
                     }, onCancelled: (exception) =>
                     {

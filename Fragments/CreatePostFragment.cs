@@ -64,7 +64,7 @@ namespace Oyadieyie3D.Fragments
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            profile_url = Arguments.GetString(MainActivity.IMG_URL_KEY);
+            profile_url = Arguments.GetString(Constants.IMG_URL_KEY);
             icu = new ImageCaptureUtils(Context);
             icu.OnImageCaptured += Icu_OnImageCaptured;
             icu.OnImageSelected += Icu_OnImageSelected;

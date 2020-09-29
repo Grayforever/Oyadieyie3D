@@ -11,9 +11,8 @@ namespace Oyadieyie3D.Events
 {
     public class PostEventListener : Java.Lang.Object, IValueEventListener
     {
-        public List<Post> ListOfPost = new List<Post>();
+        private List<Post> ListOfPost = new List<Post>();
         private DatabaseReference retrievalRef;
-
         public event EventHandler<PostEventArgs> OnPostRetrieved;
 
         public class PostEventArgs : EventArgs
@@ -46,21 +45,30 @@ namespace Oyadieyie3D.Events
                                                  select (item, post))
                     {
                         post.ID = item.Key;
-                        post.PostBody = item.Child("post_body") != null ? item.Child("post_body").Value.ToString() : "";
-                        post.ImageId = item.Child("image_id") != null ? item.Child("image_id").Value.ToString() : "";
-                        var userID = item.Child("owner_id") != null ? item.Child("owner_id").Value.ToString() : "";
+                        post.PostBody = item.Child(Constants.SNAPSHOT_POST_BODY) != null ? item.Child(Constants.SNAPSHOT_POST_BODY).Value.ToString() : "";
+                        post.ImageId = item.Child(Constants.SNAPSHOT_POST_IMAGE_ID) != null ? item.Child(Constants.SNAPSHOT_POST_IMAGE_ID).Value.ToString() : "";
+                        var userID = item.Child(Constants.SNAPSHOT_POST_OWNER_ID) != null ? item.Child(Constants.SNAPSHOT_POST_OWNER_ID).Value.ToString() : "";
                         post.OwnerId = userID;
-                        post.DownloadUrl = item.Child("download_url") != null ? item.Child("download_url").Value.ToString() : "";
-                        string datestring = item.Child("post_date") != null ? item.Child("post_date").Value.ToString() : "";
-                        post.PostDate = DateTime.Parse(datestring);
+                        post.DownloadUrl = item.Child(Constants.SNAPSHOT_POST_DOWNLOAD_URL) != null ? item.Child(Constants.SNAPSHOT_POST_DOWNLOAD_URL).Value.ToString() : "";
+                        post.PostDate = item.Child(Constants.SNAPSHOT_POST_POST_DATE) != null ? item.Child(Constants.SNAPSHOT_POST_POST_DATE).Value.ToString() : "";
+
+                        if (item.Child("likes").Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Exists())
+                        {
+                            post.Liked = true;
+                        }
+                        else
+                        {
+                            post.Liked = false;
+                        }
+                        post.LikeCount = item.Child("likes").ChildrenCount;
                         var ownerRef = SessionManager.GetFireDB().GetReference($"users/{userID}/profile");
                         ownerRef.AddValueEventListener(new SingleValueListener(
                         onDataChange: (s) =>
                         {
                             if (!s.Exists())
                                 return;
-                            post.Author = s.Child("fname") != null ? s.Child("fname").Value.ToString() : "";
-                            post.OwnerImg = s.Child("photoUrl") != null ? s.Child("photoUrl").Value.ToString() : "";
+                            post.Author = s.Child(Constants.SNAPSHOT_FNAME) != null ? s.Child(Constants.SNAPSHOT_FNAME).Value.ToString() : "";
+                            post.OwnerImg = s.Child(Constants.SNAPSHOT_PHOTO_URL) != null ? s.Child(Constants.SNAPSHOT_PHOTO_URL).Value.ToString() : "";
                             
                         },
                         onCancelled: (e)=> 

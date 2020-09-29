@@ -28,7 +28,7 @@ namespace Oyadieyie3D.Activities
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = SoftInput.StateAlwaysHidden)]
-    public class ProfileActivity : AppCompatActivity, View.IOnTouchListener
+    public class ProfileActivity : AppCompatActivity, View.IOnClickListener
     {
         private FloatingActionButton camFab;
         private CircleImageView profileImageView;
@@ -68,9 +68,9 @@ namespace Oyadieyie3D.Activities
             usernameEt.EditText.Text = user.Username;
             statusEt.EditText.Text = user.Status;
 
-            phoneEt.SetOnTouchListener(this);
-            usernameEt.SetOnTouchListener(this);
-            statusEt.SetOnTouchListener(this);
+            phoneEt.SetOnClickListener(this);
+            usernameEt.SetOnClickListener(this);
+            statusEt.SetOnClickListener(this);
 
             Glide.With(this)
                 .SetDefaultRequestOptions(requestOptions)
@@ -100,9 +100,9 @@ namespace Oyadieyie3D.Activities
             var intent = new Intent(this, typeof(FullscreenImageActivity));
             var pp = new ProfileParcelable();
             pp.UserProfile = user;
-            intent.PutExtra("extra_transition_name", ViewCompat.GetTransitionName(profileImageView));
-            intent.PutExtra("extra_post_data", pp);
-            intent.PutExtra("parcel_type", 1);
+            intent.PutExtra(Constants.TRANSITION_NAME, ViewCompat.GetTransitionName(profileImageView));
+            intent.PutExtra(Constants.PROFILE_DATA_EXTRA, pp);
+            intent.PutExtra(Constants.PARCEL_TYPE, 1);
             var options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, profileImageView,
                 ViewCompat.GetTransitionName(profileImageView));
             StartActivity(intent, options.ToBundle());
@@ -162,14 +162,7 @@ namespace Oyadieyie3D.Activities
 
         private void Toolbar_NavigationClick(object sender, Toolbar.NavigationClickEventArgs e) => OnBackPressed();
 
-        public override void OnBackPressed()
-        { 
-            camFab.Post(() =>
-            {
-                camFab.Hide();
-            });
-            base.OnBackPressed();
-        }
+        public override void OnBackPressed() => base.OnBackPressed();
 
         public override void OnEnterAnimationComplete()
         {
@@ -177,7 +170,7 @@ namespace Oyadieyie3D.Activities
             camFab.PostDelayed(() =>
             {
                 camFab.Show();
-            }, 1000);
+            }, 2000);
         }
 
         private void ShowEditSheet(int which)
@@ -188,22 +181,20 @@ namespace Oyadieyie3D.Activities
             ft.CommitAllowingStateLoss();
         }
 
-        public bool OnTouch(View v, MotionEvent e)
+        public void OnClick(View v)
         {
             switch (v.Id)
             {
                 case Resource.Id.prof_phone_et:
-                    ShowEditSheet(0);
+                    ShowEditSheet(1);
                     break;
                 case Resource.Id.prof_fname_et:
-                    ShowEditSheet(1);
+                    ShowEditSheet(0);
                     break;
                 case Resource.Id.prof_about_et:
                     ShowEditSheet(2);
                     break;
             }
-
-            return false;
         }
     }
 }

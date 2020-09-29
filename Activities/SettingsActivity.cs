@@ -13,6 +13,7 @@ using DE.Hdodenhof.CircleImageViewLib;
 using Google.Android.Material.AppBar;
 using Oyadieyie3D.Fragments;
 using Oyadieyie3D.Parcelables;
+using Oyadieyie3D.HelperClasses;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
 namespace Oyadieyie3D.Activities
@@ -40,7 +41,7 @@ namespace Oyadieyie3D.Activities
 
             SetContentView(Resource.Layout.settings_activity);
             extras = Intent.Extras;
-            parcelable = (ProfileParcelable)extras.GetParcelable("extra_profile_data");
+            parcelable = (ProfileParcelable)extras.GetParcelable(Constants.PROFILE_DATA_EXTRA);
 
             username_tv = FindViewById<TextView>(Resource.Id.set_prof_name_tv);
             status_tv = FindViewById<TextView>(Resource.Id.set_prof_extras_tv);
@@ -59,7 +60,7 @@ namespace Oyadieyie3D.Activities
 
             var prefs = PreferenceManager.GetDefaultSharedPreferences(this);
             prefs.RegisterOnSharedPreferenceChangeListener(this);
-            var isOnline = prefs.GetBoolean("online_switch", false);
+            var isOnline = prefs.GetBoolean(Constants.SWITCH_VALUE_EXTRA, false);
             SetOnlineStatus(isOnline);
 
             profileConstraint.Click += ProfileConstraint_Click;
@@ -112,7 +113,7 @@ namespace Oyadieyie3D.Activities
 
         public void OnSharedPreferenceChanged(ISharedPreferences sharedPreferences, string key)
         {
-            
+
         }
     }
 }

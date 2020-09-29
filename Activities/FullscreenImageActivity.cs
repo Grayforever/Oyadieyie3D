@@ -7,12 +7,13 @@ using AndroidX.AppCompat.App;
 using BumpTech.GlideLib;
 using IGreenWood.LoupeLib;
 using Oyadieyie3D.Parcelables;
+using Oyadieyie3D.HelperClasses;
 using System;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
 namespace Oyadieyie3D.Activities
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = false)]
+    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = false, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class FullscreenImageActivity : AppCompatActivity
     {
         private ImageView imageView;
@@ -37,19 +38,19 @@ namespace Oyadieyie3D.Activities
             try
             {
                 Bundle extras = Intent.Extras;
-                int type = extras.GetInt("parcel_type");
+                int type = extras.GetInt(Constants.PARCEL_TYPE);
                 switch (type)
                 {
                     case 0:
-                        PostParcelable postParcel = (PostParcelable)extras.GetParcelable("extra_post_data");
+                        PostParcelable postParcel = (PostParcelable)extras.GetParcelable(Constants.POST_DATA_EXTRA);
                         Glide.With(this).Load(postParcel.PostItem.DownloadUrl).Into(imageView);
                         break;
                     default:
-                        ProfileParcelable profileParcel = (ProfileParcelable)extras.GetParcelable("extra_post_data");
+                        ProfileParcelable profileParcel = (ProfileParcelable)extras.GetParcelable(Constants.PROFILE_DATA_EXTRA);
                         Glide.With(this).Load(profileParcel.UserProfile.ProfileImgUrl).Into(imageView);
                         break;
                 }
-                string imageTransitionName = extras.GetString("extra_transition_name");
+                string imageTransitionName = extras.GetString(Constants.TRANSITION_NAME);
                 imageView.TransitionName = imageTransitionName;
             }
             catch (Exception e)

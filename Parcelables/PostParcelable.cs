@@ -19,7 +19,7 @@ namespace Oyadieyie3D.Parcelables
                 PostBody = parcel.ReadString(),
                 ID = parcel.ReadString(),
                 OwnerId = parcel.ReadString(),
-                PostDate = DateTime.Parse(parcel.ReadString()),
+                PostDate = parcel.ReadString(),
                 LikeCount = parcel.ReadInt(),
                 Liked = parcel.ReadBoolean()
             };
@@ -44,7 +44,7 @@ namespace Oyadieyie3D.Parcelables
             dest.WriteString(PostItem.ID);
             dest.WriteString(PostItem.OwnerId);
             dest.WriteString(PostItem.PostDate.ToString());
-            dest.WriteInt(PostItem.LikeCount);
+            dest.WriteLong(PostItem.LikeCount);
             dest.WriteBoolean(PostItem.Liked);
         }
 
