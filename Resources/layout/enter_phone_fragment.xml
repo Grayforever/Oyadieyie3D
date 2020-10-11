@@ -29,7 +29,9 @@
                 android:id="@+id/cpicker_lin"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/enter_phone_et"
-                app:layout_constraintBottom_toTopOf="@+id/enter_sms_tv"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.39"
                 android:layout_marginBottom="24dp"
                 android:background="@drawable/curvededges"
                 android:paddingEnd="@dimen/mtrl_textinput_outline_box_expanded_padding"
@@ -61,6 +63,7 @@
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:textSize="16sp"
+                    android:textColor="?android:attr/textColorPrimary"
                     />
 
             </androidx.constraintlayout.widget.ConstraintLayout>
@@ -71,15 +74,20 @@
                 android:id="@+id/enter_phone_et"
                 app:layout_constraintStart_toEndOf="@+id/cpicker_lin"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/enter_sms_tv"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginBottom="24dp"
-                android:transitionName="phone_et">
+                android:transitionName="phone_et"
+                app:counterEnabled="true"
+                app:counterMaxLength="10"
+                app:layout_constraintVertical_bias="0.4">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:hint="Phone number"
                     android:inputType="phone"
+                    android:maxLength="10"
                     />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -91,8 +99,7 @@
                 android:text="You will get an SMS to confirm your number"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/enter_phone_et"
                 android:gravity="center"
                 />
 

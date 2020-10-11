@@ -2,24 +2,23 @@
 using Android.Content;
 using Android.Gms.Location;
 using Android.OS;
+using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.ConstraintLayout.Widget;
 using AndroidX.Core.App;
 using AndroidX.Core.View;
-using AndroidX.Preference;
 using AndroidX.RecyclerView.Widget;
 using AndroidX.SwipeRefreshLayout.Widget;
 using CN.Pedant.SweetAlert;
-using Firebase.Database;
+using Com.Apps.Norris.Paywithslydepay.Core;
 using Firebase.Storage;
 using Google.Android.Material.AppBar;
 using Google.Android.Material.FloatingActionButton;
-using Java.Util;
-using Like.Lib;
 using Oyadieyie3D.Activities;
 using Oyadieyie3D.Adapters;
+using Oyadieyie3D.Callbacks;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.Fragments;
 using Oyadieyie3D.HelperClasses;
@@ -28,7 +27,8 @@ using Oyadieyie3D.Parcelables;
 using Oyadieyie3D.Utils;
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Threading.Tasks;
+using ActionMode = Android.Views.ActionMode;
 using SearchView = AndroidX.AppCompat.Widget.SearchView;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
@@ -46,17 +46,15 @@ namespace Oyadieyie3D
         private PostAdapter postAdapter;
         private CreatePostFragment createPost;
         private RecyclerViewEmptyObserver emptyObserver;
-        private GetProfileData getProfile;
-        private PostEventListener postEventListener;
-        private User _user;
+        private User user { get; set; }
+        private List<Post> posts;
+        PostEventListener postEventListener = new PostEventListener();
         private ProfileParcelable profileParcelable = new ProfileParcelable();
         private SweetAlertDialog loaderDialog;
+        private ActionModeCallback actionModeCallback;
+        private ActionMode actionMode;
 
-        private DatabaseReference likeRef;
-
-        private ISharedPreferences prefs;
-
-        protected override void OnCreate(Bundle savedInstanceState)
+        protected async override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
@@ -67,19 +65,6 @@ namespace Oyadieyie3D
             var appbar = FindViewById<AppBarLayout>(Resource.Id.activity_main_appbar);
             var toolbar = appbar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
             SetSupportActionBar(toolbar);
-            swipe_container.Refreshing = true;
-            FetchPost();
-            FetchUser();
-            prefs = PreferenceManager.GetDefaultSharedPreferences(this);
-            swipe_container.Refresh += (s1, e1) =>
-            {
-                swipe_container.PostDelayed(() =>
-                {
-                    swipe_container.Refreshing = true;
-                    FetchPost();
-                }, 4000);
-                
-            };
             addPostFab.Click += AddPostFab_Click;
             mainRecycler.AddOnScrollListener(new OnscrollListener(
             onScrolled: (r, dx, dy) =>
@@ -94,13 +79,54 @@ namespace Oyadieyie3D
                 }
             }));
 
+            DividerItemDecoration decoration = new DividerItemDecoration(mainRecycler.Context, DividerItemDecoration.Vertical);
+            mainRecycler.AddItemDecoration(decoration);
+            posts = new List<Post>();
+           
+
             profileParcelable.WriteTOParcelFailed += ProfileParcelable_WriteTOParcelFailed;
+
+            new SlydepayPayment(this).InitCredentials("grahamasare62@gmail.com", "J33899SJS8EJDJDJJ");
+            await GetUserFromFireAsync();
+            postEventListener.FetchPost();
+            postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
         }
 
-        private void ProfileParcelable_WriteTOParcelFailed(object sender, EventArgs e)
+        private void PostEventListener_OnPostRetrieved(object sender, PostEventListener.PostEventArgs e)
         {
-            Toast.MakeText(this, "No network connection", ToastLength.Short).Show();
+            if (e.Posts == null)
+                return;
+
+            posts = e.Posts;
+            SetUpRecycler();
         }
+
+        private void SetUpActionMode()
+        {
+            actionModeCallback = new ActionModeCallback(
+                onActionItemClicked: (mode, item)=> 
+                {
+                    switch (item.ItemId) 
+                    {
+                        case Resource.Id.action_help:
+                            mode.Finish();
+                            break;
+                        default:
+                            break;
+                    }
+
+                }, onCreateActionMode: (mode, menu)=> 
+                {
+                    MenuInflater inflater = mode.MenuInflater;
+                    inflater.Inflate(Resource.Menu.help_menu, menu);
+
+                }, onDestroyActionMode: (mode)=> 
+                {
+                    mode = null;
+                });
+        }
+
+        private void ProfileParcelable_WriteTOParcelFailed(object sender, EventArgs e) => ShowToast("No network connection");
 
         private void AddPostFab_Click(object sender, EventArgs e)
         {
@@ -111,7 +137,7 @@ namespace Oyadieyie3D
                     createPost = new CreatePostFragment();
                     createPost.Cancelable = false;
                     var b = new Bundle();
-                    b.PutString(Constants.IMG_URL_KEY, _user.ProfileImgUrl);
+                    b.PutString(Constants.IMG_URL_KEY, user.ProfileImgUrl);
                     createPost.Arguments = b;
                     createPost.OnPostComplete += CreatePost_OnPostComplete;
                     createPost.OnErrorEncounted += CreatePost_OnErrorEncounted;
@@ -121,8 +147,7 @@ namespace Oyadieyie3D
                 }
                 catch (Exception)
                 {
-
-                    return;
+                    ShowToast("No network connection");
                 }
             });
         }
@@ -131,37 +156,17 @@ namespace Oyadieyie3D
 
         private void CreatePost_OnErrorEncounted(object sender, CreatePostFragment.ErrorEventArgs e) => ShowError(e.ErrorMsg);
 
-        private void FetchPost()
+
+        private void SetUpRecycler()
         {
-            postEventListener = new PostEventListener();
-            postEventListener.FetchPost();
-            postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
-        }
-
-        private void PostEventListener_OnPostRetrieved(object sender, PostEventListener.PostEventArgs e)
-        {
-            var list_of_post = new List<Post>();
-            list_of_post = e.Posts;
-
-            if (list_of_post == null)
-                return;
-
-            list_of_post = list_of_post.OrderByDescending(x => x.PostDate).ToList();
-            SetUpRecycler(list_of_post);
-            swipe_container.Refreshing = false;
-        }
-
-        private void SetUpRecycler(List<Post> list_of_post)
-        {
-
-            postAdapter = new PostAdapter(list_of_post);
+            postAdapter = new PostAdapter(this, posts);
             mainRecycler.SetAdapter(postAdapter);
             emptyObserver = new RecyclerViewEmptyObserver(mainRecycler, emptyRoot);
             postAdapter.RegisterAdapterDataObserver(emptyObserver);
             postAdapter.ItemLongClick += (s1, e1) =>
             {
-                string postID = list_of_post[e1.Position].ID;
-                string ownerID = list_of_post[e1.Position].OwnerId;
+                string postID = posts[e1.Position].ID;
+                string ownerID = posts[e1.Position].OwnerId;
 
                 if (SessionManager.GetFirebaseAuth().CurrentUser.Uid != ownerID)
                     return;
@@ -195,6 +200,8 @@ namespace Oyadieyie3D
                                 default:
                                     StorageReference storageReference = FirebaseStorage.Instance.GetReference("postImages/" + postID);
                                     storageReference.DeleteAsync();
+                                    postAdapter.NotifyItemRemoved(e1.Position);
+                                    postAdapter.NotifyItemRangeChanged(e1.Position, posts.Count);
                                     break;
                             }
                         }));
@@ -207,14 +214,14 @@ namespace Oyadieyie3D
                     d2.Show();
                 }));
                 sweetDialog.Show();
-            };
+            }; 
 
             postAdapter.ItemClick += (s2, e2) =>
             {
                 var intent = new Intent(this, typeof(FullscreenImageActivity));
 
                 PostParcelable postParcelable = new PostParcelable();
-                postParcelable.PostItem = list_of_post[e2.Position];
+                postParcelable.PostItem = posts[e2.Position];
 
                 intent.PutExtra(Constants.TRANSITION_NAME, ViewCompat.GetTransitionName(e2.ImageView));
                 intent.PutExtra(Constants.POST_DATA_EXTRA, postParcelable);
@@ -223,45 +230,7 @@ namespace Oyadieyie3D
                     ViewCompat.GetTransitionName(e2.ImageView));
                 StartActivity(intent, options.ToBundle());
             };
-
-            postAdapter.ItemLiked += (s3, e3) =>
-            {
-                var id = list_of_post[e3.Position].ID;
-                var likeRef = SessionManager.GetFireDB().GetReference($"posts/{id}/likes");
-                var map = new HashMap();
-                map.Put(SessionManager.GetFirebaseAuth().CurrentUser.Uid, true);
-                likeRef.SetValueAsync(map);
-            };
-
-            postAdapter.ItemUnliked += (s4, e4) =>
-            {
-                var id = list_of_post[e4.Position].ID;
-                var likeRef = SessionManager.GetFireDB().GetReference($"posts/{id}/likes");
-                likeRef.AddValueEventListener(new SingleValueListener((s) =>
-                {
-                    if (!s.Exists())
-                        return;
-
-                    if (!s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Exists())
-                        return;
-
-                    likeRef.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).RemoveValueAsync();
-                    
-                }, (e)=> 
-                {
-                    return;
-                }));
-            };
         }
-
-        private void FetchUser()
-        {
-            getProfile = new GetProfileData();
-            getProfile.GetUserFromFire();
-            getProfile.OnProfileRetrieved += GetProfile_OnProfileRetrieved;
-        }
-
-        private void GetProfile_OnProfileRetrieved(object sender, GetProfileData.ProfileEventArgs e) => _user = e.user;
 
         public override bool OnCreateOptionsMenu(IMenu menu)
         {
@@ -279,11 +248,11 @@ namespace Oyadieyie3D
             //try
             //{
             //    List<Post> searchResult =
-            //            (from post in list_of_post
+            //            (from post in posts
             //             where post.PostBody.ToLower().Contains(e.NewText.ToLower())
             //             select post).ToList();
 
-            //    postAdapter = new PostAdapter(searchResult);
+            //    postAdapter = new PostAdapter(this, searchResult);
             //    postAdapter.RegisterAdapterDataObserver(emptyObserver);
             //    mainRecycler.SetAdapter(postAdapter);
             //}
@@ -298,24 +267,16 @@ namespace Oyadieyie3D
             switch (item.ItemId)
             {
                 case Resource.Id.action_refresh:
+                    PayWithSlydepay.Pay(this, "beans", 4.50, "gob3", "graham", "email@gmail.com", "500", "0203870543", 500);
                     break;
                     
                 case Resource.Id.action_finder:
-                    bool isOnline = prefs.GetBoolean(Constants.SWITCH_VALUE_EXTRA, false);
-                    switch (isOnline)
-                    {
-                        case false:
-                            ShowError("Finder needs your online status to be on. Please turn it on in settings.");
-                            break;
-                        default:
-                            ShowSuccess();
-                            break;
-                    }
+                    
                     break;
 
                 case Resource.Id.action_settings:
                     var intent = new Intent(this, typeof(SettingsActivity));
-                    profileParcelable.UserProfile = _user;
+                    profileParcelable.UserProfile = user;
                     intent.PutExtra(Constants.PROFILE_DATA_EXTRA, profileParcelable);
                     StartActivity(intent);
                     break;
@@ -323,99 +284,63 @@ namespace Oyadieyie3D
             return base.OnOptionsItemSelected(item);
         }
 
-        //private void ShowFinderDialog()
-        //{
-        //    Dexter.WithActivity(this)
-        //        .WithPermissions(Manifest.Permission.AccessCoarseLocation, Manifest.Permission.AccessFineLocation)
-        //        .WithListener(new MultiplePermissionsListener((permission, token) =>
-        //        {
-        //            token.ContinuePermissionRequest();
-        //        }, (report)=> 
-        //        {
-        //            if (report.AreAllPermissionsGranted())
-        //            {
-        //                ShowLoading();
+        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
+        {
+            base.OnActivityResult(requestCode, resultCode, data);
+            if (requestCode == 500)
+            {
+                switch (resultCode)
+                {
+                    case Result.Ok:
+                        ShowSuccess();
+                        break;
+                    case Result.Canceled:
+                        ShowError("slydepay failed");
+                        break;
+                    case Result.FirstUser:
+                        ShowError("You naa cancel the thing");
+                        break;
+                }
+            }
+        }
 
-        //                locationCallback = new MyLocationCallback(
-        //                onLocationresult: locationResult =>
-        //                {
-        //                    if (locationResult == null)
-        //                        return;
+        public async Task<User> GetUserFromFireAsync()
+        {
+            await Task.Run(() =>
+            {
+                try
+                {
+                    string userId = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
+                    var userRef = SessionManager.GetFireDB().GetReference($"users/{userId}/profile");
+                    userRef.AddValueEventListener(new SingleValueListener(
+                    onDataChange: (snapshot) =>
+                    {
+                        if (!snapshot.Exists())
+                            return;
 
-        //                    foreach(var location in locationResult.Locations)
-        //                    {
-        //                        mylocation = location;
-        //                        var ll = new LatLng(mylocation.Latitude, mylocation.Longitude);
-        //                        Toast.MakeText(this, $"{ll}", ToastLength.Short).Show();
-        //                    }
-        //                });
-
-
-        //                fusedLocationClient = LocationServices.GetFusedLocationProviderClient(this);
-        //                fusedLocationClient.GetLastLocation()
-        //                    .AddOnCompleteListener(this, new OncompleteListener((t)=> 
-        //                    {
-        //                        if (!t.IsSuccessful)
-        //                            return;
-
-        //                        mylocation = t.Result as Location;
-        //                    }));
-
-        //                CreateLocationRequest();
-        //            }
-        //            else
-        //            {
-                        
-        //            }
-        //        })).Check();
-        //}
-
-        //protected void CreateLocationRequest()
-        //{
-        //    try
-        //    {
-        //        locationRequest = LocationRequest.Create();
-        //        locationRequest.SetInterval(10000);
-        //        locationRequest.SetFastestInterval(50000);
-        //        locationRequest.SetPriority(LocationRequest.PriorityHighAccuracy);
-
-        //        var builder = new LocationSettingsRequest.Builder()
-        //                        .AddLocationRequest(locationRequest);
-
-        //        var client = LocationServices.GetSettingsClient(this);
-        //        var task = client.CheckLocationSettings(builder.Build());
-        //        task.AddOnCompleteListener(new OncompleteListener((t) =>
-        //        {
-        //            if (!t.IsSuccessful)
-        //                throw t.Exception;
-        //        }));
-        //    }
-        //    catch (Exception e)
-        //    {
-        //        if(e is ResolvableApiException)
-        //        {
-        //            try
-        //            {
-        //                var resolvable = (ResolvableApiException)e;
-        //                resolvable.StartResolutionForResult(this, REQUEST_CHECK_SETTINGS);
-        //            }
-        //            catch (IntentSender.SendIntentException sendEx)
-        //            {
-
-        //            }
-        //        } 
-        //    }
-        //}
-
-        //private void StartLocationUpdates()
-        //{
-        //    fusedLocationClient.RequestLocationUpdates(locationRequest, locationCallback, MainLooper);
-        //}
-
-        //private async void StopLocationUpdates()
-        //{
-        //    await fusedLocationClient.RemoveLocationUpdatesAsync(locationCallback);
-        //}
+                        var _user = new User
+                        {
+                            ID = snapshot.Key,
+                            Username = snapshot.Child(Constants.SNAPSHOT_FNAME) != null ? snapshot.Child(Constants.SNAPSHOT_FNAME).Value.ToString() : "",
+                            Status = snapshot.Child(Constants.SNAPSHOT_GENDER) != null ? snapshot.Child(Constants.SNAPSHOT_GENDER).Value.ToString() : "",
+                            ProfileImgUrl = snapshot.Child(Constants.SNAPSHOT_PHOTO_URL) != null ? snapshot.Child(Constants.SNAPSHOT_PHOTO_URL).Value.ToString() : "",
+                            Email = snapshot.Child(Constants.SNAPSHOT_EMAIL) != null ? snapshot.Child(Constants.SNAPSHOT_EMAIL).Value.ToString() : "",
+                            Phone = snapshot.Child(Constants.SNAPSHOT_PHONE) != null ? snapshot.Child(Constants.SNAPSHOT_PHONE).Value.ToString() : ""
+                        };
+                        user = _user;
+                    }, onCancelled: (exception) =>
+                    {
+                        Toast.MakeText(Application.Context, exception.Message, ToastLength.Short).Show();
+                    }));
+                    userRef.KeepSynced(true);
+                }
+                catch (Exception e)
+                {
+                    Toast.MakeText(this, e.Message, ToastLength.Short).Show();
+                }
+            });
+            return user;
+        }
 
         private void ShowLoading()
         {
@@ -451,51 +376,12 @@ namespace Oyadieyie3D
                 .ShowCancelButton(false)
                 .SetConfirmClickListener(null)
                 .Show();
-        }     
-
-        internal sealed class GetProfileData
-        {
-            public event EventHandler<ProfileEventArgs> OnProfileRetrieved;
-            public class ProfileEventArgs : EventArgs
-            {
-                public User user { get; set; }
-            }
-
-            public void GetUserFromFire()
-            {
-                try
-                {
-                    string userId = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
-                    var userRef = SessionManager.GetFireDB().GetReference($"users/{userId}/profile");
-                    userRef.AddValueEventListener(new SingleValueListener(
-                    onDataChange: (snapshot) =>
-                    {
-                        if (!snapshot.Exists())
-                            return;
-
-                        var _user = new User
-                        {
-                            ID = snapshot.Key,
-                            Username = snapshot.Child(Constants.SNAPSHOT_FNAME) != null ? snapshot.Child(Constants.SNAPSHOT_FNAME).Value.ToString() : "",
-                            Status = snapshot.Child(Constants.SNAPSHOT_GENDER) != null ? snapshot.Child(Constants.SNAPSHOT_GENDER).Value.ToString() : "",
-                            ProfileImgUrl = snapshot.Child(Constants.SNAPSHOT_PHOTO_URL) != null ? snapshot.Child(Constants.SNAPSHOT_PHOTO_URL).Value.ToString() : "",
-                            Email = snapshot.Child(Constants.SNAPSHOT_EMAIL) != null ? snapshot.Child(Constants.SNAPSHOT_EMAIL).Value.ToString() : "",
-                            Phone = snapshot.Child(Constants.SNAPSHOT_PHONE) != null ? snapshot.Child(Constants.SNAPSHOT_PHONE).Value.ToString() : ""
-                        };
-                        OnProfileRetrieved?.Invoke(this, new ProfileEventArgs { user = _user });
-                    }, onCancelled: (exception) =>
-                    {
-                        
-                    }));
-                    userRef.KeepSynced(true);
-                }
-                catch (Exception e)
-                {
-                    return;
-                }
-            }
         }
 
+        private void ShowToast(string msg)
+        {
+            Toast.MakeText(this, msg, ToastLength.Short).Show();
+        }
 
         internal sealed class MyLocationCallback : LocationCallback
         {

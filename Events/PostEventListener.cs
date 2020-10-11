@@ -1,6 +1,4 @@
-﻿using Android.App;
-using Android.Widget;
-using Firebase.Database;
+﻿using Firebase.Database;
 using Oyadieyie3D.HelperClasses;
 using Oyadieyie3D.Models;
 using System;
@@ -24,7 +22,6 @@ namespace Oyadieyie3D.Events
         {
             retrievalRef = SessionManager.GetFireDB().GetReference("posts");
             retrievalRef.AddValueEventListener(this);
-            retrievalRef.KeepSynced(true);
         }
 
         public void OnCancelled(DatabaseError error)
@@ -39,7 +36,7 @@ namespace Oyadieyie3D.Events
                 case false:
                     break;
                 default:
-                    ListOfPost.Clear();
+                    //ListOfPost.Clear();
                     foreach (var (item, post) in from item in snapshot.Children.ToEnumerable<DataSnapshot>()
                                                  let post = new Post()
                                                  select (item, post))
@@ -51,30 +48,8 @@ namespace Oyadieyie3D.Events
                         post.OwnerId = userID;
                         post.DownloadUrl = item.Child(Constants.SNAPSHOT_POST_DOWNLOAD_URL) != null ? item.Child(Constants.SNAPSHOT_POST_DOWNLOAD_URL).Value.ToString() : "";
                         post.PostDate = item.Child(Constants.SNAPSHOT_POST_POST_DATE) != null ? item.Child(Constants.SNAPSHOT_POST_POST_DATE).Value.ToString() : "";
-
-                        if (item.Child("likes").Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Exists())
-                        {
-                            post.Liked = true;
-                        }
-                        else
-                        {
-                            post.Liked = false;
-                        }
-                        post.LikeCount = item.Child("likes").ChildrenCount;
-                        var ownerRef = SessionManager.GetFireDB().GetReference($"users/{userID}/profile");
-                        ownerRef.AddValueEventListener(new SingleValueListener(
-                        onDataChange: (s) =>
-                        {
-                            if (!s.Exists())
-                                return;
-                            post.Author = s.Child(Constants.SNAPSHOT_FNAME) != null ? s.Child(Constants.SNAPSHOT_FNAME).Value.ToString() : "";
-                            post.OwnerImg = s.Child(Constants.SNAPSHOT_PHOTO_URL) != null ? s.Child(Constants.SNAPSHOT_PHOTO_URL).Value.ToString() : "";
-                            
-                        },
-                        onCancelled: (e)=> 
-                        {
-                            Toast.MakeText(Application.Context, e.Message, ToastLength.Short).Show();
-                        }));
+                        post.Liked = item.Child("likes").Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Exists() ? true : false;
+                        post.LikeCount = item.Child("likes") != null ? item.Child("likes").ChildrenCount : 0;
                         ListOfPost.Add(post);
                     }
                     OnPostRetrieved?.Invoke(this, new PostEventArgs { Posts = ListOfPost });

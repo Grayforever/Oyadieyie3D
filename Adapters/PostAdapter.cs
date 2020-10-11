@@ -1,4 +1,4 @@
-﻿using Android.App;
+﻿using Android.Content;
 using Android.Views;
 using Android.Widget;
 using AndroidX.Core.View;
@@ -7,6 +7,8 @@ using BumpTech.GlideLib;
 using BumpTech.GlideLib.Requests;
 using DE.Hdodenhof.CircleImageViewLib;
 using Like.Lib;
+using Oyadieyie3D.Events;
+using Oyadieyie3D.HelperClasses;
 using Oyadieyie3D.Models;
 using System;
 using System.Collections.Generic;
@@ -17,16 +19,16 @@ namespace Oyadieyie3D.Adapters
     {
         public event EventHandler<PostAdapterClickEventArgs> ItemClick;
         public event EventHandler<PostAdapterClickEventArgs> ItemLongClick;
-        public event EventHandler<PostAdapterClickEventArgs> ItemLiked;
-        public event EventHandler<PostAdapterClickEventArgs> ItemUnliked;
 
-        List<Post> _items;
+        public static List<Post> _items { get; set; }
         public static Post item;
+        public static Context _context;
         
 
-        public PostAdapter(List<Post> items)
+        public PostAdapter(Context context, List<Post> items)
         {
             _items = items;
+            _context = context;
         }
         public override int ItemCount => _items.Count;
 
@@ -39,19 +41,18 @@ namespace Oyadieyie3D.Adapters
             var ts = DateTime.UtcNow - DateTime.Parse(item.PostDate);
             vh.durationTextView.Text = ts.ToString(@"d\d\ hh\h\ mm\m\ ss\s").TrimStart(' ', 'd', 'h', 'm', 's', '0');
             vh.postLikeBtn.SetLiked(item.Liked);
-            vh.likeCountTextView.Text = $"{item.LikeCount} likes";
+            vh.likeCountTextView.Text = string.Format("{0} like{1}", item.LikeCount, item.LikeCount > 1 || item.LikeCount == 0 ? "s" : string.Empty);
             GetImage(item.DownloadUrl, vh.postImageView);
-            GetImage(item.OwnerImg, vh.profileImageView);
             ViewCompat.SetTransitionName(vh.postImageView, "open_gate");
         }
 
-        private void GetImage(string downloadUrl, ImageView postImageView)
+        private void GetImage(string downloadUrl, View postImageView)
         {
             RequestOptions requestOptions = new RequestOptions();
             requestOptions.Placeholder(Resource.Drawable.img_placeholder);
             requestOptions.SkipMemoryCache(true);
 
-            Glide.With(Application.Context)
+            Glide.With(_context)
                 .SetDefaultRequestOptions(requestOptions)
                 .Load(downloadUrl)
                 .Into(postImageView);
@@ -59,19 +60,12 @@ namespace Oyadieyie3D.Adapters
 
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            View itemView = null;
-            itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.post_item, parent, false);
-            var vh = new PostAdapterViewHolder(itemView, OnClick, OnLongClick, OnLiked, OnUnliked);
-
-            return vh;
+            var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.post_item, parent, false);
+            return new PostAdapterViewHolder(itemView, OnClick, OnLongClick);
         }
 
         void OnClick(PostAdapterClickEventArgs args) => ItemClick?.Invoke(this, args);
         void OnLongClick(PostAdapterClickEventArgs args) => ItemLongClick?.Invoke(this, args);
-
-        void OnLiked(PostAdapterClickEventArgs args) => ItemLiked?.Invoke(this, args);
-
-        void OnUnliked(PostAdapterClickEventArgs args) => ItemUnliked?.Invoke(this, args);
 
         public class PostAdapterViewHolder : RecyclerView.ViewHolder
         {
@@ -84,7 +78,7 @@ namespace Oyadieyie3D.Adapters
             public LikeButton postLikeBtn { get; set; }
 
             public PostAdapterViewHolder(View itemView, Action<PostAdapterClickEventArgs> clickListener,
-                Action<PostAdapterClickEventArgs> longClickListener, Action<PostAdapterClickEventArgs> likedListener, Action<PostAdapterClickEventArgs> unlikedListener) : base(itemView)
+                Action<PostAdapterClickEventArgs> longClickListener) : base(itemView)
             {
                 usernameTextView = (TextView)itemView.FindViewById(Resource.Id.post_name_tv);
                 postBodyTextView = (TextView)itemView.FindViewById(Resource.Id.post_caption_tv);
@@ -93,10 +87,29 @@ namespace Oyadieyie3D.Adapters
                 profileImageView = (CircleImageView)itemView.FindViewById(Resource.Id.post_user_profile);
                 durationTextView = (TextView)itemView.FindViewById(Resource.Id.post_time_tv);
                 postLikeBtn = itemView.FindViewById<LikeButton>(Resource.Id.post_like_btn);
+
                 itemView.Click += (sender, e) => clickListener(new PostAdapterClickEventArgs { View = itemView, Position = AdapterPosition, ImageView = postImageView });
                 itemView.LongClick += (sender, e) => longClickListener(new PostAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
-                postLikeBtn.Liked += (sender, e) => likedListener(new PostAdapterClickEventArgs { Position = AdapterPosition, LikeButton = postLikeBtn });
-                postLikeBtn.UnLiked += (sender, e) => unlikedListener(new PostAdapterClickEventArgs { LikeButton = postLikeBtn, Position = AdapterPosition });
+
+
+                postLikeBtn.SetOnLikeListener(new OnLikeEventListener((liked)=> 
+                {
+                    
+                },(unliked)=> 
+                {
+                    var likeref = SessionManager.GetFireDB().GetReference($"posts/{_items[AdapterPosition].ID}/likes/{SessionManager.UserId}");
+                    likeref.AddValueEventListener(new SingleValueListener((s) =>
+                    {
+                        if (!s.Exists())
+                            return;
+
+                        likeref.RemoveValue();
+
+                    }, (de) =>
+                    {
+
+                    }));
+                } ));
             }
         }
 
@@ -105,8 +118,6 @@ namespace Oyadieyie3D.Adapters
             public View View { get; set; }
             public int Position { get; set; }
             public ImageView ImageView { get; set; }
-
-            public LikeButton LikeButton { get; set; }
         }
     }
 }

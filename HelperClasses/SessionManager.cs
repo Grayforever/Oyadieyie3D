@@ -39,6 +39,8 @@ namespace Oyadieyie3D.HelperClasses
             return FirebaseDatabase.Instance;
         }
 
+        public static string UserId => GetFirebaseAuth().CurrentUser.Uid;
+
         public static DatabaseReference UserRef => GetFireDB().GetReference("users");
     }
 }

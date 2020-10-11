@@ -4,14 +4,13 @@ using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.ConstraintLayout.Widget;
 using AndroidX.Transitions;
+using CN.Pedant.SweetAlert;
 using Com.Mukesh.CountryPickerLib;
 using Google.Android.Material.AppBar;
 using Google.Android.Material.Button;
 using Google.Android.Material.TextField;
 using Oyadieyie3D.Events;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
-using CN.Pedant.SweetAlert;
-using Oyadieyie3D.Callbacks;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -92,10 +91,8 @@ namespace Oyadieyie3D.Fragments
             });
         }
 
-        private void EditText_TextChanged(object sender, Android.Text.TextChangedEventArgs e)
-        {
-            CheckIfEmpty();
-        }
+        
+        private void EditText_TextChanged(object sender, Android.Text.TextChangedEventArgs e) => CheckIfEmpty();
 
         private void CheckIfEmpty()
         {
@@ -104,14 +101,6 @@ namespace Oyadieyie3D.Fragments
         }
 
         private void CountryLinear_Click(object sender, System.EventArgs e) => picker.ShowDialog(Activity);
-
-        public void ShowLoader()
-        {
-            var loaderDialog = new SweetAlertDialog(Context, SweetAlertDialog.ProgressType);
-            loaderDialog.SetTitleText("Loading");
-            loaderDialog.ShowCancelButton(false);
-            loaderDialog.Show();
-        }
 
         
     }

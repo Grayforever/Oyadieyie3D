@@ -38,7 +38,6 @@
         app:useCompatPadding="true"
         android:src="@drawable/ic_add"
         app:tint="@android:color/white"
-        app:backgroundTint="@color/colorAccent"
         />
 
 

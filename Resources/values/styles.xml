@@ -33,4 +33,8 @@
 		<item name="cornerSizeBottomLeft">0dp</item>
 	</style>
 
+	<style name="AppTheme.ModalDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
+		<item name="windowNoTitle">true</item>
+	</style>
+
 </resources>

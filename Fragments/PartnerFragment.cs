@@ -1,9 +1,11 @@
-﻿using Android.Content;
+﻿using Android.App;
+using Android.Content;
 using Android.OS;
 using Android.Views;
-using AndroidX.Fragment.App;
 using Google.Android.Material.Button;
 using Oyadieyie3D.Events;
+using Fragment = AndroidX.Fragment.App.Fragment;
+using FragmentTransaction = AndroidX.Fragment.App.FragmentTransaction;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -11,6 +13,8 @@ namespace Oyadieyie3D.Fragments
     {
 
         private bool isDesigner = false;
+        ISharedPreferences preferences = Application.Context.GetSharedPreferences("userInfo", FileCreationMode.Private);
+        ISharedPreferencesEditor editor;
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -45,29 +49,14 @@ namespace Oyadieyie3D.Fragments
             var nextBtn = view.FindViewById<MaterialButton>(Resource.Id.acc_type_nxt_btn);
             nextBtn.Click += (s1, e1) =>
             {
-                //SetFragment();
+                editor = preferences.Edit();
+                editor.PutString("firstRun", "regd");
+                editor.Commit();
+                
+                GetSmsFragment.SetStatus("done");
                 var i = new Intent(Context, typeof(MainActivity));
                 StartActivity(i);
             };
-        }
-
-        private void SetFragment()
-        {
-            
-            switch (isDesigner)
-            {
-                case true:
-                    FragmentTransaction ft1 = ChildFragmentManager.BeginTransaction();
-                    ft1.Add(new ClientFragment(), "clientFragment");
-                    ft1.CommitAllowingStateLoss();
-                    break;
-
-                case false:
-                    FragmentTransaction ft2 = ChildFragmentManager.BeginTransaction();
-                    ft2.Add(new DesignerFragment(), "designerFragment");
-                    ft2.CommitAllowingStateLoss();
-                    break;
-            }
         }
     }
 }
