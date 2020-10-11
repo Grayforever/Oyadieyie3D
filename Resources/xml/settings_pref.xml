@@ -1,24 +1,36 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="https://schemas.android.com/apk/res/android">
-	<CheckBoxPreference
-            android:key="checkbox"
-            android:summary="Tap to check if on or off"
-            android:title="Checkbox Preference" />
-	<EditTextPreference
-            android:dialogTitle="Enter a text"
-            android:key="text"
-            android:summary="Click to show a text entry dialog"
-            android:title="EditText Preference" />
-	<ListPreference
-            android:dialogTitle="Select duration"
-            android:entries="@array/settings_list_preference_titles"
-            android:entryValues="@array/settings_list_preference_values"
-            android:key="list"
-            android:summary="Click to show a list to choose from"
-            android:title="List Preference" />
-	<SwitchPreference
-            android:key="switch"
-            android:title="Switch Preference"
-            android:summary="Click to switch on or off"
-            android:defaultValue="true"/>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<SwitchPreferenceCompat
+        app:key="online_switch"
+        app:summaryOff="Offline"
+        app:summaryOn="Online"
+        app:defaultValue="false"
+        app:title="Online status"
+		app:icon="@drawable/ic_public"
+		/>
+
+	<Preference
+		app:fragment="com.graylabs.oyadieyie3d.Fragments.AccountFragment"
+        app:key="account"
+        app:title="Account"
+        app:summary="Privacy, security, change number"
+		app:icon="@drawable/ic_account"
+		/>
+
+	<Preference
+		app:fragment="com.graylabs.oyadieyie3d.Fragments.Notifications"
+        app:key="notification"
+        app:title="Notifications"
+        app:summary="In-app and app alert tones"
+		app:icon="@drawable/ic_notifiction"
+		/>
+
+	<Preference
+        app:key="help"
+        app:title="Help"
+        app:summary="Terms, privacy policy, contact us"
+		app:icon="@drawable/ic_help"/>
+
 </PreferenceScreen>

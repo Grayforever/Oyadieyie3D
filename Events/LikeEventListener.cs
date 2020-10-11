@@ -1,133 +1,60 @@
-﻿using Android.App;
-using Android.Runtime;
-using Android.Widget;
-using Firebase;
-//using Firebase.Firestore;
+﻿using Java.Util;
 using Oyadieyie3D.HelperClasses;
 using System;
 
 namespace Oyadieyie3D.Events
 {
     public class LikeEventListener
-    {
-        string postID;
-        bool Like;
+    { 
 
-        public LikeEventListener(string _postId)
+        public event EventHandler<LikePostEventArgs> OnLikePost;
+        private string _postId;
+        public class LikePostEventArgs : EventArgs
         {
-            postID = _postId;
+            public bool isLiked { get; set; }
+            public long likeCount { get; set; }
         }
 
-        //public void LikePost()
-        //{
-        //    Like = true;
-        //    SessionManager.GetFirestore().Collection("posts").Document(postID).Get()
-        //        .AddOnCompleteListener(new OncompleteListener((t) =>
-        //        {
-        //            try
-        //            {
-        //                if (t.IsSuccessful)
-        //                {
-        //                    PerformAction(t.Result);
-        //                }
-        //                else
-        //                {
-        //                    throw (t.Exception);
-        //                }
-        //            }
-        //            catch (FirebaseFirestoreException ffe)
-        //            {
+        public LikeEventListener(string postId)
+        {
+            _postId = postId;
+        }
 
-        //                Toast.MakeText(Application.Context, ffe.Message, ToastLength.Short).Show();
-        //            }
-        //            catch (FirebaseNetworkException fne)
-        //            {
+        public void LikePost()
+        {
+            try
+            {
+                var likeRef = SessionManager.GetFireDB().GetReference($"posts/{_postId}/likes");
+                likeRef.AddValueEventListener(new SingleValueListener((s) =>
+                {
+                    bool liked = false;
+                    if (!s.Exists())
+                        return;
+                    if (s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Exists())
+                    {
+                        likeRef.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).RemoveValueAsync();
+                        liked = false;
+                    }
+                    else
+                    {
+                        var likeMap = new HashMap();
+                        likeMap.Put(SessionManager.GetFirebaseAuth().CurrentUser.Uid, DateTime.UtcNow.ToString());
+                        likeRef.SetValueAsync(likeMap);
+                        liked = true;
+                    }
 
-        //                Toast.MakeText(Application.Context, fne.Message, ToastLength.Short).Show();
-        //            }
-        //            catch (Exception e)
-        //            {
+                    OnLikePost?.Invoke(this, new LikePostEventArgs { isLiked = liked, likeCount = s.ChildrenCount});
+    
+                }, (e) =>
+                {
 
-        //                Toast.MakeText(Application.Context, e.Message, ToastLength.Short).Show();
-        //            }
-        //        }));
+                }));
+            }
+            catch (Exception)
+            {
 
-        //}
-
-        //private void PerformAction(Java.Lang.Object result)
-        //{
-        //    DocumentSnapshot snapshot = (DocumentSnapshot)result;
-
-        //    if (!snapshot.Exists())
-        //    {
-        //        return;
-        //    }
-
-        //    DocumentReference likesReference = SessionManager.GetFirestore().Collection("posts").Document(postID);
-
-        //    if (Like)
-        //    {
-        //        likesReference.Update("likes." + SessionManager.GetFirebaseAuth().CurrentUser.Uid, true);
-        //    }
-        //    else
-        //    {
-        //        if (snapshot.Get("likes") == null)
-        //        {
-        //            return;
-        //        }
-
-        //        var data = snapshot.Get("likes") != null ? snapshot.Get("likes") : null;
-        //        if (data != null)
-        //        {
-        //            var dictionaryFromHashMap = new JavaDictionary<string, string>(data.Handle, JniHandleOwnership.DoNotRegister);
-
-        //            string uid = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
-
-        //            if (dictionaryFromHashMap.Contains(uid))
-        //            {
-        //                dictionaryFromHashMap.Remove(uid);
-        //                likesReference.Update("likes", dictionaryFromHashMap);
-        //            }
-        //        }
-
-        //    }
-
-        //}
-
-        //public void UnlikePost()
-        //{
-        //    Like = false;
-        //    SessionManager.GetFirestore().Collection("posts").Document(postID).Get()
-        //        .AddOnCompleteListener(new OncompleteListener((t) =>
-        //        {
-        //            try
-        //            {
-        //                if (t.IsSuccessful)
-        //                {
-        //                    PerformAction(t.Result);
-        //                }
-        //                else
-        //                {
-        //                    throw (t.Exception);
-        //                }
-        //            }
-        //            catch (FirebaseFirestoreException ffe)
-        //            {
-
-        //                Toast.MakeText(Application.Context, ffe.Message, ToastLength.Short).Show();
-        //            }
-        //            catch (FirebaseNetworkException fne)
-        //            {
-
-        //                Toast.MakeText(Application.Context, fne.Message, ToastLength.Short).Show();
-        //            }
-        //            catch (Exception e)
-        //            {
-
-        //                Toast.MakeText(Application.Context, e.Message, ToastLength.Short).Show();
-        //            }
-        //        }));
-        //}
-
+                throw;
+            }
+        }
     }
 }

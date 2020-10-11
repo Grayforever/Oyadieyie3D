@@ -1,49 +1,98 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
+using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
+using BumpTech.GlideLib;
 using IGreenWood.LoupeLib;
 using Oyadieyie3D.Parcelables;
+using Oyadieyie3D.HelperClasses;
 using System;
+using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
 namespace Oyadieyie3D.Activities
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = false)]
+    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = false, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
     public class FullscreenImageActivity : AppCompatActivity
     {
+        private ImageView imageView;
+        private Toolbar fullToolbar;
+
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.fullscreen_imageviewer);
-            
-            Bundle extras = Intent.Extras;
-            ImageView imageView = (ImageView)FindViewById(Resource.Id.image);
-            string imageTransitionName = extras.GetString("extra_transition_name");
-            imageView.TransitionName = imageTransitionName;
+            imageView = (ImageView)FindViewById(Resource.Id.image);
+            fullToolbar = (Toolbar)FindViewById(Resource.Id.fullscreen_toolbar);
+            SetSupportActionBar(fullToolbar);
+            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
 
             var loupe = new Loupe(imageView);
             loupe.UseDismissAnimation = false;
-            loupe.OnViewTranslateListener = new OnViewTranslateListener
-                (
-                    onDismiss: (v1) =>
-                    {
-                        SupportFinishAfterTransition();
-                    }, onRestore: (v2) => 
-                    {
+            loupe.OnViewTranslateListener = new OnViewTranslateListener((v1) =>
+            {
+                SupportFinishAfterTransition();
+            },null, null, null);
 
-                    }, onStart: (v3) => 
-                    { 
-                
-                    }, onViewTranslate: (v4, f) => 
-                    { 
+            try
+            {
+                Bundle extras = Intent.Extras;
+                int type = extras.GetInt(Constants.PARCEL_TYPE);
+                switch (type)
+                {
+                    case 0:
+                        PostParcelable postParcel = (PostParcelable)extras.GetParcelable(Constants.POST_DATA_EXTRA);
+                        Glide.With(this).Load(postParcel.PostItem.DownloadUrl).Into(imageView);
+                        break;
+                    default:
+                        ProfileParcelable profileParcel = (ProfileParcelable)extras.GetParcelable(Constants.PROFILE_DATA_EXTRA);
+                        Glide.With(this).Load(profileParcel.UserProfile.ProfileImgUrl).Into(imageView);
+                        break;
+                }
+                string imageTransitionName = extras.GetString(Constants.TRANSITION_NAME);
+                imageView.TransitionName = imageTransitionName;
+            }
+            catch (Exception e)
+            {
+                Toast.MakeText(this, e.Message, ToastLength.Short).Show();
+            }
+        }
 
-                    }
-                );
+        public override bool OnCreateOptionsMenu(IMenu menu)
+        {
+            MenuInflater.Inflate(Resource.Menu.fullscreen_menu, menu);
+            return base.OnCreateOptionsMenu(menu);
+        }
 
-            PostParcelable parcelable = (PostParcelable)extras.GetParcelable("extra_post_data");
+        public override bool OnOptionsItemSelected(IMenuItem item)
+        {
+            switch (item.ItemId)
+            {
+                case Resource.Id.action_whatsapp:
+                    var intent = new Intent();
+                    intent.PutExtra(Intent.ExtraText, "Intent hghghg");
+                    intent.SetType("text/plain");
+                    intent.SetPackage("com.whatsapp");
+                    StartActivity(intent);
+                    break;
 
-            Toast.MakeText(this, parcelable.PostItem.Author, ToastLength.Long).Show();
+                case Resource.Id.action_call:
+                    break;
+
+            }
+            return base.OnOptionsItemSelected(item);
+        }
+
+        public override bool OnSupportNavigateUp()
+        {
+            OnBackPressed();
+            return base.OnSupportNavigateUp();
+        }
+
+        public override void OnBackPressed()
+        {
+            base.OnBackPressed();
         }
 
         internal sealed class OnViewTranslateListener : Java.Lang.Object, Loupe.IOnViewTranslateListener

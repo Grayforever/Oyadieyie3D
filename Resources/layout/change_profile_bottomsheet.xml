@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="144dp"
+    android:padding="8dp"
+    android:clipToPadding="false">
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/gallery_header"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:text="Profile photo"
+        android:textAppearance="?attr/textAppearanceBody1"
+        />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:id="@+id/camera_btn"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/gallery_header"
+        app:layout_constraintEnd_toStartOf="@+id/gallery_btn"
+        android:src="@drawable/camera_img"
+        />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:id="@+id/gallery_btn"
+        app:layout_constraintStart_toEndOf="@+id/camera_btn"
+        app:layout_constraintTop_toBottomOf="@+id/gallery_header"
+        app:layout_constraintEnd_toStartOf="@+id/remove_btn"
+        android:src="@drawable/gallery_img"
+        />
+
+    <de.hdodenhof.circleimageview.CircleImageView
+        android:layout_width="56dp"
+        android:layout_height="56dp"
+        android:id="@+id/remove_btn"
+        app:layout_constraintStart_toEndOf="@+id/gallery_btn"
+        app:layout_constraintTop_toBottomOf="@+id/gallery_header"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:src="@drawable/delete_img"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/cam_tv"
+        app:layout_constraintStart_toStartOf="@+id/camera_btn"
+        app:layout_constraintEnd_toEndOf="@+id/camera_btn"
+        app:layout_constraintTop_toBottomOf="@+id/camera_btn"
+        android:text="Camera"
+        android:gravity="center"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/gal_tv"
+        app:layout_constraintStart_toStartOf="@+id/gallery_btn"
+        app:layout_constraintEnd_toEndOf="@+id/gallery_btn"
+        app:layout_constraintTop_toBottomOf="@+id/gallery_btn"
+        android:text="Gallery"
+        android:gravity="center"
+        />
+
+    <TextView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:id="@+id/gal_tv"
+        app:layout_constraintStart_toStartOf="@+id/remove_btn"
+        app:layout_constraintEnd_toEndOf="@+id/remove_btn"
+        app:layout_constraintTop_toBottomOf="@+id/remove_btn"
+        android:text="Remove photo"
+        android:gravity="center"
+        />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

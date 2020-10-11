@@ -17,6 +17,11 @@ xmlns:tools="http://schemas.android.com/tools">
     android:title="Refresh"
 	/>
 
+	<item
+		android:id="@+id/action_finder"
+		app:showAsAction="never"
+		android:title="O Finder"
+	/>
 
 <item
 	android:id="@+id/action_settings"

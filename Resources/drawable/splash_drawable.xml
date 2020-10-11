@@ -1,0 +1,15 @@
+﻿<?xml version="1.0" encoding="utf-8" ?> 
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android"
+	android:opacity="opaque">
+	<item>
+		<color android:color="@android:color/background_light"/>
+	</item>
+	
+	<item>
+		<bitmap
+			android:src="@drawable/oyadieye3d_logo"
+			android:gravity="center"
+			android:tileMode="disabled"
+			/>
+	</item>
+</layer-list>

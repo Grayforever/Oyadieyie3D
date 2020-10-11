@@ -1,44 +1,15 @@
 ﻿using Android.App;
-using Android.Content;
 using Firebase;
 using Firebase.Auth;
-//using Firebase.Firestore;
+using Firebase.Database;
 
 namespace Oyadieyie3D.HelperClasses
 {
     public static class SessionManager
     {
-        static ISharedPreferences preferences = Application.Context.GetSharedPreferences("userinfo", FileCreationMode.Private);
-        static ISharedPreferencesEditor editor;
-        //public static FirebaseFirestore GetFirestore()
-        //{
-        //    var app = FirebaseApp.InitializeApp(Application.Context);
-        //    FirebaseFirestore database;
-
-        //    if (app == null)
-        //    {
-        //        var options = new FirebaseOptions.Builder()
-        //            .SetProjectId("oyadieyie3d")
-        //            .SetApplicationId("oyadieyie3d")
-        //            .SetApiKey("AIzaSyD_uotb9-fNmlfII93imcZFNM-oALIisHw")
-        //            .SetDatabaseUrl("https://oyadieyie3d.firebaseio.com")
-        //            .SetStorageBucket("oyadieyie3d.appspot.com")
-        //            .Build();
-
-        //        app = FirebaseApp.InitializeApp(Application.Context, options);
-        //        database = FirebaseFirestore.GetInstance(app);
-        //    }
-        //    else
-        //    {
-        //        database = FirebaseFirestore.GetInstance(app);
-        //    }
-        //    return database;
-        //}
-
-        public static FirebaseAuth GetFirebaseAuth()
+        private static FirebaseApp InitFireApp()
         {
             var app = FirebaseApp.InitializeApp(Application.Context);
-            FirebaseAuth mAuth;
 
             if (app == null)
             {
@@ -50,28 +21,26 @@ namespace Oyadieyie3D.HelperClasses
                     .SetStorageBucket("oyadieyie3d.appspot.com")
                     .Build();
 
-                app = FirebaseApp.InitializeApp(Application.Context, options);
-                mAuth = FirebaseAuth.Instance;
+                app =  FirebaseApp.InitializeApp(Application.Context, options);
             }
-            else
-            {
-                mAuth = FirebaseAuth.Instance;
-            }
-            return mAuth;
+
+            return app;
         }
 
-        public static void SaveFullName(string fullname)
+        public static FirebaseAuth GetFirebaseAuth()
         {
-            editor = preferences.Edit();
-            editor.PutString("fullname", fullname);
-            editor.Apply();
+            InitFireApp();
+            return FirebaseAuth.Instance;
         }
 
-        public static string GetFullName()
+        public static FirebaseDatabase GetFireDB()
         {
-            string fullname = "";
-            fullname = preferences.GetString("fullname", "");
-            return fullname;
+            InitFireApp();
+            return FirebaseDatabase.Instance;
         }
+
+        public static string UserId => GetFirebaseAuth().CurrentUser.Uid;
+
+        public static DatabaseReference UserRef => GetFireDB().GetReference("users");
     }
 }

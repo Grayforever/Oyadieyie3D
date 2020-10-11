@@ -1,15 +1,16 @@
-﻿using Android.Runtime;
-//using Firebase.Firestore;
+﻿using Firebase.Database;
 using Oyadieyie3D.HelperClasses;
 using Oyadieyie3D.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Oyadieyie3D.Events
 {
-    public class PostEventListener : Java.Lang.Object /*IEventListener*/
+    public class PostEventListener : Java.Lang.Object, IValueEventListener
     {
-        public List<Post> ListOfPost = new List<Post>();
+        private List<Post> ListOfPost = new List<Post>();
+        private DatabaseReference retrievalRef;
         public event EventHandler<PostEventArgs> OnPostRetrieved;
 
         public class PostEventArgs : EventArgs
@@ -17,66 +18,43 @@ namespace Oyadieyie3D.Events
             public List<Post> Posts { get; set; }
         }
 
-        //public void FetchPost()
-        //{
-        //    SessionManager.GetFirestore().Collection("posts").AddSnapshotListener(this);
-        //}
+        public void FetchPost()
+        {
+            retrievalRef = SessionManager.GetFireDB().GetReference("posts");
+            retrievalRef.AddValueEventListener(this);
+        }
 
-        //public void RemoveListener()
-        //{
-        //    var listener = SessionManager.GetFirestore().Collection("posts").AddSnapshotListener(this);
-        //    listener.Remove();
-        //}
+        public void OnCancelled(DatabaseError error)
+        {
+            
+        }
 
-        //void OrganizeData(Java.Lang.Object Value)
-        //{
-        //    var snapshot = (QuerySnapshot)Value;
-        //    if (snapshot.IsEmpty)
-        //    {
-        //        return;
-        //    }
-        //    if (ListOfPost.Count > 0)
-        //    {
-        //        ListOfPost.Clear();
-        //    }
-
-        //    foreach (DocumentSnapshot item in snapshot.Documents)
-        //    {
-        //        Post post = new Post();
-        //        post.ID = item.Id;
-
-        //        post.PostBody = item.Get("post_body") != null ? item.Get("post_body").ToString() : "";
-        //        post.Author = item.Get("author") != null ? item.Get("author").ToString() : "";
-        //        post.ImageId = item.Get("image_id") != null ? item.Get("image_id").ToString() : "";
-        //        post.OwnerId = item.Get("owner_id") != null ? item.Get("owner_id").ToString() : "";
-        //        post.DownloadUrl = item.Get("download_url") != null ? item.Get("download_url").ToString() : "";
-        //        string datestring = item.Get("post_date") != null ? item.Get("post_date").ToString() : "";
-        //        post.PostDate = DateTime.Parse(datestring);
-
-
-        //        var data = item.Get("likes") != null ? item.Get("likes") : null;
-        //        if (data != null)
-        //        {
-        //            var dictionaryFromHashMap = new JavaDictionary<string, string>(data.Handle, JniHandleOwnership.DoNotRegister);
-        //            string uid = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
-
-        //            post.LikeCount = dictionaryFromHashMap.Count;
-
-        //            if (dictionaryFromHashMap.Contains(uid))
-        //            {
-        //                post.Liked = true;
-        //            }
-        //        }
-
-        //        ListOfPost.Add(post);
-        //    }
-
-        //    OnPostRetrieved?.Invoke(this, new PostEventArgs { Posts = ListOfPost });
-        //}
-
-        //public void OnEvent(Java.Lang.Object obj, FirebaseFirestoreException error)
-        //{
-        //    OrganizeData(obj);
-        //}
+        public void OnDataChange(DataSnapshot snapshot)
+        {
+            switch (snapshot.Exists())
+            {
+                case false:
+                    break;
+                default:
+                    //ListOfPost.Clear();
+                    foreach (var (item, post) in from item in snapshot.Children.ToEnumerable<DataSnapshot>()
+                                                 let post = new Post()
+                                                 select (item, post))
+                    {
+                        post.ID = item.Key;
+                        post.PostBody = item.Child(Constants.SNAPSHOT_POST_BODY) != null ? item.Child(Constants.SNAPSHOT_POST_BODY).Value.ToString() : "";
+                        post.ImageId = item.Child(Constants.SNAPSHOT_POST_IMAGE_ID) != null ? item.Child(Constants.SNAPSHOT_POST_IMAGE_ID).Value.ToString() : "";
+                        var userID = item.Child(Constants.SNAPSHOT_POST_OWNER_ID) != null ? item.Child(Constants.SNAPSHOT_POST_OWNER_ID).Value.ToString() : "";
+                        post.OwnerId = userID;
+                        post.DownloadUrl = item.Child(Constants.SNAPSHOT_POST_DOWNLOAD_URL) != null ? item.Child(Constants.SNAPSHOT_POST_DOWNLOAD_URL).Value.ToString() : "";
+                        post.PostDate = item.Child(Constants.SNAPSHOT_POST_POST_DATE) != null ? item.Child(Constants.SNAPSHOT_POST_POST_DATE).Value.ToString() : "";
+                        post.Liked = item.Child("likes").Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Exists() ? true : false;
+                        post.LikeCount = item.Child("likes") != null ? item.Child("likes").ChildrenCount : 0;
+                        ListOfPost.Add(post);
+                    }
+                    OnPostRetrieved?.Invoke(this, new PostEventArgs { Posts = ListOfPost });
+                    break;
+            }
+        }
     }
 }

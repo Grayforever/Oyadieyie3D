@@ -3,7 +3,7 @@
 
   <solid android:color="@android:color/white"/>
     <stroke android:width="2dp"
-       android:color="@color/mtrl_outlined_stroke_color"/>
+       android:color="@color/colorPrimary"/>
        
 
 <corners

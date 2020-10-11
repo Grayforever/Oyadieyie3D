@@ -1,10 +1,10 @@
 ﻿using Android.OS;
-
 using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.ConstraintLayout.Widget;
 using AndroidX.Transitions;
+using CN.Pedant.SweetAlert;
 using Com.Mukesh.CountryPickerLib;
 using Google.Android.Material.AppBar;
 using Google.Android.Material.Button;
@@ -22,7 +22,8 @@ namespace Oyadieyie3D.Fragments
         private MaterialButton nextBtn;
         private ImageView countryFlagIv;
         private TextView dialcodeTv;
-        private const string TAG = "partnerFrag";
+        public static string phoneKey = "phoneNumber";
+        private GetSmsFragment smsFragment = new GetSmsFragment();
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -50,6 +51,7 @@ namespace Oyadieyie3D.Fragments
             ((AppCompatActivity)Activity).SetSupportActionBar(toolbarMain);
             ((AppCompatActivity)Activity).SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             toolbarMain.Title = "Enter phone";
+            toolbarMain.NavigationClick += ToolbarMain_NavigationClick;
 
             
             builder = new CountryPicker.Builder().With(Context).Listener(new CountryPickerListener((c) =>
@@ -71,18 +73,26 @@ namespace Oyadieyie3D.Fragments
             nextBtn.Click += NextBtn_Click;
         }
 
+        private void ToolbarMain_NavigationClick(object sender, Toolbar.NavigationClickEventArgs e) => Activity.OnBackPressed();
+
         private void NextBtn_Click(object sender, System.EventArgs e)
         {
-            ParentFragmentManager.BeginTransaction()
-                .AddToBackStack(TAG)
-                .Replace(Resource.Id.frag_container, new GetSmsFragment())
-                .CommitAllowingStateLoss();
+            nextBtn.Post(() =>
+            {
+                var extras = new Bundle();
+                var phone = dialcodeTv.Text + phoneEt.EditText.Text;
+                extras.PutString(phoneKey, phone);
+                smsFragment.Arguments = extras;
+
+                ParentFragmentManager.BeginTransaction()
+                    .AddToBackStack(null)
+                    .Replace(Resource.Id.frag_container, smsFragment)
+                    .CommitAllowingStateLoss();
+            });
         }
 
-        private void EditText_TextChanged(object sender, Android.Text.TextChangedEventArgs e)
-        {
-            CheckIfEmpty();
-        }
+        
+        private void EditText_TextChanged(object sender, Android.Text.TextChangedEventArgs e) => CheckIfEmpty();
 
         private void CheckIfEmpty()
         {
@@ -90,9 +100,8 @@ namespace Oyadieyie3D.Fragments
             nextBtn.Enabled = v;
         }
 
-        private void CountryLinear_Click(object sender, System.EventArgs e)
-        {
-            picker.ShowDialog(Activity);
-        }
+        private void CountryLinear_Click(object sender, System.EventArgs e) => picker.ShowDialog(Activity);
+
+        
     }
 }
