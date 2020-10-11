@@ -26,10 +26,10 @@ namespace Oyadieyie3D.Activities
             _context = this;
             //GetStage(base.Intent.GetStringExtra(SplashActivity.REG_STATUS));
 
-            PaperOnboardingPage scr1 = new PaperOnboardingPage("Hotels", "All hotels and hostels are sorted by hospitality rating", Color.ParseColor("#678FB4"), Resource.Drawable.ic_whatsapp, Resource.Drawable.ic_whatsapp);
-            PaperOnboardingPage scr2 = new PaperOnboardingPage("Banks", "We carefully verify all banks before add them into the app", Color.ParseColor("#65B0B4"), Resource.Drawable.ic_whatsapp, Resource.Drawable.ic_whatsapp);
-            PaperOnboardingPage scr3 = new PaperOnboardingPage("Stores", "All local stores are categorized for your convenience", Color.ParseColor("#9B90BC"), Resource.Drawable.ic_whatsapp, Resource.Drawable.ic_whatsapp);
-
+            PaperOnboardingPage scr1 = new PaperOnboardingPage("Find tailors", "All tailors are sorted by customer rating", Color.ParseColor("#678FB4"), Resource.Drawable.hotels, Resource.Drawable.key);
+            PaperOnboardingPage scr2 = new PaperOnboardingPage("Advertize your collection", "Get your collection advertized on the platform for free", Color.ParseColor("#65B0B4"), Resource.Drawable.banks, Resource.Drawable.shopping_cart);
+            PaperOnboardingPage scr3 = new PaperOnboardingPage("Seamless payment", "Make payment and get paid directly in app", Color.ParseColor("#9B90BC"), Resource.Drawable.stores, Resource.Drawable.wallet);
+          
             List<PaperOnboardingPage> elements = new List<PaperOnboardingPage>();
             elements.Add(scr1);
             elements.Add(scr2);
