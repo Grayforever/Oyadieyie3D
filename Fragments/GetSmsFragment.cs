@@ -1,8 +1,9 @@
 ﻿using Android.Content;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.OS;
 using Android.Text;
-using Android.Text.Method;
+using Android.Text.Style;
 using Android.Views;
 using Android.Widget;
 using Com.Goodiebag.Pinview;
@@ -15,9 +16,9 @@ using Oyadieyie3D.Activities;
 using Oyadieyie3D.Callbacks;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
-using Oyadieyie3D.Utils;
 using System;
 using static Com.Goodiebag.Pinview.Pinview;
+using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -26,9 +27,8 @@ namespace Oyadieyie3D.Fragments
         private Pinview otpView;
         private FloatingActionButton verifiyBtn;
         private MaterialButton resendBtn;
-        
-        private FirebaseAuth auth;
-        private CountDownTimer cdTimer;
+        private TextView numTv;
+        private CountDownTimer resendBtnTimer;
 
         private string verificationId { get; set; }
         private string phone { get; set; }
@@ -51,13 +51,27 @@ namespace Oyadieyie3D.Fragments
             otpView = view.FindViewById<Pinview>(Resource.Id.otp_tv);
             verifiyBtn = view.FindViewById<FloatingActionButton>(Resource.Id.verify_otp_fab);
             resendBtn = view.FindViewById<MaterialButton>(Resource.Id.resend_code_btn);
-            var numTv = view.FindViewById<TextView>(Resource.Id.get_sms_sub2);
-            new Spanner(Activity, false).SetSpan(numTv, new string[] { "Enter OTP code sent on ", phone});
+            numTv = view.FindViewById<TextView>(Resource.Id.get_sms_sub2);
+            var editNumTv  = view.FindViewById<TextView>(Resource.Id.get_sms_sub3);
+            var toolbarMain = view.FindViewById<Toolbar>(Resource.Id.get_sms_toolbar);
+
+            string smsTxt = "An SMS code was sent to\n";
+            var ss = new SpannableString(smsTxt + phone);
+            ss.SetSpan(new StyleSpan(TypefaceStyle.Bold), smsTxt.Length, smsTxt.Length + phone.Length, SpanTypes.ExclusiveExclusive);
+            numTv.TextFormatted = ss;
+
+            toolbarMain.NavigationClick += ToolbarMain_NavigationClick;
+
             verifiyBtn.Click += VerifyBtn_Click;
             resendBtn.Click += ResendBtn_Click;
             otpView.SetPinViewEventListener(this);
 
-            cdTimer = new CountdownTimer(40000, 1000, () =>
+            editNumTv.Click += (s1, e1) =>
+            {
+                ChildFragmentManager.PopBackStackImmediate();
+            };
+
+            resendBtnTimer = new CountdownTimer(30000, 1000, () =>
             {
                 resendBtn.Enabled = true;
                 resendBtn.Text = "resend otp";
@@ -66,6 +80,8 @@ namespace Oyadieyie3D.Fragments
                 resendBtn.Text = "Resend OTP in " + millisUntilFinished / 1000;
             }).Start();
         }
+
+        private void ToolbarMain_NavigationClick(object sender, Toolbar.NavigationClickEventArgs e) => Activity.OnBackPressed();
 
         private void ResendBtn_Click(object sender, EventArgs e)
         {
@@ -79,18 +95,18 @@ namespace Oyadieyie3D.Fragments
 
         private void VerifyBtn_Click(object sender, EventArgs e)
         {
-            resendBtn.PostDelayed(() => { VerifyCode(otpView.Value); }, 1000);
+            resendBtn.Post(() => { VerifyCode(otpView.Value); });
         }
 
         private void VerifyCode(string code)
         {
             OnboardingActivity.ShowLoader();
-            PhoneAuthCredential cred = PhoneAuthProvider.GetCredential(verificationId, code);
-            auth.SignInWithCredential(cred)
-                .AddOnCompleteListener(new OncompleteListener(
-                onComplete: (t) =>
-                {
-                    try
+            try
+            {
+                PhoneAuthCredential cred = PhoneAuthProvider.GetCredential(verificationId, code);
+                SessionManager.GetFirebaseAuth().SignInWithCredential(cred)
+                    .AddOnCompleteListener(new OncompleteListener(
+                    onComplete: (t) =>
                     {
                         switch (t.IsSuccessful)
                         {
@@ -101,83 +117,75 @@ namespace Oyadieyie3D.Fragments
                                 CheckUserAvailability();
                                 break;
                         }
-                    }
-                    catch (FirebaseAuthInvalidCredentialsException fiace)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowError(fiace.Source, fiace.Message);
-                    }
-                    catch (FirebaseTooManyRequestsException ftmre)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowError(ftmre.Source, ftmre.Message);
-                    }
-                    catch (FirebaseAuthInvalidUserException fiue)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowError(fiue.Source, fiue.Message);
-                    }
-                    catch (FirebaseNetworkException)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowNoNetDialog(false);
-                    }
-                    catch (Exception e)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowError(e.Source, e.Message);
-                    }
-                }));
+
+                    }));
+            }
+            catch (FirebaseAuthInvalidCredentialsException fiace)
+            {
+                OnboardingActivity.DismissLoader();
+                OnboardingActivity.ShowError(fiace.Source, fiace.Message);
+            }
+            catch (FirebaseTooManyRequestsException ftmre)
+            {
+                OnboardingActivity.DismissLoader();
+                OnboardingActivity.ShowError(ftmre.Source, ftmre.Message);
+            }
+            catch (FirebaseAuthInvalidUserException fiue)
+            {
+                OnboardingActivity.DismissLoader();
+                OnboardingActivity.ShowError(fiue.Source, fiue.Message);
+            }
+            catch (FirebaseNetworkException)
+            {
+                OnboardingActivity.DismissLoader();
+                OnboardingActivity.ShowNoNetDialog(false);
+            }
+            catch (Exception e)
+            {
+                OnboardingActivity.DismissLoader();
+                OnboardingActivity.ShowError(e.Source, e.Message);
+            }
+            
         }
 
         private void CheckUserAvailability()
         {
-            try
+            var userRef = SessionManager.UserRef.Child(SessionManager.UserId);
+            var statusRef = SessionManager.GetFireDB().GetReference("session");
+            statusRef.OrderByKey().EqualTo(SessionManager.GetFirebaseAuth().CurrentUser.Uid).AddValueEventListener(new SingleValueListener((s) =>
             {
-                var userRef = SessionManager.UserRef.Child(SessionManager.UserId);
-                userRef.AddValueEventListener(new SingleValueListener(
-                onDataChange: (s) =>
+                if (s.Exists() && s.HasChildren)
                 {
-                    if (!s.Exists())
+                    string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
+                    if (stage.Contains(Constants.REG_STAGE_DONE))
                     {
-                        GotoProfile();
+                        var intent = new Intent(Activity, typeof(MainActivity));
+                        intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                        StartActivity(intent);
+                        OnboardingActivity.DismissLoader();
                     }
                     else
                     {
-                        var firstname = s.Child("profile").Child("fname") == null ? "" : s.Child("profile").Child("fname").Value.ToString();
-                        GotoMain(firstname);
+                        OnboardingActivity.DismissLoader();
+                        OnboardingActivity.GetStage(stage);
                     }
-                },
-                onCancelled: (e) =>
+                    
+                }
+                else
                 {
+                    GotoProfile();
+                }
 
-                }));
-            }
-            catch (Exception e)
+            }, (e) =>
             {
-                OnboardingActivity.ShowError(e.Source, e.Message);
-            }
-        }
-
-        private void GotoMain(string name)
-        {
-            SetStatus("done");
-            var intent = new Intent(Activity, typeof(MainActivity));
-            intent.PutExtra("firstName", name);
-            intent.AddFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
-            StartActivity(intent);
-            OnboardingActivity.DismissLoader();
-        }
-
-        public static void SetStatus(string status)
-        {
-            var statusRef = SessionManager.GetFireDB().GetReference($"userSessions/{SessionManager.UserId}");
-            statusRef.Child("status").SetValueAsync(status);
+                OnboardingActivity.DismissLoader();
+                OnboardingActivity.ShowError("Database error", e.Message);
+            }));
         }
 
         private void GotoProfile()
         {
-            SetStatus("create_profile");
+            OnboardingActivity.SetStatus(Constants.REG_STAGE_CREATE_PROFILE);
             OnboardingActivity.DismissLoader();
             ParentFragmentManager.BeginTransaction()
                 .Replace(Resource.Id.frag_container, new CreateProfileFragment())
@@ -186,9 +194,7 @@ namespace Oyadieyie3D.Fragments
 
         private void SendVerificationCode()
         {
-            auth = SessionManager.GetFirebaseAuth();
-            PhoneAuthProvider.GetInstance(auth)
-                .VerifyPhoneNumber(phone, 30, TimeUnit.Seconds, Activity, new PhoneVerificationCallbacks(
+            PhoneAuthProvider.Instance.VerifyPhoneNumber(phone, 30, TimeUnit.Seconds, Activity, new PhoneVerificationCallbacks(
                 onVerificationCompleted: (cred) =>
                 {
                     var code = cred.SmsCode;
@@ -201,8 +207,6 @@ namespace Oyadieyie3D.Fragments
                 {
                     try
                     {
-                        resendBtn.Enabled = false;
-                        cdTimer.Cancel();
                         throw e;
                     }
                     catch (FirebaseNetworkException)                    
@@ -225,14 +229,17 @@ namespace Oyadieyie3D.Fragments
                     {
                         OnboardingActivity.ShowError(ex.Source, ex.Message);
                     }
+                    finally
+                    {
+                        resendBtn.Visibility = ViewStates.Invisible;
+                        numTv.Text = "You entered an invalid phone number!";
+                        numTv.SetTextColor(ColorStateList.ValueOf(Color.Red));
+                    }
                     
                 }, onCodeSent: (code, token) =>
                 {
                     verificationId = code;
                 }));
-            
         }
-
-
     }
 }

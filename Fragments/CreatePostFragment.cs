@@ -309,7 +309,7 @@ namespace Oyadieyie3D.Fragments
             }
         }
 
-        internal sealed class ContinuationTask : Java.Lang.Object, IContinuation
+        private class ContinuationTask : Java.Lang.Object, IContinuation
         {
             private Action<Task> _then;
 

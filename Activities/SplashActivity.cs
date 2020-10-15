@@ -12,16 +12,14 @@ namespace Oyadieyie3D.Activities
     [Activity(MainLauncher = true, Theme = "@style/AppTheme.Splash", Label ="@string/app_name", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout| Android.Content.PM.ConfigChanges.SmallestScreenSize| Android.Content.PM.ConfigChanges.Orientation)]
     public class SplashActivity : AppCompatActivity
     {
-        ISharedPreferences preferences = Application.Context.GetSharedPreferences("userInfo", FileCreationMode.Private);
+        ISharedPreferences preferences = Application.Context.GetSharedPreferences(Constants.PREF_NAME, FileCreationMode.Private);
         ISharedPreferencesEditor editor;
-
-        public static string REG_STATUS = "reg_status";
+        private string _firstRun = "firstRun";
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             string firstRun = preferences.GetString("firstRun", "");
-
             if (firstRun != "" && firstRun != "reg")
             {
                 StartActivity(typeof(MainActivity));
@@ -30,7 +28,7 @@ namespace Oyadieyie3D.Activities
             else
             {
                 editor = preferences.Edit();
-                editor.PutString("firstRun", "reg");
+                editor.PutString(_firstRun, "reg");
                 editor.Commit();
                 RouteToAppropriatePage(SessionManager.GetFirebaseAuth().CurrentUser);
             }
@@ -38,29 +36,38 @@ namespace Oyadieyie3D.Activities
 
         private void RouteToAppropriatePage(FirebaseUser currentUser)
         {
-            if (currentUser == null)
+            switch (currentUser)
             {
-                StartActivity(typeof(OnboardingActivity));
-                Finish();
-            }
-            else
-            {
-                CheckStatus(currentUser.Uid);
+                case null:
+                    StartActivity(typeof(OnboardingActivity));
+                    Finish();
+                    break;
+                default:
+                    CheckStatus(currentUser.Uid);
+                    break;
             }
         }
 
         private void CheckStatus(string uid)
         {
-            var statusRef = SessionManager.GetFireDB().GetReference($"userSessions/{uid}");
-            statusRef.AddListenerForSingleValueEvent(new SingleValueListener((s) => 
+            Toast.MakeText(this, "Getting your last session", ToastLength.Long).Show();
+            var statusRef = SessionManager.GetFireDB().GetReference("session");
+            statusRef.OrderByKey().EqualTo(SessionManager.GetFirebaseAuth().CurrentUser.Uid).AddValueEventListener(new SingleValueListener((s) => 
             {
-                if (!s.Exists())
+                if (s.Exists() && s.HasChildren)
+                {
+                    string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
+                    var stateIntent = new Intent(this, typeof(OnboardingActivity));
+                    stateIntent.PutExtra(Constants.SESION_CHILD, stage);
+                    StartActivity(stateIntent);
+                    Finish();
+                }
+                else
+                {
                     StartActivity(typeof(OnboardingActivity));
+                    Finish();
+                }
 
-                string stage = s.Child("status") != null ? s.Child("status").Value.ToString() : "";
-                var stateIntent = new Intent(this, typeof(OnboardingActivity));
-                stateIntent.PutExtra(REG_STATUS, stage);
-                StartActivity(stateIntent);
             }, (e) => 
             {
                 Toast.MakeText(this, e.Message, ToastLength.Short).Show();

@@ -3,7 +3,9 @@ using Android.Content;
 using Android.OS;
 using Android.Views;
 using Google.Android.Material.Button;
+using Oyadieyie3D.Activities;
 using Oyadieyie3D.Events;
+using Oyadieyie3D.HelperClasses;
 using Fragment = AndroidX.Fragment.App.Fragment;
 using FragmentTransaction = AndroidX.Fragment.App.FragmentTransaction;
 
@@ -53,8 +55,9 @@ namespace Oyadieyie3D.Fragments
                 editor.PutString("firstRun", "regd");
                 editor.Commit();
                 
-                GetSmsFragment.SetStatus("done");
+                OnboardingActivity.SetStatus(Constants.REG_STAGE_DONE);
                 var i = new Intent(Context, typeof(MainActivity));
+                i.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
                 StartActivity(i);
             };
         }

@@ -17,6 +17,7 @@
 		<item name="android:windowNoTitle">true</item>
 	</style>
 
+
 	<style name="BottomSheetDialog_Rounded" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
 		<item name="bottomSheetStyle">@style/BottomSheet_Rounded</item>
 	</style>
@@ -36,5 +37,6 @@
 	<style name="AppTheme.ModalDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
 		<item name="windowNoTitle">true</item>
 	</style>
+
 
 </resources>

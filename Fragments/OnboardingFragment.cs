@@ -3,9 +3,10 @@ using Android.OS;
 using Android.Views;
 using Android.Widget;
 using AndroidX.Fragment.App;
+using CN.Pedant.SweetAlert;
+using Firebase;
 using Firebase.Auth;
 using Google.Android.Material.TextField;
-using Org.Json;
 using Oyadieyie3D.Activities;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
@@ -14,11 +15,10 @@ using System;
 using System.Collections.Generic;
 using Xamarin.Facebook;
 using Xamarin.Facebook.Login;
-using static Xamarin.Facebook.GraphRequest;
 
 namespace Oyadieyie3D.Fragments
 {
-    public class OnboardingFragment : Fragment, IFacebookCallback, IGraphJSONObjectCallback
+    public class OnboardingFragment : Fragment, IFacebookCallback
     {
         private TextInputLayout phoneEt;
         private const string TAG = "phone_et";
@@ -47,14 +47,20 @@ namespace Oyadieyie3D.Fragments
             var facebookTv = view.FindViewById<TextView>(Resource.Id.facebook_log_btn);
             var spanner = new Spanner(Activity, true);
             spanner.SetSpan(facebookTv, textToSpanarray);
+
             spanner.OnSpanClick += (s1, e1) =>
             {
                 LoginManager.Instance.LogInWithReadPermissions(this, new List<string> { "public_profile", "email" });
             };
-            gsPhoneEt.Click += GsPhoneEt_Click;
+
+            gsPhoneEt.Click += (s2, e2) =>
+            {
+                GotoEnterPhone();
+            };
+
         }
 
-        private void GsPhoneEt_Click(object sender, EventArgs e)
+        private void GotoEnterPhone()
         {
             ParentFragmentManager.BeginTransaction()
                 .AddSharedElement(phoneEt, "phone_et")
@@ -66,59 +72,93 @@ namespace Oyadieyie3D.Fragments
         public override void OnActivityResult(int requestCode, int resultCode, Intent data)
         {
             base.OnActivityResult(requestCode, resultCode, data);
-            callbackManager.OnActivityResult(requestCode, (int)resultCode, data);
+            callbackManager.OnActivityResult(requestCode, resultCode, data);
         }
 
-        private void SetFacebookData(LoginResult loginResult)
-        {
-            GraphRequest graphRequest = GraphRequest.NewMeRequest(loginResult.AccessToken, this);
-            Bundle parameters = new Bundle();
-            parameters.PutString("fields", "id,email,first_name,last_name,picture");
-            graphRequest.Parameters = parameters;
-            graphRequest.ExecuteAsync();
-        }
+        public void OnCancel() => Toast.MakeText(Activity, "Facebook login cancelled", ToastLength.Short).Show();
 
-        public void OnCompleted(JSONObject @object, GraphResponse response)
-        {
-            try
-            {
-                string fbId = response.JSONObject.GetString("id");
-                string _email = response.JSONObject.GetString("email");
-                string firstname = response.JSONObject.GetString("first_name");
-                string lastname = response.JSONObject.GetString("last_name");
-
-                var intent = new Intent(Activity, typeof(MainActivity));
-                intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
-                StartActivity(intent);
-            }
-            catch (JSONException e)
-            {
-                e.PrintStackTrace();
-            }
-        }
-
-        public void OnCancel()
-        {
-            OnboardingActivity.ShowError("Login canceled", "You canceled the login operation");
-        }
-
-        public void OnError(FacebookException error)
-        {
-            OnboardingActivity.ShowError(error.Source, error.Message);
-        }
+        public void OnError(FacebookException error) => OnboardingActivity.ShowError(error.Source, error.Message);
 
         public void OnSuccess(Java.Lang.Object result)
         {
             loginResult = result as LoginResult;
-
             var credentials = FacebookAuthProvider.GetCredential(loginResult.AccessToken.Token);
-            SessionManager.GetFirebaseAuth().SignInWithCredential(credentials)
-                .AddOnCompleteListener(new OncompleteListener((t) => 
+            var loginresult = SessionManager.GetFirebaseAuth().SignInWithCredentialAsync(credentials);
+
+            var user = loginresult.Result as FirebaseUser;
+            if(user != null)
+            {
+                var userRef = SessionManager.GetFireDB().GetReference("users");
+                userRef.OrderByKey().EqualTo(user.Uid).AddValueEventListener(new SingleValueListener(
+                    (s) =>
+                    {
+                        switch (s.Exists())
+                        {
+                            case false:
+                                ShowUserNotfound();
+                                break;
+
+                            default:
+                                var intent = new Intent(Activity, typeof(MainActivity));
+                                intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask); StartActivity(intent);
+                                break;
+                        }
+                    }, (e) =>
+                    {
+                        OnboardingActivity.ShowError("Database error", e.Message);
+                    }));
+            }
+            else
+            {
+                ShowUserNotfound();
+            }
+            
+            //        }
+            //        catch (FirebaseAuthInvalidCredentialsException faice)
+            //        {
+            //            OnboardingActivity.DismissLoader();
+            //            OnboardingActivity.ShowError(faice.Source, faice.Message);
+            //        }
+            //        catch (FirebaseNetworkException)
+            //        {
+            //            OnboardingActivity.DismissLoader();
+            //            OnboardingActivity.ShowNoNetDialog(false);
+            //        }
+            //        catch (FirebaseAuthUserCollisionException fauce)
+            //        {
+            //            OnboardingActivity.DismissLoader();
+            //            OnboardingActivity.ShowError(fauce.Source, fauce.Message);
+            //        }
+            //        catch (Exception ex)
+            //        {
+            //            OnboardingActivity.DismissLoader();
+            //            OnboardingActivity.ShowError(ex.Source, ex.Message);
+            //        }
+            //    }));
+        }
+
+        private void ShowUserNotfound()
+        {
+            var resolverDialog = new SweetAlertDialog(Context, SweetAlertDialog.ErrorType);
+            resolverDialog.SetTitleText("User not found");
+            resolverDialog.SetContentText("You can only log in with facebook after we link your Oyadieyie account with Facebook. Do you wish to sign up instead?");
+            resolverDialog.SetConfirmText("Yes");
+            resolverDialog.SetCancelText("I dont think so");
+            resolverDialog.SetCanceledOnTouchOutside(false);
+            resolverDialog.SetCancelable(false);
+            resolverDialog.SetConfirmClickListener(new SweetConfirmClick(
+                (sad) => 
                 {
-                    if (!t.IsSuccessful)
-                        return;
-                    OnboardingActivity.ShowSuccess();
+                    GotoEnterPhone();
+                    SessionManager.GetFirebaseAuth().SignOut();
                 }));
+            resolverDialog.SetCancelClickListener(new SweetConfirmClick(
+                (sad) =>
+                {
+                    SessionManager.GetFirebaseAuth().SignOut();
+                    Activity.Finish();
+                }));
+            resolverDialog.Show();
         }
     }
 }

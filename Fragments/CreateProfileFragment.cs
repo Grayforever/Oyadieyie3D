@@ -1,4 +1,5 @@
 ﻿using Android.Content;
+using Android.Gms.Tasks;
 using Android.Graphics;
 using Android.OS;
 using Android.Provider;
@@ -36,6 +37,7 @@ namespace Oyadieyie3D.Fragments
         private RadioGroup genderRadioGroup;
         private TextInputLayout dobLayout;
         private Android.Net.Uri img_uri;
+        private static StorageReference imageRef;
         private enum Gender { Male, Female};
         private bool hasImage = false;
 
@@ -85,6 +87,7 @@ namespace Oyadieyie3D.Fragments
         {
             try
             {
+                OnboardingActivity.ShowLoader();
                 var profileRef = SessionManager.GetFireDB().GetReference($"users/{SessionManager.UserId}/profile");
                 var userMap = new HashMap();
                 var stream = new System.IO.MemoryStream();
@@ -92,12 +95,12 @@ namespace Oyadieyie3D.Fragments
                 await bitmap.CompressAsync(Bitmap.CompressFormat.Webp, 90, stream);
                 var imgArray = stream.ToArray();
 
-                var imageRef = FirebaseStorage.Instance.GetReference($"profileImages/{SessionManager.UserId}");
+                imageRef = FirebaseStorage.Instance.GetReference($"profileImages/{SessionManager.UserId}");
                 imageRef.PutBytes(imgArray).ContinueWithTask(new ContinuationTask(
-                then: t =>
+                then: task =>
                 {
-                    if (!t.IsSuccessful)
-                        throw t.Exception;
+                    if (!task.IsSuccessful)
+                        throw task.Exception;
 
                 })).AddOnCompleteListener(new OncompleteListener(
                 onComplete: t =>
@@ -118,13 +121,15 @@ namespace Oyadieyie3D.Fragments
                             if (!task.IsSuccessful)
                                 throw task.Exception;
 
-                            GetSmsFragment.SetStatus("set_partner");
+                            OnboardingActivity.SetStatus(Constants.REG_STAGE_SET_PARTNER);
                             ParentFragmentManager.BeginTransaction()
                                 .Replace(Resource.Id.frag_container, new PartnerFragment())
                                 .CommitAllowingStateLoss();
+
                         }
                         catch (DatabaseException de)
                         {
+                            OnboardingActivity.DismissLoader();
                             OnboardingActivity.ShowError("Database Exception", de.Message);
                         }
 
@@ -136,18 +141,22 @@ namespace Oyadieyie3D.Fragments
             }
             catch (DatabaseException fde)
             {
+                OnboardingActivity.DismissLoader();
                 OnboardingActivity.ShowError("Database Exception", fde.Message);
             }
             catch (FirebaseNetworkException)
             {
+                OnboardingActivity.DismissLoader();
                 OnboardingActivity.ShowNoNetDialog(false);
             }
             catch (StorageException se)
             {
+                OnboardingActivity.DismissLoader();
                 OnboardingActivity.ShowError("Storage Exception", se.Message);
             }
             catch (Exception ex)
             {
+                OnboardingActivity.DismissLoader();
                 OnboardingActivity.ShowError("Exception", ex.Message);
             }
         }
@@ -197,6 +206,22 @@ namespace Oyadieyie3D.Fragments
                     break;
             }
             ShouldEnableBtn();
+        }
+
+        private class ContinuationTask : Java.Lang.Object, IContinuation
+        {
+            private Action<Task> _then;
+
+            public ContinuationTask(Action<Task> then)
+            {
+                _then = then;
+            }
+
+            public Java.Lang.Object Then(Task task)
+            {
+                _then?.Invoke(task);
+                return imageRef.GetDownloadUrl();
+            }
         }
     }
 }
