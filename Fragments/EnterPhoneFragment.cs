@@ -40,17 +40,13 @@ namespace Oyadieyie3D.Fragments
         {
             base.OnViewCreated(view, savedInstanceState);
 
-            var appbarMain = view.FindViewById<AppBarLayout>(Resource.Id.enter_phone_appbar);
-            var toolbarMain = appbarMain.FindViewById<Toolbar>(Resource.Id.main_toolbar);
+            var toolbarMain = view.FindViewById<Toolbar>(Resource.Id.enter_phone_toolbar);
             var countryLinear = view.FindViewById<ConstraintLayout>(Resource.Id.cpicker_lin);
             phoneEt = view.FindViewById<TextInputLayout>(Resource.Id.enter_phone_et);
             nextBtn = view.FindViewById<MaterialButton>(Resource.Id.enter_cont_btn);
             countryFlagIv = view.FindViewById<ImageView>(Resource.Id.cflag_iv);
             dialcodeTv = view.FindViewById<TextView>(Resource.Id.dialcode_tv);
 
-            ((AppCompatActivity)Activity).SetSupportActionBar(toolbarMain);
-            ((AppCompatActivity)Activity).SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            toolbarMain.Title = "Enter phone";
             toolbarMain.NavigationClick += ToolbarMain_NavigationClick;
 
             
@@ -101,7 +97,5 @@ namespace Oyadieyie3D.Fragments
         }
 
         private void CountryLinear_Click(object sender, System.EventArgs e) => picker.ShowDialog(Activity);
-
-        
     }
 }

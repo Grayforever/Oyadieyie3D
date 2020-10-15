@@ -1,4 +1,6 @@
-﻿namespace Oyadieyie3D.HelperClasses
+﻿using Android.Net.Wifi.Aware;
+
+namespace Oyadieyie3D.HelperClasses
 {
     public static class Constants
     {
@@ -30,6 +32,30 @@
         public static string EXCEPTION_MSG_AUTH => "";
         public static string EXCEPTION_MSG_NRE => "";
         public static string EXCEPTION_MSG_NETWORK => "";
+
+
+        public static string ONBDTITLE_1 => "Find tailors";
+        public static string ONBDTITLE_2 => "Advertize your collection";
+        public static string ONBDTITLE_3 => "Seamless payment";
+        public static string ONBDESC_1 => "All tailors are sorted by customer rating";
+        public static string ONBDESC_2 => "Get your collection advertized on the platform for free";
+        public static string ONBDESC_3 => "Make payment and get paid directly in app";
+
+        public static string DIALOG_OK => "OK";
+        public static string DIALOG_LOADING => "Loading...";
+        public static string DIALOG_SUCCESS => "Success";
+
+
+        public static string PREF_NAME => "userInfo";
+        public static string REF_USER_SESSION => "session";
+
+        public static string SESION_CHILD => "status";
+
+        public const string REG_STAGE_CREATE_PROFILE = "create_profile";
+
+        public const string REG_STAGE_SET_PARTNER = "set_partner";
+
+        public const string REG_STAGE_DONE = "reg_done";
 
     }
 }

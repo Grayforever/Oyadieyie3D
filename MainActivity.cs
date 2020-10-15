@@ -12,7 +12,6 @@ using AndroidX.Core.View;
 using AndroidX.RecyclerView.Widget;
 using AndroidX.SwipeRefreshLayout.Widget;
 using CN.Pedant.SweetAlert;
-using Com.Apps.Norris.Paywithslydepay.Core;
 using Firebase.Storage;
 using Google.Android.Material.AppBar;
 using Google.Android.Material.FloatingActionButton;
@@ -85,8 +84,6 @@ namespace Oyadieyie3D
            
 
             profileParcelable.WriteTOParcelFailed += ProfileParcelable_WriteTOParcelFailed;
-
-            new SlydepayPayment(this).InitCredentials("grahamasare62@gmail.com", "J33899SJS8EJDJDJJ");
             await GetUserFromFireAsync();
             postEventListener.FetchPost();
             postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
@@ -267,7 +264,7 @@ namespace Oyadieyie3D
             switch (item.ItemId)
             {
                 case Resource.Id.action_refresh:
-                    PayWithSlydepay.Pay(this, "beans", 4.50, "gob3", "graham", "email@gmail.com", "500", "0203870543", 500);
+
                     break;
                     
                 case Resource.Id.action_finder:
