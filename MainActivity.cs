@@ -26,6 +26,7 @@ using Oyadieyie3D.Parcelables;
 using Oyadieyie3D.Utils;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using ActionMode = Android.Views.ActionMode;
 using SearchView = AndroidX.AppCompat.Widget.SearchView;
@@ -80,13 +81,20 @@ namespace Oyadieyie3D
 
             DividerItemDecoration decoration = new DividerItemDecoration(mainRecycler.Context, DividerItemDecoration.Vertical);
             mainRecycler.AddItemDecoration(decoration);
-            posts = new List<Post>();
+            
            
 
             profileParcelable.WriteTOParcelFailed += ProfileParcelable_WriteTOParcelFailed;
             await GetUserFromFireAsync();
             postEventListener.FetchPost();
             postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
+
+            
+
+            RecyclerView.ItemAnimator itemAnimator = new DefaultItemAnimator();
+            itemAnimator.AddDuration = 1000;
+            itemAnimator.RemoveDuration = 1000;
+            mainRecycler.SetItemAnimator(itemAnimator);
         }
 
         private void PostEventListener_OnPostRetrieved(object sender, PostEventListener.PostEventArgs e)
@@ -94,7 +102,9 @@ namespace Oyadieyie3D
             if (e.Posts == null)
                 return;
 
-            posts = e.Posts;
+            posts = new List<Post>();
+            posts = e.Posts.OrderByDescending(p => p.PostDate).ToList();
+            
             SetUpRecycler();
         }
 
@@ -156,10 +166,12 @@ namespace Oyadieyie3D
 
         private void SetUpRecycler()
         {
-            postAdapter = new PostAdapter(this, posts);
+            postAdapter = new PostAdapter(posts); 
             mainRecycler.SetAdapter(postAdapter);
             emptyObserver = new RecyclerViewEmptyObserver(mainRecycler, emptyRoot);
             postAdapter.RegisterAdapterDataObserver(emptyObserver);
+            
+
             postAdapter.ItemLongClick += (s1, e1) =>
             {
                 string postID = posts[e1.Position].ID;

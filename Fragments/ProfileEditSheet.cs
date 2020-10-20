@@ -27,7 +27,7 @@ namespace Oyadieyie3D.Fragments
         {
             base.OnViewCreated(view, savedInstanceState);
             var editEt = view.FindViewById<TextInputLayout>(Resource.Id.prof_edit_et);
-             
+            editEt.RequestFocus();
             switch (_type)
             {
                 case 0:
@@ -37,11 +37,7 @@ namespace Oyadieyie3D.Fragments
                 case 1:
                     editEt.EditText.Hint = "Phone";
                     editEt.EditText.InputType = Android.Text.InputTypes.ClassPhone;
-                    break;
-                case 2:
-                    editEt.EditText.Hint = "Status";
-                    editEt.EditText.InputType = Android.Text.InputTypes.TextFlagAutoComplete;
-                    break;
+                    break;    
             }
         }
     }

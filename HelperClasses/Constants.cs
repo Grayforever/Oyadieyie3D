@@ -55,7 +55,7 @@ namespace Oyadieyie3D.HelperClasses
 
         public const string REG_STAGE_SET_PARTNER = "set_partner";
 
-        public const string REG_STAGE_DONE = "reg_done";
+        public const string REG_STAGE_DONE = "done";
 
     }
 }

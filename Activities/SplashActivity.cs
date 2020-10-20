@@ -57,10 +57,22 @@ namespace Oyadieyie3D.Activities
                 if (s.Exists() && s.HasChildren)
                 {
                     string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
-                    var stateIntent = new Intent(this, typeof(OnboardingActivity));
-                    stateIntent.PutExtra(Constants.SESION_CHILD, stage);
-                    StartActivity(stateIntent);
-                    Finish();
+                    if (stage.Contains(Constants.REG_STAGE_DONE))
+                    {
+                        editor = preferences.Edit();
+                        editor.PutString("firstRun", "regd");
+                        editor.Commit();
+
+                        var intent = new Intent(this, typeof(MainActivity));
+                        intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                        StartActivity(intent);
+                        Finish();
+                    }
+                    else
+                    {
+                        OnboardingActivity.GetStage(stage);
+                        Finish();
+                    }
                 }
                 else
                 {
