@@ -15,6 +15,7 @@ using DE.Hdodenhof.CircleImageViewLib;
 using Firebase.Storage;
 using Google.Android.Material.FloatingActionButton;
 using Google.Android.Material.TextField;
+using Oyadieyie3D.Adapters;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.Fragments;
 using Oyadieyie3D.HelperClasses;
@@ -32,9 +33,9 @@ namespace Oyadieyie3D.Activities
     {
         private FloatingActionButton camFab;
         private CircleImageView profileImageView;
-        private TextInputLayout usernameEt;
-        private TextInputLayout phoneEt;
-        private TextInputLayout statusEt;
+        private TextInputEditText usernameEditText;
+        private TextInputEditText phoneEditText;
+        private AppCompatAutoCompleteTextView statusEditText;
         private ProfileChooserFragment profileChooserFrag;
         private SweetAlertDialog loaderDialog;
         private User user;
@@ -48,9 +49,9 @@ namespace Oyadieyie3D.Activities
             var toolbar = FindViewById<Toolbar>(Resource.Id.profile_toolbar);
             camFab = FindViewById<FloatingActionButton>(Resource.Id.cam_fab);
             profileImageView = FindViewById<CircleImageView>(Resource.Id.prof_prof_iv);
-            usernameEt = FindViewById<TextInputLayout>(Resource.Id.prof_fname_et);
-            phoneEt = FindViewById<TextInputLayout>(Resource.Id.prof_phone_et);
-            statusEt = FindViewById<TextInputLayout>(Resource.Id.prof_about_et);
+            var usernameEt = FindViewById<TextInputLayout>(Resource.Id.prof_fname_et);
+            var phoneEt = FindViewById<TextInputLayout>(Resource.Id.prof_phone_et);
+            var statusEt = FindViewById<TextInputLayout>(Resource.Id.prof_about_et);
             toolbar.Title = "Profile";
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
@@ -63,14 +64,19 @@ namespace Oyadieyie3D.Activities
             requestOptions.Placeholder(Resource.Drawable.user);
             
             profileImageView.Click += ProfileImageView_Click;
- 
-            phoneEt.EditText.Text = user.Phone;
-            usernameEt.EditText.Text = user.Username;
-            statusEt.EditText.Text = user.Status;
 
-            phoneEt.SetOnClickListener(this);
-            usernameEt.SetOnClickListener(this);
-            statusEt.SetOnClickListener(this);
+
+            phoneEditText = phoneEt.FindViewById<TextInputEditText>(Resource.Id.phone_edittext);
+            usernameEditText = usernameEt.FindViewById<TextInputEditText>(Resource.Id.name_edittext);
+            statusEditText = statusEt.FindViewById<AppCompatAutoCompleteTextView>(Resource.Id.status_autocomplete);
+
+            phoneEditText.Text = user.Phone;
+            usernameEditText.Text = user.Username;
+            statusEditText.Text = user.Status;
+            statusEditText.Adapter = ArrayAdapterClass.CreateArrayAdapter(this, new string[] { "Available", "Away", "Leave a message", "Busy", "Closed"});
+
+            phoneEditText.SetOnClickListener(this);
+            usernameEditText.SetOnClickListener(this);
 
             Glide.With(this)
                 .SetDefaultRequestOptions(requestOptions)
@@ -185,14 +191,11 @@ namespace Oyadieyie3D.Activities
         {
             switch (v.Id)
             {
-                case Resource.Id.prof_phone_et:
+                case Resource.Id.phone_edittext:
                     ShowEditSheet(1);
                     break;
-                case Resource.Id.prof_fname_et:
+                case Resource.Id.name_edittext:
                     ShowEditSheet(0);
-                    break;
-                case Resource.Id.prof_about_et:
-                    ShowEditSheet(2);
                     break;
             }
         }

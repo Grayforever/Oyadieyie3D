@@ -59,6 +59,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/name_edittext"
             android:hint="Name"
             android:inputType="textPersonName"
             android:clickable="true"
@@ -75,18 +76,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/prof_fname_et"
         android:layout_margin="16dp"
-        app:endIconMode="custom"
-        app:endIconDrawable="@drawable/ic_edit"
-        app:endIconTint="@android:color/darker_gray"
         style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox.ExposedDropdownMenu">
 
-        <androidx.appcompat.widget.AppCompatMultiAutoCompleteTextView
+        <androidx.appcompat.widget.AppCompatAutoCompleteTextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/status_autocomplete"
             android:hint="Status"
             android:inputType="textCapSentences"
-            android:clickable="true"
-            android:focusable="false"
             />
 
     </com.google.android.material.textfield.TextInputLayout>
@@ -103,6 +100,7 @@
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:id="@+id/phone_edittext"
             android:hint="Phone"
             android:inputType="phone"
             android:clickable="true"

@@ -20,8 +20,9 @@ namespace Oyadieyie3D.Activities
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
-    public class SettingsActivity : AppCompatActivity, ISharedPreferencesOnSharedPreferenceChangeListener
+    public class SettingsActivity : AppCompatActivity, ISharedPreferencesOnSharedPreferenceChangeListener, PreferenceFragmentCompat.IOnPreferenceStartScreenCallback
     {
+        private Toolbar toolbar;
         private ConstraintLayout profileConstraint;
         private CircleImageView profileIv;
         private Bundle extras;
@@ -46,7 +47,7 @@ namespace Oyadieyie3D.Activities
             username_tv = FindViewById<TextView>(Resource.Id.set_prof_name_tv);
             status_tv = FindViewById<TextView>(Resource.Id.set_prof_extras_tv);
             var appBar = FindViewById<AppBarLayout>(Resource.Id.settings_appbar);
-            var toolbar = appBar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
+            toolbar = appBar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
             profileConstraint = FindViewById<ConstraintLayout>(Resource.Id.profile_const);
             profileIv = FindViewById<CircleImageView>(Resource.Id.set_prof_iv);
             
@@ -97,7 +98,6 @@ namespace Oyadieyie3D.Activities
 
         public override bool OnOptionsItemSelected(IMenuItem item)
         {
-            Toast.MakeText(this, "Help me", ToastLength.Short).Show();
             return base.OnOptionsItemSelected(item);
         }
 
@@ -111,9 +111,25 @@ namespace Oyadieyie3D.Activities
 
         private void Toolbar_NavigationClick(object sender, Toolbar.NavigationClickEventArgs e) => OnBackPressed();
 
-        public void OnSharedPreferenceChanged(ISharedPreferences sharedPreferences, string key)
-        {
+        public void OnSharedPreferenceChanged(ISharedPreferences sharedPreferences, string key) { }
 
+        public bool OnPreferenceStartScreen(PreferenceFragmentCompat caller, PreferenceScreen pref)
+        {
+            Bundle args = pref.Extras;
+
+            AndroidX.Fragment.App.Fragment fragment = SupportFragmentManager
+                .FragmentFactory
+                .Instantiate(ClassLoader, pref.Fragment);
+
+            fragment.Arguments = args;
+            fragment.SetTargetFragment(caller, 0);
+
+            SupportFragmentManager.BeginTransaction()
+                .Replace(Resource.Id.frag_container_s, fragment)
+                .AddToBackStack(null)
+                .CommitAllowingStateLoss();
+
+            return true;
         }
     }
 }

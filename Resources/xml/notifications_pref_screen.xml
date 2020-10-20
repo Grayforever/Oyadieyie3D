@@ -1,0 +1,19 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<SwitchPreferenceCompat
+        app:key="convo_tones"
+        app:summaryOff="Sound turned off for alerts"
+        app:summaryOn="Playing sound for alerts and messages"
+        app:defaultValue="false"
+        app:title="In-app tones"
+		/>
+
+	<PreferenceCategory app:title="Messages">
+		<Preference
+            app:key="ringtone"
+            app:title="Notification tone"/>
+	</PreferenceCategory>
+
+</PreferenceScreen>

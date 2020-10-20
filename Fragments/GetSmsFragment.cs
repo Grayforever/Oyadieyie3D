@@ -1,4 +1,5 @@
-﻿using Android.Content;
+﻿using Android.App;
+using Android.Content;
 using Android.Content.Res;
 using Android.Graphics;
 using Android.OS;
@@ -29,6 +30,9 @@ namespace Oyadieyie3D.Fragments
         private MaterialButton resendBtn;
         private TextView numTv;
         private CountDownTimer resendBtnTimer;
+
+        private ISharedPreferences preferences = Application.Context.GetSharedPreferences("userInfo", FileCreationMode.Private);
+        private ISharedPreferencesEditor editor;
 
         private string verificationId { get; set; }
         private string phone { get; set; }
@@ -159,6 +163,10 @@ namespace Oyadieyie3D.Fragments
                     string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
                     if (stage.Contains(Constants.REG_STAGE_DONE))
                     {
+                        editor = preferences.Edit();
+                        editor.PutString("firstRun", "regd");
+                        editor.Commit();
+
                         var intent = new Intent(Activity, typeof(MainActivity));
                         intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
                         StartActivity(intent);
@@ -166,8 +174,8 @@ namespace Oyadieyie3D.Fragments
                     }
                     else
                     {
-                        OnboardingActivity.DismissLoader();
                         OnboardingActivity.GetStage(stage);
+                        OnboardingActivity.DismissLoader();
                     }
                     
                 }

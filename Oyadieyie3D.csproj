@@ -85,12 +85,14 @@
     <Compile Include="Activities\ProfileActivity.cs" />
     <Compile Include="Activities\SettingsActivity.cs" />
     <Compile Include="Activities\SplashActivity.cs" />
+    <Compile Include="Adapters\ArrayAdapter.cs" />
     <Compile Include="Adapters\OnboardingAdapter.cs" />
     <Compile Include="Adapters\PostAdapter.cs" />
     <Compile Include="BroadcastReceivers\NetworkStateReceiver.cs" />
     <Compile Include="Callbacks\ActionModeCallback.cs" />
     <Compile Include="Callbacks\BackPressedCallback.cs" />
     <Compile Include="Callbacks\PhoneVerificationCallbacks.cs" />
+    <Compile Include="Callbacks\PostDiffUtil.cs" />
     <Compile Include="Events\ButtonCheckedListener.cs" />
     <Compile Include="Events\CountdownTimer.cs" />
     <Compile Include="Events\CountryPickerListener.cs" />
@@ -114,6 +116,8 @@
     <Compile Include="Fragments\NotificationsFragment.cs" />
     <Compile Include="Fragments\OnboardingFragment.cs" />
     <Compile Include="Fragments\PartnerFragment.cs" />
+    <Compile Include="Fragments\PrefAccountFragment.cs" />
+    <Compile Include="Fragments\PrefNotifsFragment.cs" />
     <Compile Include="Fragments\ProfileChooserFragment.cs" />
     <Compile Include="Fragments\ProfileEditSheet.cs" />
     <Compile Include="Fragments\SettingsFragment.cs" />
@@ -588,6 +592,9 @@
   </ItemGroup>
   <ItemGroup>
     <AndroidResource Include="Resources\drawable-xxxhdpi\smartphone_xxxhdpi.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <AndroidResource Include="Resources\xml\notifications_pref_screen.xml" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Xamarin\Android\Xamarin.Android.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.

@@ -1,4 +1,5 @@
 ﻿using Android.OS;
+using AndroidX.Fragment.App;
 using AndroidX.Preference;
 
 namespace Oyadieyie3D.Fragments
@@ -9,5 +10,9 @@ namespace Oyadieyie3D.Fragments
         {
             SetPreferencesFromResource(Resource.Xml.settings_pref, rootKey);
         }
+
+
+        public override Fragment CallbackFragment => this;
+
     }
 }

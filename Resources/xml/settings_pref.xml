@@ -12,7 +12,7 @@
 		/>
 
 	<Preference
-		app:fragment="com.graylabs.oyadieyie3d.Fragments.AccountFragment"
+		app:fragment="id.Oyadieyie3D.Fragments.PrefAccountFragment"
         app:key="account"
         app:title="Account"
         app:summary="Privacy, security, change number"
@@ -20,7 +20,7 @@
 		/>
 
 	<Preference
-		app:fragment="com.graylabs.oyadieyie3d.Fragments.Notifications"
+		app:fragment="id.Oyadieyie3D.Fragments.PrefNotifsFragment"
         app:key="notification"
         app:title="Notifications"
         app:summary="In-app and app alert tones"

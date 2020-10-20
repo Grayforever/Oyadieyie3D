@@ -9,7 +9,6 @@ namespace Oyadieyie3D.Events
 {
     public class PostEventListener : Java.Lang.Object, IValueEventListener
     {
-        private List<Post> ListOfPost = new List<Post>();
         private DatabaseReference retrievalRef;
         public event EventHandler<PostEventArgs> OnPostRetrieved;
 
@@ -24,6 +23,11 @@ namespace Oyadieyie3D.Events
             retrievalRef.AddValueEventListener(this);
         }
 
+        public void RemoveListener()
+        {
+            retrievalRef.RemoveEventListener(this);
+        }
+
         public void OnCancelled(DatabaseError error)
         {
             
@@ -36,7 +40,7 @@ namespace Oyadieyie3D.Events
                 case false:
                     break;
                 default:
-                    //ListOfPost.Clear();
+                    List<Post> ListOfPost = new List<Post>();
                     foreach (var (item, post) in from item in snapshot.Children.ToEnumerable<DataSnapshot>()
                                                  let post = new Post()
                                                  select (item, post))
