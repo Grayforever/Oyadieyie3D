@@ -21,7 +21,6 @@ using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
 using System;
 using static Android.Widget.RadioGroup;
-using static Oyadieyie3D.Fragments.CreatePostFragment;
 
 namespace Oyadieyie3D.Fragments
 {
