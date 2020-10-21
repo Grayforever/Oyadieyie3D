@@ -1,0 +1,260 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView  xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/createpost_bottomsheet_root"
+    android:background="@android:color/white"
+    android:focusable="true"
+    android:fillViewport="true"
+    android:clickable="true"
+    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="16dp"
+        >
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="0dp"
+            android:layout_height="56dp"
+            android:id="@+id/const_header"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            android:padding="8dp"
+            android:clipToPadding="false"
+            android:background="@color/colorPrimary">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:layout_width="32dp"
+                android:layout_height="32dp"
+                android:id="@+id/create_post_userProfile"
+                android:scaleType="centerCrop"
+                android:src="@drawable/user"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/create_post_userName"
+                app:layout_constraintBottom_toBottomOf="parent"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/create_post_userName"
+                app:layout_constraintStart_toEndOf="@+id/create_post_userProfile"
+                app:layout_constraintEnd_toStartOf="@+id/post_progress"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textColor="@android:color/white"
+                android:text="Create Post"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:paddingStart="8dp"
+                />
+
+            <ProgressBar
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:id="@+id/post_progress"
+                app:layout_constraintEnd_toStartOf="@+id/done_btn"
+                app:layout_constraintStart_toEndOf="@+id/create_post_userName"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:indeterminate="true"
+                android:visibility="invisible"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/done_btn"
+                app:layout_constraintEnd_toStartOf="@+id/post_cancel_btn"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:text="Post"
+                android:enabled="false"
+                style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
+                />
+
+            <ImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/post_cancel_btn"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:src="@drawable/ic_close"
+                android:background="@android:color/transparent"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:padding="4dp"
+                android:tint="@android:color/white"
+                />
+    
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/categs_scroller"
+            app:layout_constraintTop_toBottomOf="@+id/const_header"
+            android:text="Choose category"
+            android:id="@+id/choose_cat_tv"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            />
+
+        <HorizontalScrollView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/categs_scroller"
+            android:scrollbars="none"
+            android:overScrollMode="ifContentScrolls"
+            app:layout_constraintTop_toBottomOf="@+id/choose_cat_tv"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintBottom_toTopOf="@+id/comment_edit_text"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp">
+
+            <com.google.android.material.chip.ChipGroup
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:singleLine="true"
+                android:id="@+id/cat_chip_group"
+                app:singleSelection="true">
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chip_men"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:text="Menswear"
+                    app:chipIconEnabled="true"
+                    app:chipIcon="@drawable/ic_user_male"
+                    />
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chip_women"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:text="Wemen wear"
+                    app:chipIconEnabled="true"
+                    app:chipIcon="@drawable/ic_female"
+                    />
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chip_kids"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:text="Children"
+                    app:chipIconEnabled="true"
+                    app:chipIcon="@drawable/ic_children"
+                    />
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chip_unisex"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:text="Unisex"
+                    app:chipIconEnabled="true"
+                    app:chipIcon="@drawable/ic_unisex"
+                    />
+
+                <com.google.android.material.chip.Chip
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/chip_ppe"
+                    style="@style/Widget.MaterialComponents.Chip.Choice"
+                    android:text="PPEs"
+                    app:chipIconEnabled="true"
+                    app:chipIcon="@drawable/ic_protection_mask"
+                    />
+
+            </com.google.android.material.chip.ChipGroup>
+
+        </HorizontalScrollView>
+            
+        <com.google.android.material.textfield.TextInputLayout
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/comment_edit_text"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/categs_scroller"
+            app:layout_constraintBottom_toTopOf="@+id/post_imageview"
+            app:counterEnabled="true"
+            app:counterMaxLength="48"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp">
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Add caption"
+                android:maxLength="48"
+                />
+        </com.google.android.material.textfield.TextInputLayout>
+
+        <ImageView
+            android:layout_width="0dp"
+            android:layout_height="256dp"
+            android:id="@+id/post_imageview"
+            android:src="@drawable/img_placeholder"
+            android:scaleType="centerCrop"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/comment_edit_text"
+            app:layout_constraintBottom_toBottomOf="@+id/picture_toggle_group"
+            android:layout_marginTop="32dp"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp"
+            />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:id="@+id/picture_toggle_group"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/post_imageview"
+            app:singleSelection="true"
+            android:layout_marginStart="12dp"
+            android:layout_marginEnd="12dp">
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/btn_choose_photo"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                app:strokeWidth="2dp"
+                android:layout_weight="1"
+                app:icon="@drawable/ic_add_photo"
+                android:text="Choose"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/btn_open_camera"
+                style="@style/Widget.MaterialComponents.Button.OutlinedButton.Icon"
+                app:strokeWidth="2dp"
+                android:layout_weight="1"
+                app:icon="@drawable/ic_camera"
+                android:text="Capture"
+                />
+
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>
+

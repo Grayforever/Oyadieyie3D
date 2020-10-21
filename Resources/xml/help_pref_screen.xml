@@ -1,0 +1,26 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+	<Preference
+        app:key="faq"
+        app:title="FAQ"
+		app:icon="@drawable/ic_help"/>
+
+	<Preference
+        app:key="contact_us"
+        app:title="Contact us"
+		app:summary="Need help? How we manage your data?"
+		app:icon="@drawable/ic_contact_us"/>
+
+	<Preference
+        app:key="terms"
+        app:title="Terms and Privacy Policy"
+		app:icon="@drawable/ic_file"/>
+
+	<Preference
+        app:key="app_info"
+        app:title="App info"
+		app:icon="@drawable/ic_info"/>
+
+</PreferenceScreen>
