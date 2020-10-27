@@ -1,10 +1,10 @@
-﻿using Android.Net.Wifi.Aware;
-
-namespace Oyadieyie3D.HelperClasses
+﻿namespace Oyadieyie3D.HelperClasses
 {
     public static class Constants
     {
         //INTENTS & KEYS
+        public static string PHONE_KEY => "phoneNumber";
+
         public static string POST_DATA_EXTRA => "extra_post_data";
         public static string TRANSITION_NAME => "extra_transition_name";
         public static string PARCEL_TYPE => "parcel_type";
@@ -57,5 +57,14 @@ namespace Oyadieyie3D.HelperClasses
 
         public const string REG_STAGE_DONE = "done";
 
+        public static bool lockAspectRatio = false;
+        public static bool setBitmapMaxWidthHeight = false;
+        public static int ASPECT_RATIO_X = 16;
+        public static int ASPECT_RATIO_Y = 9;
+        public static int bitmapMaxWidth = 1000;
+        public static int bitmapMaxHeight = 1000;
+        public static int IMAGE_COMPRESSION = 80;
+        public static int REQUEST_IMAGE_CAPTURE = 500;
+        public static int SELECT_PICTURE = 1;
     }
 }

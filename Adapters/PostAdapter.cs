@@ -1,5 +1,4 @@
 ﻿using Android.App;
-using Android.Content;
 using Android.Views;
 using Android.Widget;
 using AndroidX.Core.View;
@@ -7,7 +6,6 @@ using AndroidX.RecyclerView.Widget;
 using BumpTech.GlideLib;
 using BumpTech.GlideLib.Requests;
 using DE.Hdodenhof.CircleImageViewLib;
-using Firebase.Database;
 using Like.Lib;
 using Oyadieyie3D.Callbacks;
 using Oyadieyie3D.Events;
@@ -24,8 +22,7 @@ namespace Oyadieyie3D.Adapters
         public event EventHandler<PostAdapterClickEventArgs> ItemLongClick;
 
         public static List<Post> _items { get; set; }
-        public static Post item;
-        public static Context _context;
+        public Post item;
         private RequestOptions requestOptions;
 
         public PostAdapter(List<Post> items)
@@ -33,34 +30,27 @@ namespace Oyadieyie3D.Adapters
             _items = items;
         }
 
-        public void SetData(List<Post> items)
+        public void UpdateData(List<Post> newItems)
         {
-            var postDiffUtil = new PostDiffUtil(_items, items);
-            var diffResult = DiffUtil.CalculateDiff(postDiffUtil);
-
+            var postdiffCallback = new PostDiffUtil(_items, newItems);
+            var diffResult = DiffUtil.CalculateDiff(postdiffCallback);
             _items.Clear();
-            _items = items;
+            _items = newItems;
             diffResult.DispatchUpdatesTo(this);
         }
 
         public override int ItemCount => _items != null ? _items.Count : 0;
 
-        public override long GetItemId(int position)
-        {
-            return position;
-        }
+        public override long GetItemId(int position) => position;
 
-
-        public override int GetItemViewType(int position)
-        {
-            return position;
-        }
+        public override int GetItemViewType(int position) => position;
 
         public override void OnBindViewHolder(RecyclerView.ViewHolder holder, int position)
         {
             var vh = holder as PostAdapterViewHolder;
 
             item = _items[position];
+            ViewCompat.SetTransitionName(vh.postImageView, "open_gate");
             vh.usernameTextView.Text = item.Author;
             vh.postBodyTextView.Text = item.PostBody;
             var ts = DateTime.UtcNow - DateTime.Parse(item.PostDate);
@@ -68,7 +58,28 @@ namespace Oyadieyie3D.Adapters
             vh.postLikeBtn.SetLiked(item.Liked);
             vh.likeCountTextView.Text = string.Format("{0} like{1}", item.LikeCount, item.LikeCount > 1 || item.LikeCount == 0 ? "s" : string.Empty);
             GetImage(item.DownloadUrl, vh.postImageView);
-            ViewCompat.SetTransitionName(vh.postImageView, "open_gate");
+            
+            vh.postLikeBtn.SetOnLikeListener(new OnLikeEventListener((liked) =>
+            {
+                var likeref = SessionManager.GetFireDB().GetReference($"posts/{item.ID}/likes");
+                likeref.Child(SessionManager.UserId).SetValue("true");
+            }, (unliked) =>
+            {
+                var unlikeref = SessionManager.GetFireDB().GetReference($"posts/{item.ID}/likes");
+                unlikeref.AddListenerForSingleValueEvent(new SingleValueListener(
+                    (s)=> 
+                    {
+                        if (!s.Exists())
+                            return;
+
+                        unlikeref.Child(SessionManager.UserId).RemoveValue();
+                        NotifyDataSetChanged();
+                    }, (e)=> 
+                    {
+                        unlikeref.Child(SessionManager.UserId).RemoveValue();
+                        NotifyDataSetChanged();
+                    }));
+            }));
         }
 
         private void GetImage(string downloadUrl, ImageView postImageView)
@@ -85,17 +96,14 @@ namespace Oyadieyie3D.Adapters
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
             var itemView = LayoutInflater.From(parent.Context).Inflate(Resource.Layout.post_item, parent, false);
-            
             return new PostAdapterViewHolder(itemView, OnClick, OnLongClick);
         }
         
         void OnClick(PostAdapterClickEventArgs args) => ItemClick?.Invoke(this, args);
         void OnLongClick(PostAdapterClickEventArgs args) => ItemLongClick?.Invoke(this, args);
 
-        public class PostAdapterViewHolder : RecyclerView.ViewHolder, IValueEventListener
+        public class PostAdapterViewHolder : RecyclerView.ViewHolder
         {
-            private DatabaseReference unlikeref;
-
             public TextView usernameTextView { get; set; }
             public TextView postBodyTextView { get; set; }
             public TextView likeCountTextView { get; set; }
@@ -119,29 +127,7 @@ namespace Oyadieyie3D.Adapters
                 itemView.LongClick += (sender, e) => longClickListener(new PostAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
                 
 
-                postLikeBtn.SetOnLikeListener(new OnLikeEventListener((liked)=> 
-                {
-                    var likeref = SessionManager.GetFireDB().GetReference($"posts/{_items[AdapterPosition].ID}/likes");
-                    likeref.Child(SessionManager.UserId).SetValue("true");
-
-                },(unliked)=> 
-                {
-                    unlikeref = SessionManager.GetFireDB().GetReference($"posts/{_items[AdapterPosition].ID}/likes");
-                    unlikeref.AddListenerForSingleValueEvent(this);
-                } ));
-            }
-
-            public void OnCancelled(DatabaseError error)
-            {
-                unlikeref.Child(SessionManager.UserId).RemoveValue();
-            }
-
-            public void OnDataChange(DataSnapshot snapshot)
-            {
-                if (!snapshot.Exists())
-                    return;
-
-                unlikeref.Child(SessionManager.UserId).RemoveValue();
+                
             }
         }
 

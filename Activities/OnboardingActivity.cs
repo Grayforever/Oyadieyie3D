@@ -28,18 +28,17 @@ namespace Oyadieyie3D.Activities
             SetContentView(Resource.Layout.onboarding_activity);
             _context = this;
             GetStage(base.Intent.GetStringExtra(Constants.SESION_CHILD));
-
         }
 
         private void SetStatusBarImmersiveMode()
         {
             Window win = Window;
-            if(Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.Kitkat)
             {
                 win.AddFlags(WindowManagerFlags.TranslucentStatus);
             }
 
-            if(Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
+            if (Build.VERSION.SdkInt >= BuildVersionCodes.Lollipop)
             {
                 WindowManagerLayoutParams wmlp = win.Attributes;
                 wmlp.Flags &= ~WindowManagerFlags.TranslucentStatus;
@@ -86,7 +85,6 @@ namespace Oyadieyie3D.Activities
                 }));
             return onboardingFragment;
         }
-
 
         private static void SetFragment(AndroidX.Fragment.App.Fragment fragment)
         {

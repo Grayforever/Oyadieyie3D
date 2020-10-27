@@ -18,12 +18,11 @@ using Oyadieyie3D.Callbacks;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
 using System;
-using static Com.Goodiebag.Pinview.Pinview;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
 namespace Oyadieyie3D.Fragments
 {
-    public class GetSmsFragment : AndroidX.Fragment.App.Fragment, IPinViewEventListener
+    public class GetSmsFragment : AndroidX.Fragment.App.Fragment
     {
         private Pinview otpView;
         private FloatingActionButton verifiyBtn;
@@ -33,14 +32,13 @@ namespace Oyadieyie3D.Fragments
 
         private ISharedPreferences preferences = Application.Context.GetSharedPreferences("userInfo", FileCreationMode.Private);
         private ISharedPreferencesEditor editor;
-
         private string verificationId { get; set; }
         private string phone { get; set; }
 
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            phone = Arguments.GetString(EnterPhoneFragment.phoneKey);
+            phone = Arguments.GetString(Constants.PHONE_KEY);
             SendVerificationCode();
         }
 
@@ -64,42 +62,20 @@ namespace Oyadieyie3D.Fragments
             ss.SetSpan(new StyleSpan(TypefaceStyle.Bold), smsTxt.Length, smsTxt.Length + phone.Length, SpanTypes.ExclusiveExclusive);
             numTv.TextFormatted = ss;
 
-            toolbarMain.NavigationClick += ToolbarMain_NavigationClick;
+            toolbarMain.NavigationClick += (s1, e1) => Activity.OnBackPressed();
+            editNumTv.Click += (s2, e2) => ChildFragmentManager.PopBackStackImmediate();
+            resendBtn.Click += (s3, e3) => { };
+            verifiyBtn.Click += (s4, e4) => VerifyCode(otpView.Value);
 
-            verifiyBtn.Click += VerifyBtn_Click;
-            resendBtn.Click += ResendBtn_Click;
-            otpView.SetPinViewEventListener(this);
-
-            editNumTv.Click += (s1, e1) =>
-            {
-                ChildFragmentManager.PopBackStackImmediate();
-            };
-
-            resendBtnTimer = new CountdownTimer(30000, 1000, () =>
+            resendBtnTimer = new CountdownTimer(30000, 1000, 
+            onFinsh: () =>
             {
                 resendBtn.Enabled = true;
                 resendBtn.Text = "resend otp";
-            }, (millisUntilFinished) =>
+            }, onTick: (millisUntilFinished) =>
             {
                 resendBtn.Text = "Resend OTP in " + millisUntilFinished / 1000;
             }).Start();
-        }
-
-        private void ToolbarMain_NavigationClick(object sender, Toolbar.NavigationClickEventArgs e) => Activity.OnBackPressed();
-
-        private void ResendBtn_Click(object sender, EventArgs e)
-        {
-            
-        }
-
-        public void OnDataEntered(Pinview p0, bool p1)
-        {
-            verifiyBtn.Post(() => { verifiyBtn.Enabled = p0.Value.Length == 6; });
-        }
-
-        private void VerifyBtn_Click(object sender, EventArgs e)
-        {
-            resendBtn.Post(() => { VerifyCode(otpView.Value); });
         }
 
         private void VerifyCode(string code)
@@ -149,7 +125,6 @@ namespace Oyadieyie3D.Fragments
                 OnboardingActivity.DismissLoader();
                 OnboardingActivity.ShowError(e.Source, e.Message);
             }
-            
         }
 
         private void CheckUserAvailability()
@@ -158,30 +133,25 @@ namespace Oyadieyie3D.Fragments
             var statusRef = SessionManager.GetFireDB().GetReference("session");
             statusRef.OrderByKey().EqualTo(SessionManager.GetFirebaseAuth().CurrentUser.Uid).AddValueEventListener(new SingleValueListener((s) =>
             {
-                if (s.Exists() && s.HasChildren)
-                {
-                    string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
-                    if (stage.Contains(Constants.REG_STAGE_DONE))
-                    {
-                        editor = preferences.Edit();
-                        editor.PutString("firstRun", "regd");
-                        editor.Commit();
+                if (!s.Exists() || !s.HasChildren)
+                    GotoProfile();
 
-                        var intent = new Intent(Activity, typeof(MainActivity));
-                        intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
-                        StartActivity(intent);
-                        OnboardingActivity.DismissLoader();
-                    }
-                    else
-                    {
-                        OnboardingActivity.GetStage(stage);
-                        OnboardingActivity.DismissLoader();
-                    }
-                    
+                string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
+                if (stage.Contains(Constants.REG_STAGE_DONE))
+                {
+                    editor = preferences.Edit();
+                    editor.PutString("firstRun", "regd");
+                    editor.Commit();
+
+                    var intent = new Intent(Activity, typeof(MainActivity));
+                    intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                    StartActivity(intent);
+                    OnboardingActivity.DismissLoader();
                 }
                 else
                 {
-                    GotoProfile();
+                    OnboardingActivity.GetStage(stage);
+                    OnboardingActivity.DismissLoader();
                 }
 
             }, (e) =>
@@ -240,7 +210,7 @@ namespace Oyadieyie3D.Fragments
                     finally
                     {
                         resendBtn.Visibility = ViewStates.Invisible;
-                        numTv.Text = "You entered an invalid phone number!";
+                        numTv.SetText(Resource.String.wrong_num_msg);
                         numTv.SetTextColor(ColorStateList.ValueOf(Color.Red));
                     }
                     

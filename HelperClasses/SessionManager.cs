@@ -36,6 +36,7 @@ namespace Oyadieyie3D.HelperClasses
         public static FirebaseDatabase GetFireDB()
         {
             InitFireApp();
+            //FirebaseDatabase.Instance.SetPersistenceEnabled(true);
             return FirebaseDatabase.Instance;
         }
 

@@ -4,14 +4,12 @@ using Android.Views;
 using Android.Widget;
 using AndroidX.Fragment.App;
 using CN.Pedant.SweetAlert;
-using Firebase;
 using Firebase.Auth;
 using Google.Android.Material.TextField;
 using Oyadieyie3D.Activities;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
 using Oyadieyie3D.Utils;
-using System;
 using System.Collections.Generic;
 using Xamarin.Facebook;
 using Xamarin.Facebook.Login;
@@ -45,19 +43,12 @@ namespace Oyadieyie3D.Fragments
             phoneEt = view.FindViewById<TextInputLayout>(Resource.Id.phone_et);
             var gsPhoneEt = view.FindViewById<TextInputEditText>(Resource.Id.gs_phone_et);
             var facebookTv = view.FindViewById<TextView>(Resource.Id.facebook_log_btn);
+
+            gsPhoneEt.Click += (s2, e2) => GotoEnterPhone();
+
             var spanner = new Spanner(Activity, true);
             spanner.SetSpan(facebookTv, textToSpanarray);
-
-            spanner.OnSpanClick += (s1, e1) =>
-            {
-                LoginManager.Instance.LogInWithReadPermissions(this, new List<string> { "public_profile", "email" });
-            };
-
-            gsPhoneEt.Click += (s2, e2) =>
-            {
-                GotoEnterPhone();
-            };
-
+            spanner.OnSpanClick += (s1, e1) => LoginManager.Instance.LogInWithReadPermissions(this, new List<string> { "public_profile", "email" });
         }
 
         private void GotoEnterPhone()
@@ -86,55 +77,28 @@ namespace Oyadieyie3D.Fragments
             var loginresult = SessionManager.GetFirebaseAuth().SignInWithCredentialAsync(credentials);
 
             var user = loginresult.Result as FirebaseUser;
-            if(user != null)
-            {
-                var userRef = SessionManager.GetFireDB().GetReference("users");
-                userRef.OrderByKey().EqualTo(user.Uid).AddValueEventListener(new SingleValueListener(
-                    (s) =>
-                    {
-                        switch (s.Exists())
-                        {
-                            case false:
-                                ShowUserNotfound();
-                                break;
-
-                            default:
-                                var intent = new Intent(Activity, typeof(MainActivity));
-                                intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask); StartActivity(intent);
-                                break;
-                        }
-                    }, (e) =>
-                    {
-                        OnboardingActivity.ShowError("Database error", e.Message);
-                    }));
-            }
-            else
-            {
+            if (user == null)
                 ShowUserNotfound();
-            }
-            
-            //        }
-            //        catch (FirebaseAuthInvalidCredentialsException faice)
-            //        {
-            //            OnboardingActivity.DismissLoader();
-            //            OnboardingActivity.ShowError(faice.Source, faice.Message);
-            //        }
-            //        catch (FirebaseNetworkException)
-            //        {
-            //            OnboardingActivity.DismissLoader();
-            //            OnboardingActivity.ShowNoNetDialog(false);
-            //        }
-            //        catch (FirebaseAuthUserCollisionException fauce)
-            //        {
-            //            OnboardingActivity.DismissLoader();
-            //            OnboardingActivity.ShowError(fauce.Source, fauce.Message);
-            //        }
-            //        catch (Exception ex)
-            //        {
-            //            OnboardingActivity.DismissLoader();
-            //            OnboardingActivity.ShowError(ex.Source, ex.Message);
-            //        }
-            //    }));
+
+            var userRef = SessionManager.GetFireDB().GetReference("users");
+            userRef.OrderByKey().EqualTo(user.Uid).AddValueEventListener(new SingleValueListener(
+            (s) =>
+            {
+                switch (s.Exists())
+                {
+                    case false:
+                        ShowUserNotfound();
+                        break;
+
+                    default:
+                        var intent = new Intent(Activity, typeof(MainActivity));
+                        intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask); StartActivity(intent);
+                        break;
+                }
+            }, (e) =>
+            {
+                OnboardingActivity.ShowError("Database error", e.Message);
+            }));
         }
 
         private void ShowUserNotfound()

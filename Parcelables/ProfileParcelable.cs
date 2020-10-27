@@ -9,7 +9,6 @@ namespace Oyadieyie3D.Parcelables
     internal sealed class ProfileParcelable : Java.Lang.Object, IParcelable
     {
         public User UserProfile { get; set; }
-        public event EventHandler WriteTOParcelFailed;
         public ProfileParcelable()
         {
 
@@ -43,10 +42,9 @@ namespace Oyadieyie3D.Parcelables
                 dest.WriteString(UserProfile.Email);
                 dest.WriteString(UserProfile.Phone);
             }
-            catch (System.Exception)
+            catch (Exception)
             {
-
-                WriteTOParcelFailed?.Invoke(this, new EventArgs());
+                
             }
         }
 

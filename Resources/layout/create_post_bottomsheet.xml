@@ -10,11 +10,11 @@
     android:fillViewport="true"
     android:clickable="true"
     app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:paddingBottom="16dp"
-        >
+        android:paddingBottom="16dp">
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="0dp"
@@ -27,30 +27,17 @@
             android:clipToPadding="false"
             android:background="@color/colorPrimary">
 
-            <de.hdodenhof.circleimageview.CircleImageView
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:id="@+id/create_post_userProfile"
-                android:scaleType="centerCrop"
-                android:src="@drawable/user"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/create_post_userName"
-                app:layout_constraintBottom_toBottomOf="parent"
-                />
-
             <TextView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:id="@+id/create_post_userName"
-                app:layout_constraintStart_toEndOf="@+id/create_post_userProfile"
+                app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/post_progress"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:textAppearance="?attr/textAppearanceBody1"
+                android:textAppearance="?attr/textAppearanceHeadline6"
                 android:textColor="@android:color/white"
-                android:text="Create Post"
-                android:layout_marginStart="8dp"
+                android:text="Post"
                 android:layout_marginEnd="8dp"
                 android:paddingStart="8dp"
                 />
@@ -70,26 +57,15 @@
             <com.google.android.material.button.MaterialButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/done_btn"
-                app:layout_constraintEnd_toStartOf="@+id/post_cancel_btn"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:text="Post"
-                android:enabled="false"
                 style="@style/Widget.MaterialComponents.Button.TextButton.Icon"
-                />
-
-            <ImageButton
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:id="@+id/post_cancel_btn"
+                app:icon="@drawable/ic_done"
+                app:iconGravity="end"
+                android:id="@+id/done_btn"
+                android:text="Done"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
-                android:src="@drawable/ic_close"
-                android:background="@android:color/transparent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                android:padding="4dp"
-                android:tint="@android:color/white"
+                android:enabled="false"
                 />
     
         </androidx.constraintlayout.widget.ConstraintLayout>

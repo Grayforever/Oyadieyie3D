@@ -7,11 +7,6 @@
     tools:ignore="HardcodedText"
     android:focusableInTouchMode="true">
 
-    <include
-        layout="@layout/parent_appbar"
-        android:id="@+id/activity_main_appbar"
-        />
-
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -30,15 +25,25 @@
 
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
 
+    <com.google.android.material.bottomappbar.BottomAppBar
+        android:id="@+id/bottomAppBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom"
+        style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
+        app:navigationIcon="@drawable/menu_24px"
+        app:menu="@menu/main_menu"
+        app:hideOnScroll="true"
+        />
+
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/post_fab"
-        app:layout_anchor="@+id/main_refresher"
+        app:layout_anchor="@+id/bottomAppBar"
         app:layout_anchorGravity="end|bottom"
         app:useCompatPadding="true"
-        android:src="@drawable/ic_add"
-        app:tint="@android:color/white"
+        app:srcCompat="@drawable/ic_add"
         />
 
 
@@ -48,7 +53,6 @@
         android:id="@+id/rv_empty_view"
         android:padding="16dp"
         android:clipToPadding="false">
-
 
         <com.airbnb.lottie.LottieAnimationView
             android:layout_width="wrap_content"
@@ -68,6 +72,7 @@
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <include
-        layout="@layout/create_post_bottomsheet"/>
+        layout="@layout/create_post_bottomsheet"
+    />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

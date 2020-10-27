@@ -15,7 +15,12 @@
 	<string name="no_net_retry1">Retry</string>
 	<string name="no_net_retry2">Retrying...</string>
 	<string name="no_net_opn_sttngs">Open settings</string>
+	<string name="wrong_num_msg">You entered an invalid phone number!</string>
 
 	<string name="settings_title">Settings</string>
 	<string name="pref_faq_title">FAQ</string>
+
+	<string name="get_started_txt">Get started with your phone number</string>
+	<string name="us_dialcode">+1</string>
+	<string name="phone_number_hint">1234 567 890</string>
 </resources>
