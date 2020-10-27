@@ -39,4 +39,8 @@
 	</style>
 
 
+	<style name="AppTheme.PostBtnStyle" parent="Widget.MaterialComponents.Button.TextButton.Icon">
+		
+	</style>
+
 </resources>

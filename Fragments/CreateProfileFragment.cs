@@ -61,26 +61,40 @@ namespace Oyadieyie3D.Fragments
             emailEt = view.FindViewById<TextInputLayout>(Resource.Id.pro_email_et);
             locationEt = view.FindViewById<TextInputLayout>(Resource.Id.pro_loc_et);
             genderRadioGroup = view.FindViewById<RadioGroup>(Resource.Id.pro_gender_grp);
+
             genderRadioGroup.SetOnCheckedChangeListener(this);
-            continueBtn.Click += ContinueBtn_Click;
-            fabPictureOptions.Click += FabPictureOptions_Click;
-            dobEditText.Click += DobEditText_Click;
+
+            fabPictureOptions.Click += (s, e) =>
+            {
+                var picturefragment = new ProfileChooserFragment();
+                picturefragment.OnCropComplete += Picturefragment_OnCropComplete;
+                var ft = ChildFragmentManager.BeginTransaction();
+
+                ft.Add(picturefragment, "Take_picture");
+                ft.CommitAllowingStateLoss();
+            };
+
+            dobEditText.Click += (s1, e1) =>
+            {
+                var datePicker = new DatePickerDialog();
+                datePicker.OnDatePicked += DatePicker_OnDatePicked;
+                var ft = ParentFragmentManager.BeginTransaction();
+                ft.Add(datePicker, "date_picker");
+                ft.CommitAllowingStateLoss();
+            };
+
+            continueBtn.Click += (s, e) => SaveToDb();
 
             dobEditText.TextChanged += EditText_TextChanged;
             fullnameEt.EditText.TextChanged+= EditText_TextChanged;
             emailEt.EditText.TextChanged+= EditText_TextChanged;
         }
 
-        private void EditText_TextChanged(object sender, Android.Text.TextChangedEventArgs e) => ShouldEnableBtn();
-
-        private void ShouldEnableBtn()
+        private void EditText_TextChanged(object sender, Android.Text.TextChangedEventArgs e)
         {
-            bool isEnabled = fullnameEt.EditText.Text.Length >= 2 && Patterns.EmailAddress.Matcher(emailEt.EditText.Text).Matches() 
+            continueBtn.Enabled = fullnameEt.EditText.Text.Length >= 2 && Patterns.EmailAddress.Matcher(emailEt.EditText.Text).Matches()
                 && hasImage && !string.IsNullOrEmpty(dobEditText.Text);
-            continueBtn.Enabled = isEnabled;
         }
-
-        private void ContinueBtn_Click(object sender, EventArgs e) => SaveToDb();
 
         private async void SaveToDb()
         {
@@ -160,31 +174,11 @@ namespace Oyadieyie3D.Fragments
             }
         }
 
-        private void FabPictureOptions_Click(object sender, EventArgs e)
-        {
-
-            var picturefragment = new ProfileChooserFragment();
-            picturefragment.OnCropComplete += Picturefragment_OnCropComplete;
-            var ft = ChildFragmentManager.BeginTransaction();
-
-            ft.Add(picturefragment, "Take_picture");
-            ft.CommitAllowingStateLoss();
-        }
-
         private void Picturefragment_OnCropComplete(object sender, ProfileChooserFragment.CropCompleteEventArgs e)
         {
             img_uri = e.imageUri;
             Glide.With(this).Load(img_uri).Into(profileImageView);
             hasImage = true;
-        }
-
-        private void DobEditText_Click(object sender, EventArgs e)
-        {
-            var datePicker = new DatePickerDialog();
-            datePicker.OnDatePicked += DatePicker_OnDatePicked;
-            var ft= ParentFragmentManager.BeginTransaction();
-            ft.Add(datePicker, "date_picker");
-            ft.CommitAllowingStateLoss();
         }
 
         private void DatePicker_OnDatePicked(object sender, DatePickerDialog.DateSetEventArgs e)
@@ -203,8 +197,7 @@ namespace Oyadieyie3D.Fragments
                 case Resource.Id.pro_female:
                     userGender = Gender.Female;
                     break;
-            }
-            ShouldEnableBtn();
+            }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           
         }
 
         private class ContinuationTask : Java.Lang.Object, IContinuation

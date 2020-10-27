@@ -25,15 +25,15 @@ namespace Oyadieyie3D.Activities
             SetContentView(Resource.Layout.fullscreen_imageviewer);
             imageView = (ImageView)FindViewById(Resource.Id.image);
             fullToolbar = (Toolbar)FindViewById(Resource.Id.fullscreen_toolbar);
+            var container = FindViewById<FrameLayout>(Resource.Id.container);
             SetSupportActionBar(fullToolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
 
-            var loupe = new Loupe(imageView);
-            loupe.UseDismissAnimation = false;
+            var loupe = new Loupe(imageView, container);
             loupe.OnViewTranslateListener = new OnViewTranslateListener((v1) =>
             {
                 SupportFinishAfterTransition();
-            },null, null, null);
+            }, null, null, null);
 
             try
             {

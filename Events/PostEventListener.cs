@@ -20,12 +20,7 @@ namespace Oyadieyie3D.Events
         public void FetchPost()
         {
             retrievalRef = SessionManager.GetFireDB().GetReference("posts");
-            retrievalRef.AddValueEventListener(this);
-        }
-
-        public void RemoveListener()
-        {
-            retrievalRef.RemoveEventListener(this);
+            retrievalRef.AddListenerForSingleValueEvent(this);
         }
 
         public void OnCancelled(DatabaseError error)
@@ -56,7 +51,7 @@ namespace Oyadieyie3D.Events
                         post.LikeCount = item.Child("likes") != null ? item.Child("likes").ChildrenCount : 0;
                         ListOfPost.Add(post);
                     }
-                    OnPostRetrieved?.Invoke(this, new PostEventArgs { Posts = ListOfPost });
+                    OnPostRetrieved?.Invoke(this, new PostEventArgs { Posts = ListOfPost});
                     break;
             }
         }

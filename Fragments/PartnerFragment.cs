@@ -13,8 +13,6 @@ namespace Oyadieyie3D.Fragments
 {
     public class PartnerFragment : Fragment
     {
-
-        private bool isDesigner = false;
         ISharedPreferences preferences = Application.Context.GetSharedPreferences("userInfo", FileCreationMode.Private);
         ISharedPreferencesEditor editor;
 
@@ -28,27 +26,17 @@ namespace Oyadieyie3D.Fragments
         {
             return inflater.Inflate(Resource.Layout.account_type_fragment, container, false);
         }
+
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
             var buttonToggleGrp = view.FindViewById<MaterialButtonToggleGroup>(Resource.Id.acc_type_opt_tglgrp);
+            var nextBtn = view.FindViewById<MaterialButton>(Resource.Id.acc_type_nxt_btn);
             buttonToggleGrp.AddOnButtonCheckedListener(new ButtonCheckedListener((group, id, isChecked) => 
             {
-                switch (id)
-                {
-                    case Resource.Id.client_btn:
-                        isDesigner = false;
-                        break;
-
-                    case Resource.Id.designer_btn:
-                        isDesigner = true;
-                        break;
-                    default:
-                        break;
-                }
+                
             }));
 
-            var nextBtn = view.FindViewById<MaterialButton>(Resource.Id.acc_type_nxt_btn);
             nextBtn.Click += (s1, e1) =>
             {
                 editor = preferences.Edit();
