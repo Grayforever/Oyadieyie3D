@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/change_root"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <include
+        layout="@layout/parent_appbar"
+        android:id="@+id/change_appbar"/>
+
+    <androidx.core.widget.NestedScrollView 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:clipToPadding="false">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/delete_header"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="Changing your number will:"
+                android:textColor="@color/mtrl_error"
+                android:drawableStart="@drawable/ic_info"
+                android:drawableTint="@color/mtrl_error"
+                android:drawablePadding="16dp"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textStyle="bold"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/things_tochange_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/delete_header"
+                android:paddingStart="40dp"
+                android:text="-Migrate your account info\n-Change some settings to default"
+                />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/delete_septor1"
+                android:background="@color/gray_btn_bg_color"
+                app:layout_constraintTop_toBottomOf="@+id/things_tochange_tv"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="40dp"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/log_out_header"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/delete_septor1"
+                android:text="Log out instead?"
+                android:drawableStart="@drawable/ic_change_number"
+                android:drawablePadding="16dp"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:id="@+id/Log_out_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/log_out_header"
+                android:text="Log out"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="16dp"
+                />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/delete_septor"
+                android:background="@color/gray_btn_bg_color"
+                app:layout_constraintTop_toBottomOf="@+id/Log_out_btn"
+                android:layout_marginTop="16dp"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/tochange_text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/delete_septor"
+                android:text="Before proceeding, please confirm that you are able to receive SMS or calls at your new number.\n\nEnter your old phone number with country code:"
+                android:paddingStart="40dp"
+                android:layout_marginTop="16dp"
+                />
+
+            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/dialcode_et"
+                android:layout_marginStart="40dp"
+                app:layout_constraintWidth_percent="0.2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/tochange_text"
+                app:layout_constraintEnd_toStartOf="@+id/phone_number_et"
+                android:hint="@string/us_dialcode"
+                android:inputType="phone"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:clickable="true"
+                android:focusable="false"
+                />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/phone_number_et"
+                app:layout_constraintStart_toEndOf="@+id/dialcode_et"
+                app:layout_constraintTop_toBottomOf="@+id/tochange_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:hint="phone number"
+                android:inputType="phone"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:maxLength="10"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/enter_new_phone_text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dialcode_et"
+                android:text="Enter your new phone number with country code:"
+                android:paddingStart="40dp"
+                android:layout_marginTop="16dp"
+                />
+
+            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/dialcode_et_2"
+                android:layout_marginStart="40dp"
+                app:layout_constraintWidth_percent="0.2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/enter_new_phone_text"
+                app:layout_constraintEnd_toStartOf="@+id/phone_number_et"
+                android:hint="@string/us_dialcode"
+                android:inputType="phone"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:clickable="true"
+                android:focusable="false"
+                />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/phone_number_et_2"
+                app:layout_constraintStart_toEndOf="@+id/dialcode_et_2"
+                app:layout_constraintTop_toBottomOf="@+id/enter_new_phone_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:hint="phone number"
+                android:inputType="phone"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:maxLength="10"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:id="@+id/confirm_change_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/dialcode_et_2"
+                android:text="Next"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="16dp"
+                android:enabled="false"
+                />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/delete_septor4"
+                android:background="@color/gray_btn_bg_color"
+                app:layout_constraintTop_toBottomOf="@+id/confirm_change_btn"
+                android:layout_marginTop="16dp"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/otp_text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/delete_septor4"
+                android:text="A 6-digit OTP has been sent to your new number. Please enter the code in the box provided below:"
+                android:paddingStart="40dp"
+                android:layout_marginTop="16dp"
+                />
+
+            <com.goodiebag.pinview.Pinview
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/change_otp_tv"
+                app:pinLength="6"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/otp_text"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="16dp"
+                app:pinWidth="40dp"
+                app:pinHeight="40dp"
+                app:splitWidth="9dp"
+                app:hint="0"
+                app:forceKeyboard="false"
+                app:cursorVisible="true"
+                app:inputType="number"
+                />
+
+             <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:id="@+id/confirm_otp_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/change_otp_tv"
+                android:text="Confirm"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="16dp"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

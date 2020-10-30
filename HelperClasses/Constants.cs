@@ -66,5 +66,7 @@
         public static int IMAGE_COMPRESSION = 80;
         public static int REQUEST_IMAGE_CAPTURE = 500;
         public static int SELECT_PICTURE = 1;
+
+        public static string BioStatusKey = "bioStatus";
     }
 }

@@ -20,7 +20,7 @@ namespace Oyadieyie3D.Activities
 {
     [Activity(Label = "Settings", Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
-    public class SettingsActivity : AppCompatActivity, PreferenceFragmentCompat.IOnPreferenceStartScreenCallback
+    public class SettingsActivity : AppCompatActivity, PreferenceFragmentCompat.IOnPreferenceStartFragmentCallback
     {
         private const string SettingsKey = "Settings";
         private Toolbar toolbar;
@@ -36,6 +36,8 @@ namespace Oyadieyie3D.Activities
         private string email;
         private string status;
         private string[] userPro;
+
+        private string tag;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -66,7 +68,6 @@ namespace Oyadieyie3D.Activities
                 ft.Replace(Resource.Id.frag_container_s, fragment, SettingsFragment.FRAGMENT_TAG);
                 ft.Commit();
 
-                //.SetCustomAnimations(Resource.Animation.enter, Resource.Animation.exit, Resource.Animation.pop_enter, Resource.Animation.pop_exit)
             }
             else
             {
@@ -75,10 +76,12 @@ namespace Oyadieyie3D.Activities
 
             SupportFragmentManager.AddOnBackStackChangedListener(new OnBackStackChangedlistener(() => 
             {
+                var id = SupportFragmentManager.BackStackEntryCount;
                 if (SupportFragmentManager.BackStackEntryCount == 0)
                 {
                     SetTitle(Resource.String.settings_title);
                 }
+                
             }));
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
@@ -109,23 +112,8 @@ namespace Oyadieyie3D.Activities
 
         public override bool OnSupportNavigateUp()
         {
-            if (SupportFragmentManager.PopBackStackImmediate())
-            {
-                return true;
-            }
             base.OnBackPressed();
             return true;
-        }
-
-        public override bool OnCreateOptionsMenu(IMenu menu)
-        {
-            MenuInflater.Inflate(Resource.Menu.help_menu, menu);
-            return base.OnCreateOptionsMenu(menu);
-        }
-
-        public override bool OnOptionsItemSelected(IMenuItem item)
-        {
-            return base.OnOptionsItemSelected(item);
         }
 
         private void ProfileConstraint_Click(object sender, System.EventArgs e)
@@ -136,21 +124,20 @@ namespace Oyadieyie3D.Activities
             StartActivity(intent, op.ToBundle());
         }
 
-        public void OnSharedPreferenceChanged(ISharedPreferences sharedPreferences, string key) { }
-
-        public bool OnPreferenceStartScreen(PreferenceFragmentCompat caller, PreferenceScreen pref)
+        public bool OnPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref)
         {
+            tag = pref.Key;
             var ft = SupportFragmentManager.BeginTransaction();
 
-            var fragment = new SettingsFragment();
-
-            Bundle args = new Bundle();
+            Bundle args = pref.Extras;
+            var fragment = SupportFragmentManager.FragmentFactory.Instantiate(ClassLoader, pref.Fragment);
             args.PutString(PreferenceFragmentCompat.ArgPreferenceRoot, pref.Key);
             fragment.Arguments = args;
+            fragment.SetTargetFragment(caller, 0);
 
             ft.SetCustomAnimations(Resource.Animation.enter, Resource.Animation.exit, Resource.Animation.pop_enter, Resource.Animation.pop_exit);
             ft.Replace(Resource.Id.frag_container_s, fragment, pref.Key);
-            ft.AddToBackStack(pref.Key);
+            ft.AddToBackStack(null);
             ft.Commit();
 
             Title = pref.Title;
@@ -180,15 +167,7 @@ namespace Oyadieyie3D.Activities
 
             public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
             {
-                if(Arguments != null)
-                {
-                    string key = Arguments.GetString(ArgPreferenceRoot);
-                    SetPreferencesFromResource(Resource.Xml.settings_pref, key);
-                }
-                else
-                {
-                    SetPreferencesFromResource(Resource.Xml.settings_pref, rootKey);
-                }
+                SetPreferencesFromResource(Resource.Xml.settings_pref, rootKey);
             }
 
             public override AndroidX.Fragment.App.Fragment CallbackFragment => this;

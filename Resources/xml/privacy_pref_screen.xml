@@ -1,0 +1,14 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+	app:title="Privacy"
+	app:key="privacy">
+
+	<Preference
+        app:key="biometric_lock"
+        app:title="Biometric lock"
+		app:fragment="id.Oyadieyie3D.Fragments.PrefBiometricFragment"
+		app:iconSpaceReserved="false"
+	/>
+
+</PreferenceScreen>

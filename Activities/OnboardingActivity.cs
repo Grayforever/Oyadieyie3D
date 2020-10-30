@@ -76,6 +76,7 @@ namespace Oyadieyie3D.Activities
                 new PaperOnboardingPage(Constants.ONBDTITLE_2, Constants.ONBDESC_2, Color.ParseColor("#FF4081"), Resource.Drawable.banks, Resource.Drawable.shopping_cart),
                 new PaperOnboardingPage(Constants.ONBDTITLE_3, Constants.ONBDESC_3, Color.ParseColor("#FF6E40"), Resource.Drawable.stores, Resource.Drawable.wallet)
             });
+
             onboardingFragment.SetOnRightOutListener(new OnRightOutListener(
                 ()=> 
                 {

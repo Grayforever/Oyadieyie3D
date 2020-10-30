@@ -1,7 +1,8 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <PreferenceScreen 
     xmlns:app="http://schemas.android.com/apk/res-auto"
-	app:title="Notifications">
+	app:title="Notifications"
+	app:key="notification">
 
 	<SwitchPreferenceCompat
         app:key="convo_tones"
@@ -9,12 +10,16 @@
         app:summaryOn="Playing sound for alerts and messages"
         app:defaultValue="false"
         app:title="In-app tones"
+		app:iconSpaceReserved="false"
 		/>
 
-	<PreferenceCategory app:title="Messages">
+	<PreferenceCategory app:title="Messages"
+						app:iconSpaceReserved="false">
 		<Preference
             app:key="ringtone"
-            app:title="Notification tone"/>
+            app:title="Notification tone"
+			app:iconSpaceReserved="false"
+	/>
 	</PreferenceCategory>
 
 </PreferenceScreen>

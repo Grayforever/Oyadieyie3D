@@ -30,7 +30,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
-        style="@style/Widget.MaterialComponents.BottomAppBar.Colored"
+        style="@style/Widget.MaterialComponents.BottomAppBar"
         app:navigationIcon="@drawable/menu_24px"
         app:menu="@menu/main_menu"
         app:hideOnScroll="true"

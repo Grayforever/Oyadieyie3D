@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	app:title="Biometric"
+	app:key="biometric_lock">
+
+	<SwitchPreferenceCompat
+        app:key="biometric_switch"
+        app:defaultValue="false"
+        app:title="Unlock with biometric"
+		app:summary="When enabled, you"
+		app:iconSpaceReserved="false"
+		/>
+
+	<PreferenceCategory app:iconSpaceReserved="false">
+		<ListPreference
+            app:key="duration_list"
+            app:title="Automatically lock"
+            app:useSimpleSummaryProvider="true"
+            android:entries="@array/list_preference_entries"
+            android:entryValues="@array/list_preference_entry_values"
+			app:iconSpaceReserved="false"
+			/>
+
+	</PreferenceCategory>
+
+</PreferenceScreen>

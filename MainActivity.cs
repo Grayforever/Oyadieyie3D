@@ -7,17 +7,15 @@ using Android.Graphics;
 using Android.OS;
 using Android.Provider;
 using Android.Runtime;
-using Android.Security.Keystore;
-using Android.Util;
 using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
-using AndroidX.Biometric;
 using AndroidX.ConstraintLayout.Widget;
 using AndroidX.Core.App;
 using AndroidX.Core.Content;
 using AndroidX.Core.View;
 using AndroidX.Core.Widget;
+using AndroidX.Preference;
 using AndroidX.RecyclerView.Widget;
 using AndroidX.SwipeRefreshLayout.Widget;
 using BumpTech.GlideLib;
@@ -32,15 +30,12 @@ using Google.Android.Material.Button;
 using Google.Android.Material.FloatingActionButton;
 using Google.Android.Material.TextField;
 using Java.IO;
-using Java.Lang;
-using Java.Security;
 using Java.Util;
-using Java.Util.Concurrent;
-using Javax.Crypto;
 using Oyadieyie3D.Activities;
 using Oyadieyie3D.Adapters;
 using Oyadieyie3D.Callbacks;
 using Oyadieyie3D.Events;
+using Oyadieyie3D.Fragments;
 using Oyadieyie3D.HelperClasses;
 using Oyadieyie3D.Models;
 using Oyadieyie3D.Parcelables;
@@ -48,9 +43,7 @@ using Oyadieyie3D.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using static AndroidX.Core.Content.FileProvider;
-using Base64 = Android.Util.Base64;
 using Exception = System.Exception;
 using SearchView = AndroidX.AppCompat.Widget.SearchView;
 using Task = Android.Gms.Tasks.Task;
@@ -60,9 +53,8 @@ namespace Oyadieyie3D
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
-    public class MainActivity : AppCompatActivity, IExecutor
+    public class MainActivity : AppCompatActivity
     {
-        
         private RecyclerView mainRecycler;
         private ConstraintLayout emptyRoot;
         private SwipeRefreshLayout swipe_container;
@@ -95,12 +87,6 @@ namespace Oyadieyie3D
 
         private BottomSheetBehavior postBottomsheetBehavior;
 
-        private IExecutor executor;
-        private BiometricPrompt biometricPrompt;
-        private BiometricPrompt.PromptInfo promptInfo;
-        private string KEY_SOMETHING = "GrayForever";
-
-
         protected async override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
@@ -113,21 +99,10 @@ namespace Oyadieyie3D
             var appbar = FindViewById<BottomAppBar>(Resource.Id.bottomAppBar);
             var searchView = appbar.Menu.FindItem(Resource.Id.action_search).ActionView as SearchView;
 
-            executor = this;
-            biometricPrompt = new BiometricPrompt(this, executor, GetAuthenticationCallback());
-            promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                .SetTitle("Biometric login for my app")
-                .SetSubtitle("Log in using your biometric credential")
-                .SetDeviceCredentialAllowed(true)
-                .Build();
+            var prefs = PreferenceManager.GetDefaultSharedPreferences(this);
+            bool isBioEnabled = prefs.GetBoolean(Constants.BioStatusKey, false);
+            ShowBiometricDialog(isBioEnabled);
 
-            biometricPrompt.Authenticate(promptInfo);
-            //GenerateSecreteKey(new KeyGenParameterSpec.Builder( KEY_SOMETHING, KeyStorePurpose.Encrypt| KeyStorePurpose.Decrypt)
-            //    .SetBlockModes(KeyProperties.BlockModeCbc)
-            //    .SetEncryptionPaddings(KeyProperties.EncryptionPaddingPkcs7)
-            //    .SetUserAuthenticationRequired(true)
-            //    .SetInvalidatedByBiometricEnrollment(true)
-            //    .Build());
 
             searchView.QueryTextChange += (s, e) =>
             {
@@ -141,12 +116,12 @@ namespace Oyadieyie3D
             {
                 switch (e2.Item.ItemId)
                 {
-                    case Resource.Id.action_refresh:
-
+                    case Resource.Id.action_dark_theme:
+                        AppCompatDelegate.DefaultNightMode = AppCompatDelegate.ModeNightYes;
                         break;
 
-                    case Resource.Id.action_finder:
-
+                    case Resource.Id.action_light_theme:
+                        AppCompatDelegate.DefaultNightMode = AppCompatDelegate.ModeNightNo;
                         break;
 
                     case Resource.Id.action_settings:
@@ -166,47 +141,6 @@ namespace Oyadieyie3D
             postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
             await GetUserFromFireAsync();
             CreateBottomSheet();
-        }
-
-        private BiometricAuthenticationCallback GetAuthenticationCallback()
-        {
-            var callback = new BiometricAuthenticationCallback
-            {
-                Success = (BiometricPrompt.AuthenticationResult result) => 
-                {
-                    Toast.MakeText(this, "Authentication success!", ToastLength.Short).Show();
-                },
-                Failed = () => 
-                {
-                    Toast.MakeText(this, "Authentication Failed", ToastLength.Short).Show();
-                },
-                Error = (int errorCode, ICharSequence msg) =>
-                {
-                    Toast.MakeText(this, "Authentication Error: " + msg, ToastLength.Short).Show();
-                }
-            };
-            return callback;
-        }
-
-        private void GenerateSecreteKey(KeyGenParameterSpec keyGenParameterSpec)
-        {
-            var keyGenerator = KeyGenerator.GetInstance(KeyProperties.KeyAlgorithmAes, "AndroidKeyStore");
-            keyGenerator.Init(keyGenParameterSpec);
-            keyGenerator.GenerateKey();
-        }
-
-        private Cipher GetCipher()
-        {
-            return Cipher.GetInstance(KeyProperties.KeyAlgorithmAes + "/"
-                + KeyProperties.BlockModeCbc + "/"
-                + KeyProperties.EncryptionPaddingPkcs7);
-        }
-
-        private IKey GetSecretKey()
-        {
-            KeyStore keyStore = KeyStore.GetInstance("AndroidKeyStore");
-            keyStore.Load(null);
-            return keyStore.GetKey(KEY_SOMETHING, null);
         }
 
         private void PostEventListener_OnPostRetrieved(object sender, PostEventListener.PostEventArgs e)
@@ -329,6 +263,18 @@ namespace Oyadieyie3D
                 .ScaleY(1)
                 .WithEndAction(new MyRunnable(() => { addPostFab.SetImageResource(Resource.Drawable.ic_add); }))
                 .Start();
+        }
+
+        private void ShowBiometricDialog(bool isEnabled)
+        {
+            if (!isEnabled)
+                return;
+
+            var bioPromptFragment = new BiometricPromptSheet();
+            bioPromptFragment.Cancelable = false;
+            var ft = SupportFragmentManager.BeginTransaction();
+            ft.Add(bioPromptFragment, "bio_prompt_sheet");
+            ft.CommitAllowingStateLoss();
         }
 
         private void SearchView_QueryTextChange(object sender, SearchView.QueryTextChangeEventArgs e)
@@ -668,11 +614,6 @@ namespace Oyadieyie3D
                 .Show();
         }
 
-        public void Execute(IRunnable command)
-        {
-            var handler = new Handler();
-            handler.Post(command);
-        }
 
         internal sealed class MyLocationCallback : LocationCallback
         {
