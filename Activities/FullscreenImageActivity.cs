@@ -6,8 +6,8 @@ using Android.Widget;
 using AndroidX.AppCompat.App;
 using BumpTech.GlideLib;
 using IGreenWood.LoupeLib;
-using Oyadieyie3D.Parcelables;
 using Oyadieyie3D.HelperClasses;
+using Oyadieyie3D.Parcelables;
 using System;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
@@ -18,6 +18,7 @@ namespace Oyadieyie3D.Activities
     {
         private ImageView imageView;
         private Toolbar fullToolbar;
+        private FrameLayout container;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
@@ -25,15 +26,10 @@ namespace Oyadieyie3D.Activities
             SetContentView(Resource.Layout.fullscreen_imageviewer);
             imageView = (ImageView)FindViewById(Resource.Id.image);
             fullToolbar = (Toolbar)FindViewById(Resource.Id.fullscreen_toolbar);
-            var container = FindViewById<FrameLayout>(Resource.Id.container);
+            container = FindViewById<FrameLayout>(Resource.Id.container);
             SetSupportActionBar(fullToolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
 
-            var loupe = new Loupe(imageView, container);
-            loupe.OnViewTranslateListener = new OnViewTranslateListener((v1) =>
-            {
-                SupportFinishAfterTransition();
-            }, null, null, null);
 
             try
             {
@@ -57,6 +53,13 @@ namespace Oyadieyie3D.Activities
             {
                 Toast.MakeText(this, e.Message, ToastLength.Short).Show();
             }
+
+            var loupe = new Loupe(imageView, container);
+            loupe.UseFlingToDismissGesture = false;
+            loupe.OnViewTranslateListener = new OnViewTranslateListener((v1) =>
+            {
+                SupportFinishAfterTransition();
+            }, null, null, null);
         }
 
         public override bool OnCreateOptionsMenu(IMenu menu)

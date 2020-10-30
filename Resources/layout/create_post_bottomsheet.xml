@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/createpost_bottomsheet_root"
-    android:background="@android:color/white"
+    android:background="?android:attr/colorBackground"
     android:focusable="true"
     android:fillViewport="true"
     android:clickable="true"
@@ -25,7 +25,7 @@
             app:layout_constraintTop_toTopOf="parent"
             android:padding="8dp"
             android:clipToPadding="false"
-            android:background="@color/colorPrimary">
+            android:background="?attr/colorPrimary">
 
             <TextView
                 android:layout_width="0dp"
@@ -36,7 +36,7 @@
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 android:textAppearance="?attr/textAppearanceHeadline6"
-                android:textColor="@android:color/white"
+                android:textColor="?android:attr/textColorPrimary"
                 android:text="Post"
                 android:layout_marginEnd="8dp"
                 android:paddingStart="8dp"

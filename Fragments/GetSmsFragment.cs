@@ -81,12 +81,12 @@ namespace Oyadieyie3D.Fragments
         private void VerifyCode(string code)
         {
             OnboardingActivity.ShowLoader();
-            try
-            {
-                PhoneAuthCredential cred = PhoneAuthProvider.GetCredential(verificationId, code);
-                SessionManager.GetFirebaseAuth().SignInWithCredential(cred)
-                    .AddOnCompleteListener(new OncompleteListener(
-                    onComplete: (t) =>
+            PhoneAuthCredential cred = PhoneAuthProvider.GetCredential(verificationId, code);
+            SessionManager.GetFirebaseAuth().SignInWithCredential(cred)
+                .AddOnCompleteListener(new OncompleteListener(
+                onComplete: (t) =>
+                {
+                    try
                     {
                         switch (t.IsSuccessful)
                         {
@@ -97,62 +97,68 @@ namespace Oyadieyie3D.Fragments
                                 CheckUserAvailability();
                                 break;
                         }
+                    }
+                    catch (FirebaseAuthInvalidCredentialsException fiace)
+                    {
+                        OnboardingActivity.DismissLoader();
+                        OnboardingActivity.ShowError(fiace.Source, fiace.Message);
+                    }
+                    catch (FirebaseTooManyRequestsException ftmre)
+                    {
+                        OnboardingActivity.DismissLoader();
+                        OnboardingActivity.ShowError(ftmre.Source, ftmre.Message);
+                    }
+                    catch (FirebaseAuthInvalidUserException fiue)
+                    {
+                        OnboardingActivity.DismissLoader();
+                        OnboardingActivity.ShowError(fiue.Source, fiue.Message);
+                    }
+                    catch (FirebaseNetworkException)
+                    {
+                        OnboardingActivity.DismissLoader();
+                        OnboardingActivity.ShowNoNetDialog(false);
+                    }
+                    catch (Exception e)
+                    {
+                        OnboardingActivity.DismissLoader();
+                        OnboardingActivity.ShowError(e.Source, e.Message);
+                    }
+                    
 
-                    }));
-            }
-            catch (FirebaseAuthInvalidCredentialsException fiace)
-            {
-                OnboardingActivity.DismissLoader();
-                OnboardingActivity.ShowError(fiace.Source, fiace.Message);
-            }
-            catch (FirebaseTooManyRequestsException ftmre)
-            {
-                OnboardingActivity.DismissLoader();
-                OnboardingActivity.ShowError(ftmre.Source, ftmre.Message);
-            }
-            catch (FirebaseAuthInvalidUserException fiue)
-            {
-                OnboardingActivity.DismissLoader();
-                OnboardingActivity.ShowError(fiue.Source, fiue.Message);
-            }
-            catch (FirebaseNetworkException)
-            {
-                OnboardingActivity.DismissLoader();
-                OnboardingActivity.ShowNoNetDialog(false);
-            }
-            catch (Exception e)
-            {
-                OnboardingActivity.DismissLoader();
-                OnboardingActivity.ShowError(e.Source, e.Message);
-            }
+                }));
+            
         }
 
         private void CheckUserAvailability()
         {
             var userRef = SessionManager.UserRef.Child(SessionManager.UserId);
             var statusRef = SessionManager.GetFireDB().GetReference("session");
-            statusRef.OrderByKey().EqualTo(SessionManager.GetFirebaseAuth().CurrentUser.Uid).AddValueEventListener(new SingleValueListener((s) =>
+            statusRef.OrderByKey().EqualTo(SessionManager.GetFirebaseAuth().CurrentUser.Uid).AddListenerForSingleValueEvent(new SingleValueListener((s) =>
             {
-                if (!s.Exists() || !s.HasChildren)
-                    GotoProfile();
-
-                string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
-                if (stage.Contains(Constants.REG_STAGE_DONE))
+                if (!s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Exists())
                 {
-                    editor = preferences.Edit();
-                    editor.PutString("firstRun", "regd");
-                    editor.Commit();
-
-                    var intent = new Intent(Activity, typeof(MainActivity));
-                    intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
-                    StartActivity(intent);
-                    OnboardingActivity.DismissLoader();
+                    GotoProfile();
                 }
                 else
                 {
-                    OnboardingActivity.GetStage(stage);
-                    OnboardingActivity.DismissLoader();
-                }
+                    string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
+                    if (stage.Contains(Constants.REG_STAGE_DONE))
+                    {
+                        editor = preferences.Edit();
+                        editor.PutString("firstRun", "regd");
+                        editor.Commit();
+
+                        var intent = new Intent(Activity, typeof(MainActivity));
+                        intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                        StartActivity(intent);
+                        OnboardingActivity.DismissLoader();
+                    }
+                    else
+                    {
+                        OnboardingActivity.GetStage(stage);
+                        OnboardingActivity.DismissLoader();
+                    }
+                }   
 
             }, (e) =>
             {

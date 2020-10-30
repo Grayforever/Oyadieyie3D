@@ -35,13 +35,15 @@
                 android:foreground="?android:attr/selectableItemBackgroundBorderless">
 
                 <de.hdodenhof.circleimageview.CircleImageView
-                    android:layout_width="56dp"
-                    android:layout_height="56dp"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
                     android:id="@+id/set_prof_iv"
                     app:layout_constraintStart_toStartOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     app:layout_constraintBottom_toBottomOf="parent"
                     android:transitionName="profile_holder"
+                    app:civ_border_width="1dp"
+                    app:civ_border_color="@color/gray_btn_bg_color"
                     />
 
                 <TextView
@@ -51,7 +53,7 @@
                     app:layout_constraintStart_toEndOf="@+id/set_prof_iv"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
+                    app:layout_constraintBottom_toTopOf="@+id/set_prof_extras_tv"
                     android:layout_margin="8dp"
                     android:textAppearance="?attr/textAppearanceHeadline6"
                     app:layout_constraintVertical_bias="0.25"
@@ -63,7 +65,7 @@
                     android:id="@+id/set_prof_extras_tv"
                     app:layout_constraintStart_toEndOf="@+id/set_prof_iv"
                     app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toBottomOf="@+id/set_prof_name_tv"
+                    app:layout_constraintBottom_toBottomOf="@+id/set_prof_iv"
                     android:layout_marginStart="8dp"
                     android:layout_marginEnd="8dp"
                     android:textAppearance="?attr/textAppearanceBody1"
@@ -75,7 +77,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="1dp"
-                android:background="@android:color/darker_gray"
+                android:background="@color/gray_btn_bg_color"
                 app:layout_constraintBottom_toTopOf="@+id/frag_container_s"
                 />
 
@@ -87,7 +89,7 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/profile_const"
-                app:layout_constraintHeight_percent="0.8"
+                app:layout_constraintHeight_percent="0.85"
                 />
     
         </androidx.constraintlayout.widget.ConstraintLayout>

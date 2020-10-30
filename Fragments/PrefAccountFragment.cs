@@ -8,6 +8,7 @@ namespace Oyadieyie3D.Fragments
     [Register("id.Oyadieyie3D.Fragments.PrefAccountFragment")]
     public class PrefAccountFragment : PreferenceFragmentCompat
     {
+        
         public PrefAccountFragment()
         {
 
@@ -28,6 +29,7 @@ namespace Oyadieyie3D.Fragments
         public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
         {
             SetPreferencesFromResource(Resource.Xml.account_pref_screen, rootKey);
+            
         }
     }
 }

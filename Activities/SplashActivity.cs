@@ -52,9 +52,14 @@ namespace Oyadieyie3D.Activities
         {
             Toast.MakeText(this, "Getting your last session", ToastLength.Long).Show();
             var statusRef = SessionManager.GetFireDB().GetReference("session");
-            statusRef.OrderByKey().EqualTo(SessionManager.GetFirebaseAuth().CurrentUser.Uid).AddValueEventListener(new SingleValueListener((s) => 
+            statusRef.OrderByKey().EqualTo(uid).AddValueEventListener(new SingleValueListener((s) => 
             {
-                if (s.Exists() && s.HasChildren)
+                if (!s.Child(uid).Exists())
+                {
+                    StartActivity(typeof(OnboardingActivity));
+                    Finish();
+                }
+                else
                 {
                     string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
                     if (stage.Contains(Constants.REG_STAGE_DONE))
@@ -66,19 +71,15 @@ namespace Oyadieyie3D.Activities
                         var intent = new Intent(this, typeof(MainActivity));
                         intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
                         StartActivity(intent);
-                        Finish();
+                        OnboardingActivity.DismissLoader();
                     }
                     else
                     {
                         OnboardingActivity.GetStage(stage);
-                        Finish();
+                        OnboardingActivity.DismissLoader();
                     }
                 }
-                else
-                {
-                    StartActivity(typeof(OnboardingActivity));
-                    Finish();
-                }
+                
 
             }, (e) => 
             {

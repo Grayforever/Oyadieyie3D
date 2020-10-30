@@ -1,5 +1,4 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
-<!--For all properties see: https://aka.ms/android-menu-resource-->
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools">
@@ -12,15 +11,15 @@ xmlns:tools="http://schemas.android.com/tools">
 	/>
 	
 <item 
-	android:id="@+id/action_refresh"
+	android:id="@+id/action_dark_theme"
     app:showAsAction="never"
-    android:title="Refresh"
+    android:title="Dark theme"
 	/>
 
 	<item
-		android:id="@+id/action_finder"
+		android:id="@+id/action_light_theme"
 		app:showAsAction="never"
-		android:title="O Finder"
+		android:title="Light theme"
 	/>
 
 <item
@@ -31,25 +30,3 @@ xmlns:tools="http://schemas.android.com/tools">
   
 </menu>
 
-<!-- Code to implement into Activity:
-
-Android.Widget.SearchView searchView;
-public override bool OnCreateOptionsMenu(IMenu menu)
-{
-  this.MenuInflater.Inflate(Resource.Menu.main_menu, menu);
-
-  var searchItem = menu.FindItem(Resource.Id.action_search);
-
-  searchView = searchItem.ActionProvider.JavaCast<Android.Widget.SearchView>();
-
-  searchView.QueryTextSubmit += (sender, args) =>
-  {
-    Toast.MakeText(this, "You searched: " + args.Query, ToastLength.Short).Show();
-
-  };
-
-
-  return base.OnCreateOptionsMenu(menu);
-}
-
--->
