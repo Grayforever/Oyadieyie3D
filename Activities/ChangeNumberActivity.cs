@@ -59,7 +59,7 @@ namespace Oyadieyie3D.Activities
             oldDialcodeEt = FindViewById<AppCompatAutoCompleteTextView>(Resource.Id.dialcode_et);
             var confirmOtpBtn = FindViewById<MaterialButton>(Resource.Id.confirm_otp_btn);
 
-            otpView.SetPinBackgroundRes(AppCompatDelegate.DefaultNightMode == AppCompatDelegate.ModeNightYes ? Resource.Color.ucrop_color_black  : Resource.Color.ucrop_color_white); 
+            otpView.SetPinBackgroundRes(AppCompatDelegate.DefaultNightMode == AppCompatDelegate.ModeNightYes ? Resource.Color.gray_dark  : Resource.Color.gray_light); 
 
             coordRoot.RequestFocus();
             SetSupportActionBar(toolbar);

@@ -73,6 +73,7 @@
 
     <include
         layout="@layout/create_post_bottomsheet"
+        android:visibility="gone"
     />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

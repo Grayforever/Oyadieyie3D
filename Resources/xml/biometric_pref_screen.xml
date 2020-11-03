@@ -20,6 +20,7 @@
             app:useSimpleSummaryProvider="true"
             android:entries="@array/list_preference_entries"
             android:entryValues="@array/list_preference_entry_values"
+			app:defaultValue="@string/default_lock"
 			app:iconSpaceReserved="false"
 			/>
 

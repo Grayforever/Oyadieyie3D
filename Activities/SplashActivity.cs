@@ -10,6 +10,7 @@ using Oyadieyie3D.HelperClasses;
 namespace Oyadieyie3D.Activities
 {
     [Activity(MainLauncher = true, Theme = "@style/AppTheme.Splash", Label ="@string/app_name", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout| Android.Content.PM.ConfigChanges.SmallestScreenSize| Android.Content.PM.ConfigChanges.Orientation)]
+    [MetaData("android.app.shortcuts", Resource ="@xml/shortcuts")]
     public class SplashActivity : AppCompatActivity
     {
         ISharedPreferences preferences = Application.Context.GetSharedPreferences(Constants.PREF_NAME, FileCreationMode.Private);

@@ -15,6 +15,7 @@ using AndroidX.Core.App;
 using AndroidX.Core.Content;
 using AndroidX.Core.View;
 using AndroidX.Core.Widget;
+using AndroidX.LocalBroadcastManager.Content;
 using AndroidX.Preference;
 using AndroidX.RecyclerView.Widget;
 using AndroidX.SwipeRefreshLayout.Widget;
@@ -33,6 +34,7 @@ using Java.IO;
 using Java.Util;
 using Oyadieyie3D.Activities;
 using Oyadieyie3D.Adapters;
+using Oyadieyie3D.BroadcastReceivers;
 using Oyadieyie3D.Callbacks;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.Fragments;
@@ -48,12 +50,13 @@ using Exception = System.Exception;
 using SearchView = AndroidX.AppCompat.Widget.SearchView;
 using Task = Android.Gms.Tasks.Task;
 using Uri = Android.Net.Uri;
+using ViewAnimator = Oyadieyie3D.HelperClasses.ViewAnimator;
 
 namespace Oyadieyie3D
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
-    public class MainActivity : AppCompatActivity
+    public class MainActivity : AppCompatActivity, IServiceConnection
     {
         private RecyclerView mainRecycler;
         private ConstraintLayout emptyRoot;
@@ -87,7 +90,11 @@ namespace Oyadieyie3D
 
         private BottomSheetBehavior postBottomsheetBehavior;
 
-        protected async override void OnCreate(Bundle savedInstanceState)
+        private Intent intent;
+        private IntentFilter filter;
+        private bool isBioEnabled;
+
+        protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.activity_main);
@@ -100,9 +107,7 @@ namespace Oyadieyie3D
             var searchView = appbar.Menu.FindItem(Resource.Id.action_search).ActionView as SearchView;
 
             var prefs = PreferenceManager.GetDefaultSharedPreferences(this);
-            bool isBioEnabled = prefs.GetBoolean(Constants.BioStatusKey, false);
-            ShowBiometricDialog(isBioEnabled);
-
+            isBioEnabled = prefs.GetBoolean(Constants.BioStatusKey, false);
 
             searchView.QueryTextChange += (s, e) =>
             {
@@ -134,14 +139,67 @@ namespace Oyadieyie3D
             };
             addPostFab.Click += AddPostFab_Click;
 
-            DividerItemDecoration decoration = new DividerItemDecoration(mainRecycler.Context, DividerItemDecoration.Vertical);
-            mainRecycler.AddItemDecoration(decoration);
-
             postEventListener.FetchPost();
             postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
-            await GetUserFromFireAsync();
-            CreateBottomSheet();
+            GetUserFromFireAsync();
+            //CreateBottomSheet();
         }
+
+        protected override void OnStart()
+        {
+            base.OnStart();
+            intent = new Intent(this, typeof(BiometricPromptTimerService));
+            filter = new IntentFilter(BiometricPromptTimerService.TimeInfo);
+            BindService(intent, this, Bind.None);
+        }
+
+        protected override void OnPause()
+        {
+            base.OnPause();
+
+            if (!isBioEnabled)
+                return;
+
+            LocalBroadcastManager.GetInstance(this).RegisterReceiver(new AppBroadcastReceiver((context, intent) =>
+            {
+                if (intent != null && intent.Action.Equals(BiometricPromptTimerService.TimeInfo))
+                {
+                    if (!intent.HasExtra("VALUE"))
+                        return;
+
+                    switch (intent.GetStringExtra("VALUE"))
+                    {
+                        case "Stopped":
+                        case "InProgress":
+                            break;
+                        default:
+                            ShowBiometricDialog();
+                            break;
+                    }
+                }
+            }), filter);
+            StartService(intent);
+        }
+
+        private void ShowBiometricDialog()
+        {
+            var bioPromptFragment = new BiometricPromptSheet();
+            bioPromptFragment.Cancelable = false;
+
+            var ft = SupportFragmentManager.BeginTransaction();
+            ft.Add(bioPromptFragment, "bio_prompt_sheet");
+            ft.CommitAllowingStateLoss();
+        }
+
+        protected override void OnStop()
+        {
+            base.OnStop();
+            UnbindService(this);
+        }
+
+        public void OnServiceConnected(ComponentName name, IBinder service) { }
+
+        public void OnServiceDisconnected(ComponentName name) { }
 
         private void PostEventListener_OnPostRetrieved(object sender, PostEventListener.PostEventArgs e)
         {
@@ -222,10 +280,12 @@ namespace Oyadieyie3D
             };
         }
 
+        bool isRotate = false;
         private void AddPostFab_Click(object sender, EventArgs e)
         {
             try
             {
+                isRotate = ViewAnimator.RotateFab(addPostFab, !isRotate);
                 switch (postBottomsheetBehavior.State)
                 {
                     case BottomSheetBehavior.StateHidden:
@@ -241,40 +301,6 @@ namespace Oyadieyie3D
             {
                 ShowToast("No network connection");
             }
-        }
-
-        private void MakeFabTransform()
-        {
-            addPostFab.Animate()
-                .RotationBy(rotation)
-                .SetDuration(100)
-                .ScaleX(1.1f)
-                .ScaleY(1.1f)
-                .WithEndAction(new MyRunnable(() => { addPostFab.SetImageResource(nextDrawableId); }))
-                .Start();
-        }
-
-        private void MakeFabDefault()
-        {
-            addPostFab.Animate()
-                .RotationBy(-rotation)
-                .SetDuration(100)
-                .ScaleX(1)
-                .ScaleY(1)
-                .WithEndAction(new MyRunnable(() => { addPostFab.SetImageResource(Resource.Drawable.ic_add); }))
-                .Start();
-        }
-
-        private void ShowBiometricDialog(bool isEnabled)
-        {
-            if (!isEnabled)
-                return;
-
-            var bioPromptFragment = new BiometricPromptSheet();
-            bioPromptFragment.Cancelable = false;
-            var ft = SupportFragmentManager.BeginTransaction();
-            ft.Add(bioPromptFragment, "bio_prompt_sheet");
-            ft.CommitAllowingStateLoss();
         }
 
         private void SearchView_QueryTextChange(object sender, SearchView.QueryTextChangeEventArgs e)
@@ -335,26 +361,13 @@ namespace Oyadieyie3D
             }
         }
 
-        public override void OnBackPressed()
+        public User GetUserFromFireAsync()
         {
-            switch (postBottomsheetBehavior.State)
-            {
-                case BottomSheetBehavior.StateExpanded:
-                case BottomSheetBehavior.StateHalfExpanded:
-                    postBottomsheetBehavior.State = BottomSheetBehavior.StateHidden;
-                    break;
-                default:
-                    base.OnBackPressed();
-                    break;
-            }
-        }
-
-        public async System.Threading.Tasks.Task<User> GetUserFromFireAsync()
-        {
-            await System.Threading.Tasks.Task.Run(() =>
+            AsyncTask.Execute(new MyRunnable(() => 
             {
                 try
                 {
+                    Looper.Prepare();
                     string userId = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
                     var userRef = SessionManager.GetFireDB().GetReference($"users/{userId}/profile");
                     userRef.AddValueEventListener(new SingleValueListener(
@@ -378,12 +391,13 @@ namespace Oyadieyie3D
                         Toast.MakeText(Application.Context, exception.Message, ToastLength.Short).Show();
                     }));
                     userRef.KeepSynced(true);
+                    Looper.Loop();
                 }
                 catch (Exception e)
                 {
                     Toast.MakeText(this, e.Message, ToastLength.Short).Show();
                 }
-            });
+            }));
             return user;
         }
 
@@ -397,7 +411,6 @@ namespace Oyadieyie3D
             var postRoot = FindViewById<NestedScrollView>(Resource.Id.createpost_bottomsheet_root);
 
             postBottomsheetBehavior = BottomSheetBehavior.From(postRoot);
-            postBottomsheetBehavior.Hideable = true;
             postBottomsheetBehavior.State = BottomSheetBehavior.StateHidden;
             postBottomsheetBehavior.AddBottomSheetCallback(new BottomSheetCallback(
                 onSlide: (bottomSheet, newState) =>
@@ -405,17 +418,7 @@ namespace Oyadieyie3D
 
                 }, onStateChanged: (bottomsheet, state) =>
                 {
-                    switch (state)
-                    {
-                        case BottomSheetBehavior.StateHalfExpanded:
-                        case BottomSheetBehavior.StateExpanded:
-                            MakeFabTransform();
-                            break;
-
-                        default:
-                            MakeFabDefault();
-                            break;
-                    }
+                    isRotate = ViewAnimator.RotateFab(addPostFab, !isRotate);
                 }));
 
             var postToggleBtn = FindViewById<MaterialButtonToggleGroup>(Resource.Id.picture_toggle_group);
@@ -643,5 +646,7 @@ namespace Oyadieyie3D
                 return imageRef.GetDownloadUrl();
             }
         }
+
+        
     }
 }

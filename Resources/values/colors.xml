@@ -8,4 +8,14 @@
 	<color name="onboard_color_1">#F48FB1</color>
 	<color name="onboard_color_2">#CE93D8</color>
 	<color name="onboard_color_3">#80CBC4</color>
+	<color name="gray_light">#E0E0E0</color>
+	<color name="gray_dark">#777777</color>
+
+	<color name="blue">#348af7</color>
+
+    <color name="temperature_background">@color/blue</color>
+    <color name="temperature_text">@android:color/white</color>
+
+    <color name="green_dot_big">@color/blue</color>
+    <color name="green_dot_small">@color/blue</color>
 </resources>

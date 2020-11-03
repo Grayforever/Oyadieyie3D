@@ -1,6 +1,7 @@
 ﻿using Android.OS;
 using Android.Views;
 using Android.Widget;
+using AndroidX.Activity;
 using AndroidX.Biometric;
 using AndroidX.Core.Content;
 using AndroidX.Fragment.App;
@@ -16,7 +17,6 @@ namespace Oyadieyie3D.Fragments
         private IExecutor executor;
         private BiometricPrompt biometricPrompt;
         private BiometricPrompt.PromptInfo promptInfo;
-        private string KEY_SOMETHING = "GrayForever";
 
         public override void OnCreate(Bundle savedInstanceState)
         {
@@ -45,10 +45,7 @@ namespace Oyadieyie3D.Fragments
             unlockBtn.Click += UnlockBtn_Click;
         }
 
-        private void UnlockBtn_Click(object sender, System.EventArgs e)
-        {
-            biometricPrompt.Authenticate(promptInfo);
-        }
+        private void UnlockBtn_Click(object sender, System.EventArgs e) => biometricPrompt.Authenticate(promptInfo);
 
         private BiometricAuthenticationCallback GetAuthenticationCallback()
         {
@@ -56,8 +53,7 @@ namespace Oyadieyie3D.Fragments
             {
                 Success = (BiometricPrompt.AuthenticationResult result) =>
                 {
-                    Toast.MakeText(Activity, "Authentication success!", ToastLength.Short).Show();
-                    DismissAllowingStateLoss();
+                    Dismiss();
                 },
                 Failed = () =>
                 {

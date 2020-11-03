@@ -41,7 +41,7 @@ namespace Oyadieyie3D.Fragments
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetStyle(StyleNormal, Resource.Style.AppTheme_ModalDialog);
+            SetStyle(StyleNormal, Resource.Style.Widget_MaterialComponents_BottomSheet_Modal);
             
         }
 
