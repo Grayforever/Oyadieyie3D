@@ -68,5 +68,6 @@
         public static int SELECT_PICTURE = 1;
 
         public static string BioStatusKey = "bioStatus";
+        public static string LockDuration = "duration_list";
     }
 }
