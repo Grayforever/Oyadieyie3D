@@ -17,24 +17,25 @@
 		<item name="android:windowNoTitle">true</item>
 	</style>
 
-	<style name="TemperatureTextView">
+	<style name="AppTheme.RatingTextView">
 		<item name="android:textSize">18sp</item>
 		<item name="android:textColor">@color/temperature_text</item>
 		<item name="android:gravity">center</item>
+		<item name="android:textStyle">bold</item>
 	</style>
 
-	<style name="PlaceTextView">
-		<item name="android:textSize">24sp</item>
+	<style name="AppTheme.NameTextView">
+		<item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
 		<item name="android:gravity">center</item>
 	</style>
 
-	<style name="ClockTextView">
-		<item name="android:textSize">15sp</item>
+	<style name="AppTheme.ClockTextView">
+		<item name="android:textAppearance">?attr/textAppearanceBody1</item>
 		<item name="android:gravity">center</item>
 	</style>
 
-	<style name="DescriptionTextView">
-		<item name="android:textSize">15sp</item>
+	<style name="AppTheme.DescriptionTextView">
+		<item name="android:textAppearance">?attr/textAppearanceBody1</item>
 		<item name="android:maxLines">2</item>
 		<item name="android:ellipsize">end</item>
 	</style>

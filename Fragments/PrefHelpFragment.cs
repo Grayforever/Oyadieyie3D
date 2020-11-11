@@ -1,6 +1,5 @@
 ﻿using Android.OS;
 using Android.Runtime;
-using Android.Views;
 using AndroidX.Preference;
 
 namespace Oyadieyie3D.Fragments

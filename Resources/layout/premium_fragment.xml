@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.core.widget.NestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:cc="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/prem_frag_root"
+    android:fillViewport="true">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:padding="16dp"
+        android:clipToPadding="false">
+
+        <androidx.cardview.widget.CardView
+            android:layout_width="match_parent"
+            android:layout_height="92dp"
+            android:id="@+id/current_plan_card"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:cardCornerRadius="12dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:padding="8dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/brand_name"
+                    android:layout_alignParentStart="true"
+                    android:text="Oyadieyie3D free"
+                    android:layout_centerVertical="true"
+                    android:textAppearance="?attr/textAppearanceHeadline6"
+                    android:fontFamily="@font/raleway_bold"
+                    />
+
+                <View
+                    android:layout_width="1dp"
+                    android:layout_height="match_parent"
+                    android:background="@android:color/darker_gray"
+                    android:layout_toStartOf="@+id/plan_title"
+                    android:layout_margin="4dp"
+                    />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/plan_title"
+                    android:layout_alignParentEnd="true"
+                    android:layout_centerVertical="true"
+                    android:text="current plan"
+                    android:textAppearance="?attr/textAppearanceOverline"
+                    />
+
+            </RelativeLayout>
+
+        </androidx.cardview.widget.CardView>
+
+        <Oyadieyie3D.Utils.CheckableCardView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_height_q"
+            android:id="@+id/individual_card"
+            cc:planTitle="Premium\nIndividual"
+            cc:planOffer="Kasd vel amet dolor sanctus iriure lorem liber eu elitr no at lorem ipsum consetetur"
+            cc:planTerms="Only ₵9.99/month after. Offer only for users who are new to Premium."
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/current_plan_card"
+            android:layout_marginTop="16dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:checkable="true"
+            />
+
+        <Oyadieyie3D.Utils.CheckableCardView
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/card_height_q"
+            android:id="@+id/group_card"
+            cc:planTitle="Premium\nKuo"
+            cc:planOffer="Kasd vel amet dolor sanctus iriure lorem liber eu elitr no at lorem ipsum consetetur"
+            cc:planTerms="Only ₵19.99/month after. Offer only for users who are new to Premium."
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/individual_card"
+            android:layout_marginTop="12dp"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:checkable="true"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.core.widget.NestedScrollView>

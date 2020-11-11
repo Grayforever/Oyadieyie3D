@@ -13,14 +13,11 @@ namespace Oyadieyie3D.Activities
     [MetaData("android.app.shortcuts", Resource ="@xml/shortcuts")]
     public class SplashActivity : AppCompatActivity
     {
-        ISharedPreferences preferences = Application.Context.GetSharedPreferences(Constants.PREF_NAME, FileCreationMode.Private);
-        ISharedPreferencesEditor editor;
-        private string _firstRun = "firstRun";
-
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            string firstRun = preferences.GetString("firstRun", "");
+            PreferenceHelper.Init(this);
+            string firstRun = PreferenceHelper.Instance.GetString("firstRun", "");
             if (firstRun != "" && firstRun != "reg")
             {
                 StartActivity(typeof(MainActivity));
@@ -28,9 +25,7 @@ namespace Oyadieyie3D.Activities
             }
             else
             {
-                editor = preferences.Edit();
-                editor.PutString(_firstRun, "reg");
-                editor.Commit();
+                PreferenceHelper.Instance.SetString("firstRun", "reg");
                 RouteToAppropriatePage(SessionManager.GetFirebaseAuth().CurrentUser);
             }
         }
@@ -53,7 +48,7 @@ namespace Oyadieyie3D.Activities
         {
             Toast.MakeText(this, "Getting your last session", ToastLength.Long).Show();
             var statusRef = SessionManager.GetFireDB().GetReference("session");
-            statusRef.OrderByKey().EqualTo(uid).AddValueEventListener(new SingleValueListener((s) => 
+            statusRef.OrderByKey().EqualTo(uid).AddListenerForSingleValueEvent(new SingleValueListener((s) => 
             {
                 if (!s.Child(uid).Exists())
                 {
@@ -65,9 +60,7 @@ namespace Oyadieyie3D.Activities
                     string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
                     if (stage.Contains(Constants.REG_STAGE_DONE))
                     {
-                        editor = preferences.Edit();
-                        editor.PutString("firstRun", "regd");
-                        editor.Commit();
+                        PreferenceHelper.Instance.SetString("firstRun", "regd");
 
                         var intent = new Intent(this, typeof(MainActivity));
                         intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);

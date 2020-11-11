@@ -64,8 +64,8 @@
         public static int bitmapMaxWidth = 1000;
         public static int bitmapMaxHeight = 1000;
         public static int IMAGE_COMPRESSION = 80;
-        public static int REQUEST_IMAGE_CAPTURE = 500;
-        public static int SELECT_PICTURE = 1;
+        public const int REQUEST_IMAGE_CAPTURE = 500;
+        public const int SELECT_PICTURE = 1;
 
         public static string BioStatusKey = "bioStatus";
         public static string LockDuration = "duration_list";

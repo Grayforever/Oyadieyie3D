@@ -1,7 +1,5 @@
-﻿using Android.Content;
-using Android.OS;
+﻿using Android.OS;
 using Android.Runtime;
-using Android.Widget;
 using AndroidX.Biometric;
 using AndroidX.Core.Content;
 using AndroidX.Preference;
@@ -22,7 +20,6 @@ namespace Oyadieyie3D.Fragments
         private IExecutor executor;
         private BiometricPrompt biometricPrompt;
         private BiometricPrompt.PromptInfo promptInfo;
-        private ISharedPreferences prefManager;
         private SwitchPreferenceCompat bioSwitchPreference;
         private ListPreference durationlistPreference;
         private bool isBioEnabled;
@@ -30,6 +27,7 @@ namespace Oyadieyie3D.Fragments
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            PreferenceHelper.Init(Context);
             executor = ContextCompat.GetMainExecutor(Context);
                 biometricPrompt = new BiometricPrompt(this, executor, GetAuthenticationCallback());
                 promptInfo = new BiometricPrompt.PromptInfo.Builder()
@@ -41,11 +39,10 @@ namespace Oyadieyie3D.Fragments
         public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
         {
             SetPreferencesFromResource(Resource.Xml.biometric_pref_screen, rootKey);
-            prefManager = PreferenceManager.GetDefaultSharedPreferences(Context);
             bioSwitchPreference = (SwitchPreferenceCompat)PreferenceScreen.FindPreference(BioSwitchKey);
             durationlistPreference = (ListPreference)PreferenceScreen.FindPreference(DurationListKey);
             bioSwitchPreference.OnPreferenceChangeListener = this;
-            isBioEnabled = prefManager.GetBoolean(BioSwitchKey, false);
+            isBioEnabled = PreferenceHelper.Instance.GetBoolean(BioSwitchKey);
             durationlistPreference.Enabled = isBioEnabled;
         }
 
@@ -65,9 +62,7 @@ namespace Oyadieyie3D.Fragments
         private void SetPrefValue(bool isBioLockOn)
         {
             PrefPrivacyFragment.lablePref.Summary = isBioLockOn != true ? "Disabled" : "Enabled";
-            var editor = prefManager.Edit();
-            editor.PutBoolean(Constants.BioStatusKey, isBioLockOn);
-            editor.Commit();
+            PreferenceHelper.Instance.SetBoolean(Constants.BioStatusKey, isBioLockOn);
         }
 
         private BiometricAuthenticationCallback GetAuthenticationCallback()
