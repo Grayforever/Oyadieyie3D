@@ -26,8 +26,6 @@ namespace Oyadieyie3D.Activities
         private Toolbar toolbar;
         private ConstraintLayout profileConstraint;
         private CircleImageView profileIv;
-        private Bundle extras;
-        private ProfileParcelable parcelable;
         private TextView username_tv;
         private TextView status_tv;
         private string imgUrl;
@@ -35,7 +33,6 @@ namespace Oyadieyie3D.Activities
         private string phone;
         private string email;
         private string status;
-        private string[] userPro;
 
         private string tag;
 
@@ -44,8 +41,6 @@ namespace Oyadieyie3D.Activities
             base.OnCreate(savedInstanceState);
 
             SetContentView(Resource.Layout.settings_activity);
-            extras = Intent.Extras;
-            parcelable = (ProfileParcelable)extras.GetParcelable(Constants.PROFILE_DATA_EXTRA);
 
             username_tv = FindViewById<TextView>(Resource.Id.set_prof_name_tv);
             status_tv = FindViewById<TextView>(Resource.Id.set_prof_extras_tv);
@@ -86,22 +81,12 @@ namespace Oyadieyie3D.Activities
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
 
-            imgUrl = parcelable.UserProfile.ProfileImgUrl;
-            username = parcelable.UserProfile.Username;
-            phone = parcelable.UserProfile.Phone;
-            email = parcelable.UserProfile.Email;
-            status = parcelable.UserProfile.Status;
-            userPro = new string[] { imgUrl, username, phone, status };
-
-            RequestOptions requestOptions = new RequestOptions();
-            requestOptions.Placeholder(Resource.Drawable.user);
-            Glide.With(this)
-                .SetDefaultRequestOptions(requestOptions)
-                .Load(imgUrl)
-                .Into(profileIv);
-
-            username_tv.Text = username;
-            status_tv.Text = status; 
+            //RequestOptions requestOptions = new RequestOptions();
+            //requestOptions.Placeholder(Resource.Drawable.user);
+            //Glide.With(this)
+            //    .SetDefaultRequestOptions(requestOptions)
+            //    .Load(imgUrl)
+            //    .Into(profileIv);
         }
 
         protected override void OnSaveInstanceState(Bundle outState)
@@ -119,7 +104,6 @@ namespace Oyadieyie3D.Activities
         private void ProfileConstraint_Click(object sender, System.EventArgs e)
         {
             var intent = new Intent(this, typeof(ProfileActivity));
-            intent.PutStringArrayListExtra("extra_details", userPro);
             ActivityOptionsCompat op = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, profileIv, "profile_holder");
             StartActivity(intent, op.ToBundle());
         }

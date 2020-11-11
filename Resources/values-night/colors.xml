@@ -3,4 +3,9 @@
 	<color name="colorPrimary">#F48Fb1</color>
 	<color name="colorPrimaryDark">#000000</color>
 	<color name="colorAccent">#80CBC4</color>
+
+	<color name="temperature_text">@android:color/black</color>
+
+	<color name="green_dot_big">@color/colorAccent</color>
+    <color name="green_dot_small">@color/colorAccent</color>
 </resources>

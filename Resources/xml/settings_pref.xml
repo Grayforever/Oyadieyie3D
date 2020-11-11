@@ -1,6 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
     xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:android="http://schemas.android.com/apk/res/android"
 	app:title="Settings"
 	app:key="settings">
 
@@ -35,5 +36,20 @@
         app:title="Help"
         app:summary="Terms, privacy policy, contact us"
 		app:icon="@drawable/ic_help"/>
+
+	<PreferenceCategory app:iconSpaceReserved="false">
+		<Preference
+			app:key="premium"
+			app:title="Get Premium"
+			app:icon="@drawable/medal"
+			app:iconTint="@null">
+
+				<intent
+					android:targetPackage="com.graylabs.oyadieyie3d"
+					android:targetClass="id.Oyadieyie3D.Activities.GetPremiumActivity"/>
+
+			</Preference>
+
+	</PreferenceCategory>
 
 </PreferenceScreen>

@@ -5,6 +5,7 @@ using Android.OS;
 using Android.Provider;
 using Android.Runtime;
 using AndroidX.Preference;
+using Oyadieyie3D.HelperClasses;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -13,20 +14,19 @@ namespace Oyadieyie3D.Fragments
     {
         private const string Ringtone_Key = "ringtone";
         private const int RingtoneRequestCode = 500;
-        private ISharedPreferences prefs;
         private Preference ringtonePref;
 
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            PreferenceHelper.Init(Context);
         }
 
         public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
         {
             SetPreferencesFromResource(Resource.Xml.notifications_pref_screen, rootKey);
-            prefs = PreferenceManager.GetDefaultSharedPreferences(Context);
             ringtonePref = PreferenceScreen.FindPreference(Ringtone_Key);
-            ringtonePref.Summary = GetToneName(prefs.GetString(Ringtone_Key, Settings.System.DefaultNotificationUri.ToString()));
+            ringtonePref.Summary = GetToneName(PreferenceHelper.Instance.GetString(Ringtone_Key, Settings.System.DefaultNotificationUri.ToString()));
         }
 
         private string GetToneName(string uri)
@@ -93,15 +93,13 @@ namespace Oyadieyie3D.Fragments
 
         private void SetRingtonePreferenceValue(string uri)
         {
-            var editor = prefs.Edit();
-            editor.PutString(Ringtone_Key, uri);
-            editor.Commit();
+            PreferenceHelper.Instance.SetString(Ringtone_Key, uri);
             ringtonePref.Summary = GetToneName(uri);
         }
 
         private string GetRingTonePreferenceValue()
         {
-            return prefs.GetString(Ringtone_Key, "content://settings/system/notification_sound");
+            return PreferenceHelper.Instance.GetString(Ringtone_Key, "content://settings/system/notification_sound");
         }
     }
 }

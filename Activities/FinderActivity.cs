@@ -8,13 +8,17 @@ using Android.Views;
 using Android.Widget;
 using AndroidX.Annotations;
 using AndroidX.AppCompat.App;
+using AndroidX.Core.Content.Resources;
 using AndroidX.Core.View;
 using AndroidX.RecyclerView.Widget;
 using Oyadieyie3D.Cards;
 using Oyadieyie3D.Events;
+using Oyadieyie3D.Models;
 using Oyadieyie3D.Utils;
 using Ramotion.CardSliderLib;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Activities
@@ -24,66 +28,105 @@ namespace Oyadieyie3D.Activities
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
     public sealed class FinderActivity : AppCompatActivity
     {
+        private int[] pics;
+        private string[] names;
+        private string[] description;
+        private int[] maps;
+        private string[] title;
+        private double[] rating;
+        private string[] hours;
+
         private const string MyTag = "RamotionCardSlider";
 
         private readonly int[,] _dotCoords = new int[5, 2];
 
-        private readonly int[] _pics =
-        {
-            R.Drawable.p1, R.Drawable.p2, R.Drawable.p3, R.Drawable.p4, R.Drawable.p5
-        };
-
-        private readonly int[] _maps =
-        {
-            R.Drawable.map_paris, R.Drawable.map_seoul, R.Drawable.map_london, R.Drawable.map_beijing,
-            R.Drawable.map_greece
-        };
-
-        private readonly int[] _descriptions =
-        {
-            R.String.text1, R.String.text2, R.String.text3, R.String.text4, R.String.text5
-        };
-
-        private readonly string[] _countries =
-        {
-            "PARIS", "SEOUL", "LONDON", "BEIJING", "THIRA"
-        };
-
-        private readonly string[] _places =
-        {
-            "The Louvre", "Gwanghwamun", "Tower Bridge", "Temple of Heaven", "Aegeana Sea"
-        };
-
-        private readonly string[] _temperatures =
-        {
-            "21°C", "19°C", "17°C", "23°C", "20°C"
-        };
-
-        private readonly string[] _times =
-        {
-            "Aug 1 - Dec 15    7:00-18:00", "Sep 5 - Nov 10    8:00-16:00", "Mar 8 - May 21    7:00-18:00"
-        };
-
         private CardSliderLayoutManager _layoutManger;
         private RecyclerView _recyclerView;
         private ImageSwitcher _mapSwitcher;
-        private TextSwitcher _temperatureSwitcher, _placeSwitcher, _clockSwitcher, _descriptionsSwitcher;
+        private TextSwitcher _ratingSwitcher, _featuredSwitcher, _clockSwitcher, _descriptionsSwitcher;
         private View _greenDot;
 
-        private TextView _country1TextView, _country2TextView;
-        private int _countryOffset1, _countryOffset2;
-        private long _countryAnimDuration;
+        private TextView _name1TextView, _name2TextView;
+        private int _nameOffset1, _nameOffset2;
+        private long _nameAnimDuration;
         private int _currentPosition;
 
         private DecodeBitmapTask _decodeMapBitmapTask;
         private DecodeBitmapTask.IListener _mapLoadListener;
 
-        private SliderAdapter MySliderAdapter => new SliderAdapter(_pics, 20, OnCardClickListener);
+        private SliderAdapter MySliderAdapter;
+        
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(R.Layout.activity_main);
+            SetContentView(R.Layout.finder_layout);
+
+            var client1 = new Client.Builder()
+                .SetClientName("Gray Labs")
+                .SetRating(4.4)
+                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
+                .SetMapUrl(R.Drawable.map_beijing)
+                .SetImageUrl(R.Drawable.p1)
+                .SetItemTitle("Sit duis aliquyam esse dolores")
+                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
+                .Build();
+
+            var client2 = new Client.Builder()
+                .SetClientName("Laddy")
+                .SetRating(4.4)
+                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
+                .SetMapUrl(R.Drawable.map_paris)
+                .SetImageUrl(R.Drawable.p2)
+                .SetItemTitle("Sit duis aliquyam esse dolores")
+                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
+                .Build();
+
+            var client3 = new Client.Builder()
+                .SetClientName("Jeffery")
+                .SetRating(4.4)
+                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
+                .SetMapUrl(R.Drawable.map_seoul)
+                .SetImageUrl(R.Drawable.p3)
+                .SetItemTitle("Sit duis aliquyam esse dolores")
+                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
+                .Build();
+
+            var client4 = new Client.Builder()
+                .SetClientName("Jenny")
+                .SetRating(4.4)
+                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
+                .SetMapUrl(R.Drawable.map_london)
+                .SetImageUrl(R.Drawable.p4)
+                .SetItemTitle("Sit duis aliquyam esse dolores")
+                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
+                .Build();
+
+            var client5 = new Client.Builder()
+                .SetClientName("Ea nonumy eos et dolor diam et et consequat ipsum")
+                .SetRating(4.4)
+                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
+                .SetMapUrl(R.Drawable.map_greece)
+                .SetImageUrl(R.Drawable.p5)
+                .SetItemTitle("Sit duis aliquyam esse dolores")
+                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
+                .Build();
+
+            var premiumClients = new List<Client>();
+            premiumClients.Add(client1);
+            premiumClients.Add(client2);
+            premiumClients.Add(client3);
+            premiumClients.Add(client4);
+            premiumClients.Add(client5);
+
+            pics = premiumClients.Select(client => client.ItemImgUrl).ToArray();
+            names = premiumClients.Select(client => client.ClientName.ToUpper()).ToArray();
+            description = premiumClients.Select(client => client.ItemDescription).ToArray();
+            maps = premiumClients.Select(client => client.MapImgUrl).ToArray();
+            title = premiumClients.Select(client => client.ItemTitle).ToArray();
+            rating = premiumClients.Select(client => client.Rating).ToArray();
+            hours = premiumClients.Select(client => client.OpeningHours).ToArray();
+            MySliderAdapter = new SliderAdapter(pics, premiumClients.Count, OnCardClickListener);
 
             InitRecyclerView();
             InitCountryText();
@@ -121,29 +164,29 @@ namespace Oyadieyie3D.Activities
 
         private void InitSwitchers()
         {
-            _temperatureSwitcher = FindViewById<TextSwitcher>(R.Id.ts_temperature);
-            _temperatureSwitcher.SetFactory(new TextViewFactory(this, R.Style.TemperatureTextView, true));
-            _temperatureSwitcher.SetCurrentText(_temperatures[0]);
+            _ratingSwitcher = FindViewById<TextSwitcher>(R.Id.ts_temperature);
+            _ratingSwitcher.SetFactory(new TextViewFactory(this, R.Style.AppTheme_RatingTextView, true));
+            _ratingSwitcher.SetCurrentText(rating[0].ToString());
 
-            _placeSwitcher = FindViewById<TextSwitcher>(R.Id.ts_place);
-            _placeSwitcher.SetFactory(new TextViewFactory(this, R.Style.PlaceTextView, false));
-            _placeSwitcher.SetCurrentText(_places[0]);
+            _featuredSwitcher = FindViewById<TextSwitcher>(R.Id.ts_place);
+            _featuredSwitcher.SetFactory(new TextViewFactory(this, R.Style.AppTheme_NameTextView, false));
+            _featuredSwitcher.SetCurrentText(title[0]);
 
             _clockSwitcher = FindViewById<TextSwitcher>(R.Id.ts_clock);
-            _clockSwitcher.SetFactory(new TextViewFactory(this, R.Style.ClockTextView, false));
-            _clockSwitcher.SetCurrentText(_times[0]);
+            _clockSwitcher.SetFactory(new TextViewFactory(this, R.Style.AppTheme_ClockTextView, false));
+            _clockSwitcher.SetCurrentText(hours[0]);
 
             _descriptionsSwitcher = FindViewById<TextSwitcher>(R.Id.ts_description);
             _descriptionsSwitcher.SetInAnimation(this, Android.Resource.Animation.FadeIn);
             _descriptionsSwitcher.SetOutAnimation(this, Android.Resource.Animation.FadeOut);
-            _descriptionsSwitcher.SetFactory(new TextViewFactory(this, R.Style.DescriptionTextView, false));
-            _descriptionsSwitcher.SetCurrentText(GetString(_descriptions[0]));
+            _descriptionsSwitcher.SetFactory(new TextViewFactory(this, R.Style.AppTheme_DescriptionTextView, false));
+            _descriptionsSwitcher.SetCurrentText(description[0]);
 
             _mapSwitcher = FindViewById<ImageSwitcher>(R.Id.ts_map);
             _mapSwitcher.SetInAnimation(this, R.Animation.fade_in);
             _mapSwitcher.SetOutAnimation(this, R.Animation.fade_out);
             _mapSwitcher.SetFactory(new ImageViewFactory(this));
-            _mapSwitcher.SetImageResource(_maps[0]);
+            _mapSwitcher.SetImageResource(maps[0]);
 
             _mapLoadListener = new DecodeBitmapTask.Listener(
                 bmp =>
@@ -156,19 +199,20 @@ namespace Oyadieyie3D.Activities
 
         private void InitCountryText()
         {
-            _countryAnimDuration = Resources.GetInteger(R.Integer.labels_animation_duration);
-            _countryOffset1 = Resources.GetDimensionPixelSize(R.Dimension.left_offset);
-            _countryOffset2 = Resources.GetDimensionPixelSize(R.Dimension.card_width);
-            _country1TextView = FindViewById<TextView>(R.Id.tv_country_1);
-            _country2TextView = FindViewById<TextView>(R.Id.tv_country_2);
+            _nameAnimDuration = Resources.GetInteger(R.Integer.labels_animation_duration);
+            _nameOffset1 = Resources.GetDimensionPixelSize(R.Dimension.left_offset);
+            _nameOffset2 = Resources.GetDimensionPixelSize(R.Dimension.card_width);
+            _name1TextView = FindViewById<TextView>(R.Id.tv_country_1);
+            _name2TextView = FindViewById<TextView>(R.Id.tv_country_2);
 
-            _country1TextView.SetX(_countryOffset1);
-            _country2TextView.SetX(_countryOffset2);
-            _country1TextView.Text = _countries[0];
-            _country2TextView.Alpha = 0f;
+            _name1TextView.SetX(_nameOffset1);
+            _name2TextView.SetX(_nameOffset2);
+            _name1TextView.Text = names[0];
+            _name2TextView.Alpha = 0f;
 
-            //_country1TextView.Typeface = Typeface.CreateFromAsset(Assets, "open-sans-extrabold.ttf");
-            //_country2TextView.Typeface = Typeface.CreateFromAsset(Assets, "open-sans-extrabold.ttf");
+            var typeface = ResourcesCompat.GetFont(this, R.Font.raleway_bold);
+            _name1TextView.Typeface = typeface;
+            _name2TextView.Typeface = typeface;
         }
 
         private void InitGreenDot()
@@ -206,32 +250,31 @@ namespace Oyadieyie3D.Activities
                 LogW(exc.Message);
             }
         }
-
         private void SetCountryText(string text, bool left2Right)
         {
             TextView invisibleText;
             TextView visibleText;
 
-            if (_country1TextView.Alpha > _country2TextView.Alpha)
+            if (_name1TextView.Alpha > _name2TextView.Alpha)
             {
-                visibleText = _country1TextView;
-                invisibleText = _country2TextView;
+                visibleText = _name1TextView;
+                invisibleText = _name2TextView;
             }
             else
             {
-                visibleText = _country2TextView;
-                invisibleText = _country1TextView;
+                visibleText = _name2TextView;
+                invisibleText = _name1TextView;
             }
 
             int vOffset;
             if (left2Right)
             {
                 invisibleText.SetX(0);
-                vOffset = _countryOffset2;
+                vOffset = _nameOffset2;
             }
             else
             {
-                invisibleText.SetX(_countryOffset2);
+                invisibleText.SetX(_nameOffset2);
                 vOffset = 0;
             }
 
@@ -239,12 +282,12 @@ namespace Oyadieyie3D.Activities
 
             var iAlpha = ObjectAnimator.OfFloat(invisibleText, "alpha", 1f);
             var vAlpha = ObjectAnimator.OfFloat(visibleText, "alpha", 0f);
-            var iX = ObjectAnimator.OfFloat(invisibleText, "x", _countryOffset1);
+            var iX = ObjectAnimator.OfFloat(invisibleText, "x", _nameOffset1);
             var vX = ObjectAnimator.OfFloat(visibleText, "x", vOffset);
 
             var animSet = new AnimatorSet();
             animSet.PlayTogether(iAlpha, vAlpha, iX, vX);
-            animSet.SetDuration(_countryAnimDuration);
+            animSet.SetDuration(_nameAnimDuration);
             animSet.Start();
         }
 
@@ -272,23 +315,23 @@ namespace Oyadieyie3D.Activities
                 animV[1] = R.Animation.slide_out_top;
             }
 
-            SetCountryText(_countries[pos % _countries.Length], left2Right);
+            SetCountryText(names[pos % names.Length], left2Right);
 
-            _temperatureSwitcher.SetInAnimation(this, animH[0]);
-            _temperatureSwitcher.SetOutAnimation(this, animH[1]);
-            _temperatureSwitcher.SetText(_temperatures[pos % _temperatures.Length]);
+            _ratingSwitcher.SetInAnimation(this, animH[0]);
+            _ratingSwitcher.SetOutAnimation(this, animH[1]);
+            _ratingSwitcher.SetText(rating[pos % rating.ToString().Length].ToString());
 
-            _placeSwitcher.SetInAnimation(this, animV[0]);
-            _placeSwitcher.SetOutAnimation(this, animV[1]);
-            _placeSwitcher.SetText(_places[pos % _places.Length]);
+            _featuredSwitcher.SetInAnimation(this, animV[0]);
+            _featuredSwitcher.SetOutAnimation(this, animV[1]);
+            _featuredSwitcher.SetText(title[pos % title.Length]);
 
             _clockSwitcher.SetInAnimation(this, animV[0]);
             _clockSwitcher.SetOutAnimation(this, animV[1]);
-            _clockSwitcher.SetText(_times[pos % _times.Length]);
+            _clockSwitcher.SetText(hours[pos % hours.Length]);
 
-            _descriptionsSwitcher.SetText(GetString(_descriptions[pos % _descriptions.Length]));
+            _descriptionsSwitcher.SetText(description[pos % description.Length]);
 
-            ShowMap(_maps[pos % _maps.Length]);
+            ShowMap(maps[pos % maps.Length]);
 
             ViewCompat.Animate(_greenDot)
                 .TranslationX(_dotCoords[pos % _dotCoords.GetLength(0), 0])

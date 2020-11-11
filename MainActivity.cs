@@ -1,7 +1,5 @@
 ﻿using Android.App;
 using Android.Content;
-using Android.Database;
-using Android.Gms.Location;
 using Android.Gms.Tasks;
 using Android.Graphics;
 using Android.OS;
@@ -12,15 +10,11 @@ using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.ConstraintLayout.Widget;
 using AndroidX.Core.App;
-using AndroidX.Core.Content;
 using AndroidX.Core.View;
 using AndroidX.Core.Widget;
-using AndroidX.LocalBroadcastManager.Content;
-using AndroidX.Preference;
 using AndroidX.RecyclerView.Widget;
 using AndroidX.SwipeRefreshLayout.Widget;
 using BumpTech.GlideLib;
-using BumpTech.GlideLib.Requests;
 using CN.Pedant.SweetAlert;
 using Com.Yalantis.Ucrop;
 using Firebase.Database;
@@ -30,14 +24,11 @@ using Google.Android.Material.BottomSheet;
 using Google.Android.Material.Button;
 using Google.Android.Material.FloatingActionButton;
 using Google.Android.Material.TextField;
-using Java.IO;
 using Java.Util;
 using Oyadieyie3D.Activities;
 using Oyadieyie3D.Adapters;
-using Oyadieyie3D.BroadcastReceivers;
 using Oyadieyie3D.Callbacks;
 using Oyadieyie3D.Events;
-using Oyadieyie3D.Fragments;
 using Oyadieyie3D.HelperClasses;
 using Oyadieyie3D.Models;
 using Oyadieyie3D.Parcelables;
@@ -45,7 +36,6 @@ using Oyadieyie3D.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using static AndroidX.Core.Content.FileProvider;
 using Exception = System.Exception;
 using SearchView = AndroidX.AppCompat.Widget.SearchView;
 using Task = Android.Gms.Tasks.Task;
@@ -56,7 +46,7 @@ namespace Oyadieyie3D
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
-    public class MainActivity : AppCompatActivity, IServiceConnection
+    public class MainActivity : AppCompatActivity
     {
         private RecyclerView mainRecycler;
         private ConstraintLayout emptyRoot;
@@ -65,40 +55,30 @@ namespace Oyadieyie3D
         private List<Post> posts { get; set; }
         public PostAdapter postAdapter;
         private RecyclerViewEmptyObserver emptyObserver;
-        private User user { get; set; }
         PostEventListener postEventListener = new PostEventListener();
-        private ProfileParcelable profileParcelable = new ProfileParcelable();
-        private SweetAlertDialog loaderDialog;
-
         private const string HAS_IMAGE_KEY = "has_image";
-
-        private int nextDrawableId = Resource.Drawable.ic_close;
-        private int rotation = 180;
         
         private ImageView postImageView;
         private TextInputLayout commentEt;
         private MaterialButton doneBtn;
         
         public static string fileName;
-        private string profile_url;
         private ImageCaptureUtils icu;
         private bool hasImage = false;
         private ProgressBar postProgress;
         private static StorageReference imageRef;
         private Uri uri;
-        private RequestOptions requestOptions;
 
         private BottomSheetBehavior postBottomsheetBehavior;
-
-        private Intent intent;
-        private IntentFilter filter;
-        private bool isBioEnabled;
+        bool isRotate = false;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.activity_main);
+            PreferenceHelper.Init(this);
+            AppCompatDelegate.DefaultNightMode = PreferenceHelper.Instance.GetBoolean("theme") ? AppCompatDelegate.ModeNightYes : AppCompatDelegate.ModeNightNo;
 
+            SetContentView(Resource.Layout.activity_main);
             mainRecycler = FindViewById<RecyclerView>(Resource.Id.main_recycler);
             emptyRoot = FindViewById<ConstraintLayout>(Resource.Id.rv_empty_view);
             swipe_container = FindViewById<SwipeRefreshLayout>(Resource.Id.main_refresher);
@@ -106,12 +86,26 @@ namespace Oyadieyie3D
             var appbar = FindViewById<BottomAppBar>(Resource.Id.bottomAppBar);
             var searchView = appbar.Menu.FindItem(Resource.Id.action_search).ActionView as SearchView;
 
-            var prefs = PreferenceManager.GetDefaultSharedPreferences(this);
-            isBioEnabled = prefs.GetBoolean(Constants.BioStatusKey, false);
+            UCropHelper.Init(this);
+            CreateBottomSheet();
 
             searchView.QueryTextChange += (s, e) =>
             {
+                //try
+                //{
+                //    List<Post> searchResult =
+                //            (from post in posts
+                //             where post.PostBody.ToLower().Contains(e.NewText.ToLower())
+                //             select post).ToList();
 
+                //    postAdapter = new PostAdapter(this, searchResult);
+                //    postAdapter.RegisterAdapterDataObserver(emptyObserver);
+                //    mainRecycler.SetAdapter(postAdapter);
+                //}
+                //catch (Exception)
+                //{
+                //    Toast.MakeText(this, "No data yet", ToastLength.Short).Show();
+                //}
             };
             appbar.NavigationClick += (s, e) =>
             {
@@ -123,83 +117,44 @@ namespace Oyadieyie3D
                 {
                     case Resource.Id.action_dark_theme:
                         AppCompatDelegate.DefaultNightMode = AppCompatDelegate.ModeNightYes;
+                        PreferenceHelper.Instance.SetBoolean("theme", true);
                         break;
 
                     case Resource.Id.action_light_theme:
                         AppCompatDelegate.DefaultNightMode = AppCompatDelegate.ModeNightNo;
+                        PreferenceHelper.Instance.SetBoolean("theme", false);
                         break;
 
-                    case Resource.Id.action_settings:
-                        var intent = new Intent(this, typeof(SettingsActivity));
-                        profileParcelable.UserProfile = user;
-                        intent.PutExtra(Constants.PROFILE_DATA_EXTRA, profileParcelable);
-                        StartActivity(intent);
+                    default:
+                        StartActivity(typeof(SettingsActivity));
                         break;
                 }
             };
-            addPostFab.Click += AddPostFab_Click;
-
-            postEventListener.FetchPost();
-            postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
-            GetUserFromFireAsync();
-            //CreateBottomSheet();
-        }
-
-        protected override void OnStart()
-        {
-            base.OnStart();
-            intent = new Intent(this, typeof(BiometricPromptTimerService));
-            filter = new IntentFilter(BiometricPromptTimerService.TimeInfo);
-            BindService(intent, this, Bind.None);
-        }
-
-        protected override void OnPause()
-        {
-            base.OnPause();
-
-            if (!isBioEnabled)
-                return;
-
-            LocalBroadcastManager.GetInstance(this).RegisterReceiver(new AppBroadcastReceiver((context, intent) =>
+            addPostFab.Click += (s3, e3) =>
             {
-                if (intent != null && intent.Action.Equals(BiometricPromptTimerService.TimeInfo))
+                try
                 {
-                    if (!intent.HasExtra("VALUE"))
-                        return;
-
-                    switch (intent.GetStringExtra("VALUE"))
+                    isRotate = ViewAnimator.RotateFab(addPostFab, !isRotate);
+                    switch (postBottomsheetBehavior.State)
                     {
-                        case "Stopped":
-                        case "InProgress":
+                        case BottomSheetBehavior.StateHidden:
+                            postBottomsheetBehavior.State = BottomSheetBehavior.StateExpanded;
                             break;
+
                         default:
-                            ShowBiometricDialog();
+                            postBottomsheetBehavior.State = BottomSheetBehavior.StateHidden;
                             break;
                     }
                 }
-            }), filter);
-            StartService(intent);
+                catch (Exception e)
+                {
+                    ShowToast(e.Message);
+                }
+            };
+
+            //postEventListener.FetchPost();
+            //postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
         }
-
-        private void ShowBiometricDialog()
-        {
-            var bioPromptFragment = new BiometricPromptSheet();
-            bioPromptFragment.Cancelable = false;
-
-            var ft = SupportFragmentManager.BeginTransaction();
-            ft.Add(bioPromptFragment, "bio_prompt_sheet");
-            ft.CommitAllowingStateLoss();
-        }
-
-        protected override void OnStop()
-        {
-            base.OnStop();
-            UnbindService(this);
-        }
-
-        public void OnServiceConnected(ComponentName name, IBinder service) { }
-
-        public void OnServiceDisconnected(ComponentName name) { }
 
         private void PostEventListener_OnPostRetrieved(object sender, PostEventListener.PostEventArgs e)
         {
@@ -278,128 +233,46 @@ namespace Oyadieyie3D
                     ViewCompat.GetTransitionName(e2.ImageView));
                 StartActivity(intent, options.ToBundle());
             };
-        }
+        }      
 
-        bool isRotate = false;
-        private void AddPostFab_Click(object sender, EventArgs e)
-        {
-            try
-            {
-                isRotate = ViewAnimator.RotateFab(addPostFab, !isRotate);
-                switch (postBottomsheetBehavior.State)
-                {
-                    case BottomSheetBehavior.StateHidden:
-                        postBottomsheetBehavior.State = BottomSheetBehavior.StateExpanded;
-                        break;
+        //public User GetUserFromFireAsync()
+        //{
+        //    AsyncTask.Execute(new MyRunnable(() => 
+        //    {
+        //        try
+        //        {
+        //            Looper.Prepare();
+        //            string userId = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
+        //            var userRef = SessionManager.GetFireDB().GetReference($"users/{userId}/profile");
+        //            userRef.AddValueEventListener(new SingleValueListener(
+        //            onDataChange: (snapshot) =>
+        //            {
+        //                if (!snapshot.Exists())
+        //                    return;
 
-                    default:
-                        postBottomsheetBehavior.State = BottomSheetBehavior.StateHidden;
-                        break;
-                } 
-            }
-            catch (Exception)
-            {
-                ShowToast("No network connection");
-            }
-        }
-
-        private void SearchView_QueryTextChange(object sender, SearchView.QueryTextChangeEventArgs e)
-        {
-            //try
-            //{
-            //    List<Post> searchResult =
-            //            (from post in posts
-            //             where post.PostBody.ToLower().Contains(e.NewText.ToLower())
-            //             select post).ToList();
-
-            //    postAdapter = new PostAdapter(this, searchResult);
-            //    postAdapter.RegisterAdapterDataObserver(emptyObserver);
-            //    mainRecycler.SetAdapter(postAdapter);
-            //}
-            //catch (Exception)
-            //{
-            //    Toast.MakeText(this, "No data yet", ToastLength.Short).Show();
-            //}
-        }
-
-        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
-        {
-            base.OnActivityResult(requestCode, resultCode, data);
-            try
-            {
-                if (resultCode == Result.Ok)
-                {
-                    if (requestCode == Constants.SELECT_PICTURE)
-                    {
-                        Uri selectedImageURI = data.Data;
-                        CropImage(selectedImageURI);
-                    }
-                    else if (requestCode == Constants.REQUEST_IMAGE_CAPTURE)
-                    {
-                        CropImage(GetCacheImagePath(fileName));
-                    }
-                    else if (requestCode == UCrop.RequestCrop)
-                    {
-                        uri = UCrop.GetOutput(data);
-                        Glide.With(this).Load(uri).Into(postImageView);
-                        hasImage = true;
-                        doneBtn.Enabled = commentEt.EditText.Text.Length >= 6 && hasImage;
-                    }
-                    else if (requestCode == UCrop.ResultError)
-                    {
-                        throw UCrop.GetError(data);
-                    }
-                    else
-                    {
-                        return;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-
-            }
-        }
-
-        public User GetUserFromFireAsync()
-        {
-            AsyncTask.Execute(new MyRunnable(() => 
-            {
-                try
-                {
-                    Looper.Prepare();
-                    string userId = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
-                    var userRef = SessionManager.GetFireDB().GetReference($"users/{userId}/profile");
-                    userRef.AddValueEventListener(new SingleValueListener(
-                    onDataChange: (snapshot) =>
-                    {
-                        if (!snapshot.Exists())
-                            return;
-
-                        var _user = new User
-                        {
-                            ID = snapshot.Key,
-                            Username = snapshot.Child(Constants.SNAPSHOT_FNAME) != null ? snapshot.Child(Constants.SNAPSHOT_FNAME).Value.ToString() : "",
-                            Status = snapshot.Child(Constants.SNAPSHOT_GENDER) != null ? snapshot.Child(Constants.SNAPSHOT_GENDER).Value.ToString() : "",
-                            ProfileImgUrl = snapshot.Child(Constants.SNAPSHOT_PHOTO_URL) != null ? snapshot.Child(Constants.SNAPSHOT_PHOTO_URL).Value.ToString() : "",
-                            Email = snapshot.Child(Constants.SNAPSHOT_EMAIL) != null ? snapshot.Child(Constants.SNAPSHOT_EMAIL).Value.ToString() : "",
-                            Phone = snapshot.Child(Constants.SNAPSHOT_PHONE) != null ? snapshot.Child(Constants.SNAPSHOT_PHONE).Value.ToString() : ""
-                        };
-                        user = _user;
-                    }, onCancelled: (exception) =>
-                    {
-                        Toast.MakeText(Application.Context, exception.Message, ToastLength.Short).Show();
-                    }));
-                    userRef.KeepSynced(true);
-                    Looper.Loop();
-                }
-                catch (Exception e)
-                {
-                    Toast.MakeText(this, e.Message, ToastLength.Short).Show();
-                }
-            }));
-            return user;
-        }
+        //                var _user = new User
+        //                {
+        //                    ID = snapshot.Key,
+        //                    Username = snapshot.Child(Constants.SNAPSHOT_FNAME) != null ? snapshot.Child(Constants.SNAPSHOT_FNAME).Value.ToString() : "",
+        //                    Status = snapshot.Child(Constants.SNAPSHOT_GENDER) != null ? snapshot.Child(Constants.SNAPSHOT_GENDER).Value.ToString() : "",
+        //                    ProfileImgUrl = snapshot.Child(Constants.SNAPSHOT_PHOTO_URL) != null ? snapshot.Child(Constants.SNAPSHOT_PHOTO_URL).Value.ToString() : "",
+        //                    Email = snapshot.Child(Constants.SNAPSHOT_EMAIL) != null ? snapshot.Child(Constants.SNAPSHOT_EMAIL).Value.ToString() : "",
+        //                    Phone = snapshot.Child(Constants.SNAPSHOT_PHONE) != null ? snapshot.Child(Constants.SNAPSHOT_PHONE).Value.ToString() : ""
+        //                };
+        //                user = _user;
+        //            }, onCancelled: (exception) =>
+        //            {
+        //                Toast.MakeText(Application.Context, exception.Message, ToastLength.Short).Show();
+        //            }));
+        //            Looper.Loop();
+        //        }
+        //        catch (Exception e)
+        //        {
+        //            Toast.MakeText(this, e.Message, ToastLength.Short).Show();
+        //        }
+        //    }));
+        //    return user;
+        //}
 
         private void ShowToast(string msg)
         {
@@ -409,8 +282,8 @@ namespace Oyadieyie3D
         private void CreateBottomSheet()
         {
             var postRoot = FindViewById<NestedScrollView>(Resource.Id.createpost_bottomsheet_root);
-
             postBottomsheetBehavior = BottomSheetBehavior.From(postRoot);
+            postBottomsheetBehavior.Hideable = true;
             postBottomsheetBehavior.State = BottomSheetBehavior.StateHidden;
             postBottomsheetBehavior.AddBottomSheetCallback(new BottomSheetCallback(
                 onSlide: (bottomSheet, newState) =>
@@ -530,104 +403,53 @@ namespace Oyadieyie3D
             fileName = e.fileName;
         }
 
-        private void CropImage(Uri selectedImageURI)
+        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
         {
-            Uri destinationUri = Uri.FromFile(new File(CacheDir, QueryName(ContentResolver, selectedImageURI)));
-            UCrop.Options options = new UCrop.Options();
-            options.SetCompressionQuality(Constants.IMAGE_COMPRESSION);
-            options.SetToolbarColor(ContextCompat.GetColor(this, Resource.Color.colorPrimary));
-            options.SetStatusBarColor(ContextCompat.GetColor(this, Resource.Color.colorPrimaryDark));
-            options.SetActiveControlsWidgetColor(ContextCompat.GetColor(this, Resource.Color.colorAccent));
-
-            if (Constants.lockAspectRatio)
-                options.WithAspectRatio(Constants.ASPECT_RATIO_X, Constants.ASPECT_RATIO_Y);
-
-            if (Constants.setBitmapMaxWidthHeight)
-                options.WithMaxResultSize(Constants.bitmapMaxWidth, Constants.bitmapMaxHeight);
-
-            UCrop.Of(selectedImageURI, destinationUri)
-                .WithOptions(options)
-                .Start(this, UCrop.RequestCrop);
-        }
-
-        private static string QueryName(ContentResolver contentResolver, Uri uri)
-        {
-            ICursor returnCursor = contentResolver.Query(uri, null, null, null, null);
-            System.Diagnostics.Debug.Assert(returnCursor != null);
-            int nameIndex = returnCursor.GetColumnIndex(OpenableColumns.DisplayName);
-            returnCursor.MoveToFirst();
-            string name = returnCursor.GetString(nameIndex);
-            returnCursor.Close();
-            return name;
-        }
-
-        private Uri GetCacheImagePath(string fileName)
-        {
-            File path = new File(ExternalCacheDir, "camera");
-            if (!path.Exists()) path.Mkdirs();
-            File image = new File(path, fileName);
-            return GetUriForFile(this, PackageName + ".fileprovider", image);
-        }
-
-        public void ClearCache()
-        {
-            File path = new File(ExternalCacheDir, "camera");
-            if (path.Exists() && path.IsDirectory)
+            base.OnActivityResult(requestCode, resultCode, data);
+            try
             {
-                foreach (var child in path.ListFiles())
+                switch (resultCode)
                 {
-                    child.Delete();
+                    case Result.Ok:
+                        switch (requestCode)
+                        {
+                            case Constants.SELECT_PICTURE:
+                                Uri selectedImageURI = data.Data;
+                                UCropHelper.Instance.CropImage(selectedImageURI, this);
+                                break;
+
+                            case Constants.REQUEST_IMAGE_CAPTURE:
+                                UCropHelper.Instance.CropImage(UCropHelper.Instance.GetCacheImagePath(fileName), this);
+                                break;
+
+                            case UCrop.RequestCrop:
+                                uri = UCrop.GetOutput(data);
+                                Glide.With(this).Load(uri).Into(postImageView);
+                                hasImage = true;
+                                doneBtn.Enabled = commentEt.EditText.Text.Length >= 6 && hasImage;
+                                UCropHelper.Instance.ClearCache();
+                                break;
+
+                            case UCrop.ResultError:
+                                throw UCrop.GetError(data);
+
+                            default:
+                                break;
+                        }
+                        break;
+                    case Result.Canceled:
+                        break;
+
+                    case Result.FirstUser:
+                        break;
+
+                    default:
+                        break;
                 }
             }
-        }
-
-        private void ShowLoading()
-        {
-            loaderDialog = new SweetAlertDialog(this, SweetAlertDialog.ProgressType);
-            loaderDialog.SetTitleText("Finding the nearest Oyadieyie...");
-            loaderDialog.ShowCancelButton(false);
-            loaderDialog.Show();
-        }
-
-        private void ShowSuccess()
-        {
-            var sweetprogress = new SweetAlertDialog(this, SweetAlertDialog.SuccessType);
-            sweetprogress.SetTitleText("Success");
-            sweetprogress.SetConfirmText("OK");
-            sweetprogress.SetConfirmClickListener(null);
-            sweetprogress.ShowCancelButton(false);
-            sweetprogress.Show();
-        }
-
-        private void DismissLoading()
-        {
-            if (!loaderDialog.IsShowing)
-                return;
-
-            loaderDialog.DismissWithAnimation();
-        }
-        private void ShowError(string errorMsg)
-        {
-            new SweetAlertDialog(this, SweetAlertDialog.ErrorType)
-                .SetTitleText("OOps...")
-                .SetContentText(errorMsg)
-                .SetConfirmText("OK")
-                .ShowCancelButton(false)
-                .SetConfirmClickListener(null)
-                .Show();
-        }
-
-
-        internal sealed class MyLocationCallback : LocationCallback
-        {
-            private Action<LocationResult> _onLocationresult;
-            public MyLocationCallback(Action<LocationResult> onLocationresult)
+            catch (Exception)
             {
-                _onLocationresult = onLocationresult;
-            }
-            public override void OnLocationResult(LocationResult result)
-            {
-                _onLocationresult?.Invoke(result);
+
             }
         }
 
@@ -646,7 +468,5 @@ namespace Oyadieyie3D
                 return imageRef.GetDownloadUrl();
             }
         }
-
-        
     }
 }

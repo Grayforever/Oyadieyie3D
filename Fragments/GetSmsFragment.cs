@@ -38,6 +38,7 @@ namespace Oyadieyie3D.Fragments
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
+            PreferenceHelper.Init(Context);
             phone = Arguments.GetString(Constants.PHONE_KEY);
             SendVerificationCode();
         }
@@ -80,58 +81,66 @@ namespace Oyadieyie3D.Fragments
 
         private void VerifyCode(string code)
         {
-            OnboardingActivity.ShowLoader();
-            PhoneAuthCredential cred = PhoneAuthProvider.GetCredential(verificationId, code);
-            SessionManager.GetFirebaseAuth().SignInWithCredential(cred)
-                .AddOnCompleteListener(new OncompleteListener(
-                onComplete: (t) =>
-                {
-                    try
+            try
+            {
+                OnboardingActivity.ShowLoader();
+                PhoneAuthCredential cred = PhoneAuthProvider.GetCredential(verificationId, code);
+                SessionManager.GetFirebaseAuth().SignInWithCredential(cred)
+                    .AddOnCompleteListener(new OncompleteListener(
+                    onComplete: (t) =>
                     {
-                        switch (t.IsSuccessful)
+                        try
                         {
-                            case false:
-                                throw t.Exception;
+                            switch (t.IsSuccessful)
+                            {
+                                case false:
+                                    throw t.Exception;
 
-                            default:
-                                CheckUserAvailability();
-                                break;
+                                default:
+                                    CheckUserAvailability();
+                                    break;
+                            }
                         }
-                    }
-                    catch (FirebaseAuthInvalidCredentialsException fiace)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowError(fiace.Source, fiace.Message);
-                    }
-                    catch (FirebaseTooManyRequestsException ftmre)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowError(ftmre.Source, ftmre.Message);
-                    }
-                    catch (FirebaseAuthInvalidUserException fiue)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowError(fiue.Source, fiue.Message);
-                    }
-                    catch (FirebaseNetworkException)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowNoNetDialog(false);
-                    }
-                    catch (Exception e)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowError(e.Source, e.Message);
-                    }
-                    
+                        catch (FirebaseAuthInvalidCredentialsException fiace)
+                        {
+                            OnboardingActivity.DismissLoader();
+                            OnboardingActivity.ShowError(fiace.Source, fiace.Message);
+                        }
+                        catch (FirebaseTooManyRequestsException ftmre)
+                        {
+                            OnboardingActivity.DismissLoader();
+                            OnboardingActivity.ShowError(ftmre.Source, ftmre.Message);
+                        }
+                        catch (FirebaseAuthInvalidUserException fiue)
+                        {
+                            OnboardingActivity.DismissLoader();
+                            OnboardingActivity.ShowError(fiue.Source, fiue.Message);
+                        }
+                        catch (FirebaseNetworkException)
+                        {
+                            OnboardingActivity.DismissLoader();
+                            OnboardingActivity.ShowNoNetDialog(false);
+                        }
+                        catch (Exception e)
+                        {
+                            OnboardingActivity.DismissLoader();
+                            OnboardingActivity.ShowError(e.Source, e.Message);
+                        }
 
-                }));
+
+                    }));
+            }
+            catch (Exception e)
+            {
+                OnboardingActivity.DismissLoader();
+                OnboardingActivity.ShowError(e.Source, e.Message);
+
+            }
             
         }
 
         private void CheckUserAvailability()
         {
-            var userRef = SessionManager.UserRef.Child(SessionManager.UserId);
             var statusRef = SessionManager.GetFireDB().GetReference("session");
             statusRef.OrderByKey().EqualTo(SessionManager.GetFirebaseAuth().CurrentUser.Uid).AddListenerForSingleValueEvent(new SingleValueListener((s) =>
             {
@@ -144,9 +153,7 @@ namespace Oyadieyie3D.Fragments
                     string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
                     if (stage.Contains(Constants.REG_STAGE_DONE))
                     {
-                        editor = preferences.Edit();
-                        editor.PutString("firstRun", "regd");
-                        editor.Commit();
+                        PreferenceHelper.Instance.SetString("firstRun", "regd");
 
                         var intent = new Intent(Activity, typeof(MainActivity));
                         intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);

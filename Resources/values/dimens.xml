@@ -4,4 +4,7 @@
     <dimen name="left_offset">61dp</dimen>
     <dimen name="card_width">148dp</dimen>
     <dimen name="card_corner_radius">10dp</dimen>
+
+	<dimen name="card_height_q">352dp</dimen>
+    <dimen name="card_width_q">256dp</dimen>
 </resources>
