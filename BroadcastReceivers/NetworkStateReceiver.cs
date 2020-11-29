@@ -32,10 +32,10 @@ namespace Oyadieyie3D.BroadcastReceivers
                 (net, capa)=> 
                 {
                     var connected = capa.HasCapability(NetCapability.Internet);
-                    OnboardingActivity.ShowNoNetDialog(connected);
+                    OnboardingActivity.Instance.ShowNoNetDialog(connected);
                 }, (net)=> 
                 {
-                    OnboardingActivity.ShowNoNetDialog(false);
+                    OnboardingActivity.Instance.ShowNoNetDialog(false);
                 }));
         }
 

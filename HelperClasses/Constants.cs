@@ -34,12 +34,12 @@
         public static string EXCEPTION_MSG_NETWORK => "";
 
 
-        public static string ONBDTITLE_1 => "Find tailors";
-        public static string ONBDTITLE_2 => "Advertize your collection";
-        public static string ONBDTITLE_3 => "Seamless payment";
-        public static string ONBDESC_1 => "All tailors are sorted by customer rating";
-        public static string ONBDESC_2 => "Get your collection advertized on the platform for free";
-        public static string ONBDESC_3 => "Make payment and get paid directly in app";
+        public static string ONBDTITLE_1 => "Find";
+        public static string ONBDTITLE_2 => "Respond";
+        public static string ONBDTITLE_3 => "Pay";
+        public static string ONBDESC_1 => "tailors around your hood. Tailors are sorted by customer rating.";
+        public static string ONBDESC_2 => "to client requests on the app.";
+        public static string ONBDESC_3 => "or get paid for the service.";
 
         public static string DIALOG_OK => "OK";
         public static string DIALOG_LOADING => "Loading...";
@@ -68,6 +68,21 @@
         public const int SELECT_PICTURE = 1;
 
         public static string BioStatusKey = "bioStatus";
+
         public static string LockDuration = "duration_list";
+
+        public const string Profile_Url_Key = "profile_url";
+
+        public const string Username_Key = "username";
+
+        public const string Status_Key = "status";
+
+        public const string Email_Key = "email";
+
+        public const string Phone_Key = "phone";
+
+        public const string MyTag = "RamotionCardSlider";
+
+        public const string Tag = "prompt";
     }
 }

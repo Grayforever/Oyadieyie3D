@@ -7,23 +7,17 @@
     tools:ignore="HardcodedText"
     android:focusableInTouchMode="true">
 
-    <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    <androidx.core.widget.NestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/main_refresher"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+        app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:fillViewport="true">
 
-        <androidx.recyclerview.widget.RecyclerView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/main_recycler"
-            android:scrollbars="none"
-            app:layoutManager="LinearLayoutManager"
-            android:layout_alignParentLeft="true"
-            android:layout_alignParentTop="true"
+        <include
+            layout="@layout/finder_layout"
             />
 
-    </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+    </androidx.core.widget.NestedScrollView>
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomAppBar"
@@ -31,10 +25,23 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom"
         style="@style/Widget.MaterialComponents.BottomAppBar"
-        app:navigationIcon="@drawable/menu_24px"
         app:menu="@menu/main_menu"
-        app:hideOnScroll="true"
-        />
+        app:hideOnScroll="true">
+
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:layout_width="32dp"
+            android:layout_height="32dp"
+            android:id="@+id/profile_iv"
+            android:src="@drawable/ic_account_circle"
+            android:clickable="true"
+            android:foreground="?android:attr/selectableItemBackgroundBorderless"
+            android:scaleType="centerCrop"
+            android:tooltipText="Account"
+            app:civ_border_width="1dp"
+            app:civ_border_color="@color/gray_light"
+            />
+
+    </com.google.android.material.bottomappbar.BottomAppBar>
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:layout_width="wrap_content"
@@ -43,36 +50,13 @@
         app:layout_anchor="@+id/bottomAppBar"
         app:layout_anchorGravity="end|bottom"
         app:useCompatPadding="true"
-        app:srcCompat="@drawable/ic_add"
+        app:srcCompat="@drawable/search_to_close"
+        android:tooltipText="Finder"
         />
-
-
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:id="@+id/rv_empty_view"
-        android:padding="16dp"
-        android:clipToPadding="false">
-
-        <com.airbnb.lottie.LottieAnimationView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/empty_anim_view"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:lottie_renderMode="hardware"
-            app:lottie_fileName="loading-or-empty-state.json"
-            app:lottie_autoPlay="true"
-            app:lottie_loop="true"
-            />
-
-
-    </androidx.constraintlayout.widget.ConstraintLayout>
+   
 
     <include
-        layout="@layout/create_post_bottomsheet"
+        layout="@layout/search_sheet"
     />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

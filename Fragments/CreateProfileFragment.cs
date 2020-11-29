@@ -100,7 +100,7 @@ namespace Oyadieyie3D.Fragments
         {
             try
             {
-                OnboardingActivity.ShowLoader();
+                OnboardingActivity.Instance.ShowLoader();
                 var profileRef = SessionManager.GetFireDB().GetReference($"users/{SessionManager.UserId}/profile");
                 var userMap = new HashMap();
                 var stream = new System.IO.MemoryStream();
@@ -134,7 +134,7 @@ namespace Oyadieyie3D.Fragments
                             if (!task.IsSuccessful)
                                 throw task.Exception;
 
-                            OnboardingActivity.SetStatus(Constants.REG_STAGE_SET_PARTNER);
+                            OnboardingActivity.Instance.SetStatus(Constants.REG_STAGE_SET_PARTNER);
                             ParentFragmentManager.BeginTransaction()
                                 .Replace(Resource.Id.frag_container, new PartnerFragment())
                                 .CommitAllowingStateLoss();
@@ -142,35 +142,33 @@ namespace Oyadieyie3D.Fragments
                         }
                         catch (DatabaseException de)
                         {
-                            OnboardingActivity.DismissLoader();
-                            OnboardingActivity.ShowError("Database Exception", de.Message);
+                            OnboardingActivity.Instance.DismissLoader();
+                            OnboardingActivity.Instance.ShowError("Database Exception", de.Message);
                         }
 
                     }));
-                    profileRef.KeepSynced(true);
-
                 }));
 
             }
             catch (DatabaseException fde)
             {
-                OnboardingActivity.DismissLoader();
-                OnboardingActivity.ShowError("Database Exception", fde.Message);
+                OnboardingActivity.Instance.DismissLoader();
+                OnboardingActivity.Instance.ShowError("Database Exception", fde.Message);
             }
             catch (FirebaseNetworkException)
             {
-                OnboardingActivity.DismissLoader();
-                OnboardingActivity.ShowNoNetDialog(false);
+                OnboardingActivity.Instance.DismissLoader();
+                OnboardingActivity.Instance.ShowNoNetDialog(false);
             }
             catch (StorageException se)
             {
-                OnboardingActivity.DismissLoader();
-                OnboardingActivity.ShowError("Storage Exception", se.Message);
+                OnboardingActivity.Instance.DismissLoader();
+                OnboardingActivity.Instance.ShowError("Storage Exception", se.Message);
             }
             catch (Exception ex)
             {
-                OnboardingActivity.DismissLoader();
-                OnboardingActivity.ShowError("Exception", ex.Message);
+                OnboardingActivity.Instance.DismissLoader();
+                OnboardingActivity.Instance.ShowError("Exception", ex.Message);
             }
         }
 

@@ -28,7 +28,6 @@
         app:layout_constraintTop_toBottomOf="@+id/get_started_lottie"
         app:layout_constraintBottom_toTopOf="@+id/phone_et"
         android:layout_margin="16dp"
-        android:textColor="@android:color/black"
         />
 
     <androidx.constraintlayout.widget.ConstraintLayout

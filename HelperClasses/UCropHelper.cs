@@ -1,6 +1,7 @@
 ﻿using Android.Content;
 using Android.Database;
 using Android.Provider;
+using AndroidX.AppCompat.App;
 using AndroidX.Core.Content;
 using Com.Yalantis.Ucrop;
 using Java.IO;
@@ -43,7 +44,7 @@ namespace Oyadieyie3D.HelperClasses
             _ => helper
         };
 
-        public void CropImage(Uri selectedImageURI, MainActivity activity)
+        public void CropImage(Uri selectedImageURI, AppCompatActivity activity)
         {
             Uri destinationUri = Uri.FromFile(new File(_context.CacheDir, QueryName(_context.ContentResolver, selectedImageURI)));
             UCrop.Options options = new UCrop.Options();

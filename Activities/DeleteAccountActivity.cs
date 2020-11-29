@@ -44,7 +44,7 @@ namespace Oyadieyie3D.Activities
             var builder = new CountryPicker.Builder()
                 .With(this)
                 .Listener(new CountryPickerListener(
-                actionOnSelectCountry: (c) =>
+                (c) =>
                 {
                     dialcodeEt.Text = c.DialCode;
                     phoneNumEt.RequestFocus();

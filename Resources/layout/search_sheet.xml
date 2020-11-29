@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/search_root"
+    android:padding="16dp"
+    android:clipToPadding="false"
+    android:background="?android:attr/colorBackground"
+    android:focusable="true"
+    android:clickable="true"
+    app:behavior_hideable="true"
+    app:layout_behavior="id.Oyadieyie3D.Utils.LockableBottomsheetBehavior">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/search_hdr_tv"
+        android:text="Finder"
+        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:clickable="true"
+        />
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:id="@+id/search_box_tl"
+        app:startIconDrawable="@drawable/ic_search"
+        app:endIconMode="clear_text">
+
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/search_field"
+            android:hint="Search"
+            android:inputType="textAutoComplete"
+            android:imeOptions="actionSearch"
+            />
+
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/filter_scoller"
+        android:layout_marginTop="8dp"
+        android:scrollbars="none">
+
+        <com.google.android.material.chip.ChipGroup
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:singleLine="true"
+            android:id="@+id/cat_chip_group"
+            app:selectionRequired="true">
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/chip_men"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:text="Menswear"
+                app:chipIconEnabled="true"
+                app:chipIcon="@drawable/ic_user_male"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/chip_women"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:text="Wemen wear"
+                app:chipIconEnabled="true"
+                app:chipIcon="@drawable/ic_female"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/chip_kids"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:text="Children"
+                app:chipIconEnabled="true"
+                app:chipIcon="@drawable/ic_children"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/chip_unisex"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:text="Unisex"
+                app:chipIconEnabled="true"
+                app:chipIcon="@drawable/ic_unisex"
+                />
+
+            <com.google.android.material.chip.Chip
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/chip_ppe"
+                style="@style/Widget.MaterialComponents.Chip.Choice"
+                android:text="PPEs"
+                app:chipIconEnabled="true"
+                app:chipIcon="@drawable/ic_protection_mask"
+                />
+
+        </com.google.android.material.chip.ChipGroup>
+
+    </HorizontalScrollView>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/search_recyler"
+        android:layout_marginTop="16dp"
+    />
+
+</LinearLayout>

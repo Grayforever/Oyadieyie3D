@@ -8,6 +8,7 @@ using Firebase.Database.Core;
 using Google.Android.Material.Button;
 using Google.Android.Material.TextField;
 using Java.Util;
+using Oyadieyie3D.Activities;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
 using Constants = Oyadieyie3D.HelperClasses.Constants;
@@ -60,7 +61,7 @@ namespace Oyadieyie3D.Fragments
             phoneEt.RequestFocus();
 
             phoneEt.EditText.TextChanged += (s1, e1) => nextBtn.Enabled = phoneEt.EditText.Text.Length >= 8;
-            countryLinear.Click += (s2, e2) => picker.ShowDialog(Activity);
+            countryLinear.Click += (s2, e2) => picker.ShowDialog(OnboardingActivity.Instance);
             toolbarMain.NavigationClick += (s2, e2) => Activity.OnBackPressed();
 
             nextBtn.Click += (s3, e3) => nextBtn.Post(() =>

@@ -19,11 +19,7 @@ using Oyadieyie3D.Adapters;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.Fragments;
 using Oyadieyie3D.HelperClasses;
-using Oyadieyie3D.Models;
-using Oyadieyie3D.Parcelables;
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 
 namespace Oyadieyie3D.Activities
 {
@@ -36,16 +32,15 @@ namespace Oyadieyie3D.Activities
         private TextInputEditText usernameEditText;
         private TextInputEditText phoneEditText;
         private AppCompatAutoCompleteTextView statusEditText;
+        private string img_url;
         private ProfileChooserFragment profileChooserFrag;
         private SweetAlertDialog loaderDialog;
-        private User user;
 
-        protected override async void OnCreate(Bundle savedInstanceState)
+        protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.profile_activity);
-            var bundle = Intent.Extras;
-            await LazyCreateUserAsync(bundle.GetStringArrayList("extra_details"));
+
             var toolbar = FindViewById<Toolbar>(Resource.Id.profile_toolbar);
             camFab = FindViewById<FloatingActionButton>(Resource.Id.cam_fab);
             profileImageView = FindViewById<CircleImageView>(Resource.Id.prof_prof_iv);
@@ -70,9 +65,10 @@ namespace Oyadieyie3D.Activities
             usernameEditText = usernameEt.FindViewById<TextInputEditText>(Resource.Id.name_edittext);
             statusEditText = statusEt.FindViewById<AppCompatAutoCompleteTextView>(Resource.Id.status_autocomplete);
 
-            phoneEditText.Text = user.Phone;
-            usernameEditText.Text = user.Username;
-            statusEditText.Text = user.Status;
+            img_url = PreferenceHelper.Instance.GetString("profile_url", "");
+            phoneEditText.Text = PreferenceHelper.Instance.GetString("phone", "");
+            usernameEditText.Text = PreferenceHelper.Instance.GetString("username", "");
+            statusEditText.Text = PreferenceHelper.Instance.GetString("status", "");
             statusEditText.Adapter = ArrayAdapterClass.CreateArrayAdapter(this, new string[] { "Available", "Away", "Leave a message", "Busy", "Closed"});
 
             phoneEditText.SetOnClickListener(this);
@@ -80,35 +76,16 @@ namespace Oyadieyie3D.Activities
 
             Glide.With(this)
                 .SetDefaultRequestOptions(requestOptions)
-                .Load(user.ProfileImgUrl)
+                .Load(img_url)
                 .Into(profileImageView);
-        }
-
-        private async Task<User> LazyCreateUserAsync(IList<string> res)
-        {
-            await Task.Run(() =>
-            {
-                user = new User
-                {
-                    ProfileImgUrl = res[0],
-                    ID = "",
-                    Username = res[1],
-                    Email = "",
-                    Phone = res[2],
-                    Status = res[3]
-                };
-            });
-            return user;
         }
 
         private void ProfileImageView_Click(object sender, EventArgs e)
         {
             var intent = new Intent(this, typeof(FullscreenImageActivity));
-            var pp = new ProfileParcelable();
-            pp.UserProfile = user;
+            intent.PutExtra("img_url", img_url);
             intent.PutExtra(Constants.TRANSITION_NAME, ViewCompat.GetTransitionName(profileImageView));
-            intent.PutExtra(Constants.PROFILE_DATA_EXTRA, pp);
-            intent.PutExtra(Constants.PARCEL_TYPE, 1);
+
             var options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, profileImageView,
                 ViewCompat.GetTransitionName(profileImageView));
             StartActivity(intent, options.ToBundle());
@@ -181,10 +158,7 @@ namespace Oyadieyie3D.Activities
 
         private void ShowEditSheet(int which)
         {
-            var profileEdit = new ProfileEditSheet(which);
-            var ft = SupportFragmentManager.BeginTransaction();
-            ft.Add(profileEdit, "edit_text");
-            ft.CommitAllowingStateLoss();
+            
         }
 
         public void OnClick(View v)
@@ -192,12 +166,24 @@ namespace Oyadieyie3D.Activities
             switch (v.Id)
             {
                 case Resource.Id.phone_edittext:
-                    ShowEditSheet(1);
+                    MainActivity.Instance.ShowWarning(this, "Change number", "Do you wish to change your number?", ConfirmYes());
                     break;
                 case Resource.Id.name_edittext:
                     ShowEditSheet(0);
                     break;
             }
+        }
+
+        private SweetConfirmClick ConfirmYes()
+        {
+            var confirmClick = new SweetConfirmClick(
+                    (s) =>
+                    {
+                        s.DismissWithAnimation();
+                        var i = new Intent(this, typeof(ChangeNumberActivity));
+                        StartActivity(i);
+                    });
+            return confirmClick;
         }
     }
 }

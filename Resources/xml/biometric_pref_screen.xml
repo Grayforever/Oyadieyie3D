@@ -9,21 +9,18 @@
         app:key="biometric_switch"
         app:defaultValue="false"
         app:title="Unlock with biometric"
-		app:summary="When enabled, you"
+		app:summary="When enabled, you will need to use your biometrics to open Oyadieyie3D."
 		app:iconSpaceReserved="false"
 		/>
-
-	<PreferenceCategory app:iconSpaceReserved="false">
-		<ListPreference
-            app:key="duration_list"
-            app:title="Automatically lock"
-            app:useSimpleSummaryProvider="true"
-            android:entries="@array/list_preference_entries"
-            android:entryValues="@array/list_preference_entry_values"
-			app:defaultValue="@string/default_lock"
-			app:iconSpaceReserved="false"
-			/>
-
-	</PreferenceCategory>
+	
+	<ListPreference
+        app:key="duration_list"
+        app:title="Automatically lock"
+        app:useSimpleSummaryProvider="true"
+        android:entries="@array/list_preference_entries"
+        android:entryValues="@array/list_preference_entry_values"
+		app:defaultValue="@string/default_lock"
+		app:iconSpaceReserved="false"
+		/>
 
 </PreferenceScreen>

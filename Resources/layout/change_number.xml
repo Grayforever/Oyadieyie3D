@@ -33,9 +33,9 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 android:text="Changing your number will:"
-                android:textColor="@color/mtrl_error"
+                android:textColor="@color/colorPrimary"
                 android:drawableStart="@drawable/ic_info"
-                android:drawableTint="@color/mtrl_error"
+                android:drawableTint="@color/colorPrimary"
                 android:drawablePadding="16dp"
                 android:textAppearance="?attr/textAppearanceBody1"
                 android:textStyle="bold"
@@ -240,6 +240,7 @@
                 android:text="Confirm"
                 android:layout_marginStart="40dp"
                 android:layout_marginTop="16dp"
+                android:enabled="false"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

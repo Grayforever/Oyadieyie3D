@@ -21,66 +21,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="0dp"
-                android:layout_height="0dp"
-                android:id="@+id/profile_const"
-                app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toEndOf="parent"
-                app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintBottom_toTopOf="@+id/frag_container_s"
-                android:padding="16dp"
-                android:clipToPadding="false"
-                android:clickable="true"
-                android:foreground="?android:attr/selectableItemBackgroundBorderless">
-
-                <de.hdodenhof.circleimageview.CircleImageView
-                    android:layout_width="48dp"
-                    android:layout_height="48dp"
-                    android:id="@+id/set_prof_iv"
-                    app:layout_constraintStart_toStartOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toBottomOf="parent"
-                    android:transitionName="profile_holder"
-                    app:civ_border_width="1dp"
-                    app:civ_border_color="@color/gray_btn_bg_color"
-                    />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/set_prof_name_tv"
-                    app:layout_constraintStart_toEndOf="@+id/set_prof_iv"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintTop_toTopOf="parent"
-                    app:layout_constraintBottom_toTopOf="@+id/set_prof_extras_tv"
-                    android:layout_margin="8dp"
-                    android:textAppearance="?attr/textAppearanceHeadline6"
-                    app:layout_constraintVertical_bias="0.25"
-                    />
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/set_prof_extras_tv"
-                    app:layout_constraintStart_toEndOf="@+id/set_prof_iv"
-                    app:layout_constraintEnd_toEndOf="parent"
-                    app:layout_constraintBottom_toBottomOf="@+id/set_prof_iv"
-                    android:layout_marginStart="8dp"
-                    android:layout_marginEnd="8dp"
-                    android:textAppearance="?attr/textAppearanceBody1"
-                    android:textColor="?android:attr/textColorSecondary"
-                    />
-        
-            </androidx.constraintlayout.widget.ConstraintLayout>
-
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="1dp"
-                android:background="@color/gray_btn_bg_color"
-                app:layout_constraintBottom_toTopOf="@+id/frag_container_s"
-                />
-
             <androidx.fragment.app.FragmentContainerView
                 android:layout_width="0dp"
                 android:layout_height="0dp"
@@ -88,8 +28,7 @@
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/profile_const"
-                app:layout_constraintHeight_percent="0.85"
+                app:layout_constraintTop_toTopOf="parent"
                 />
     
         </androidx.constraintlayout.widget.ConstraintLayout>

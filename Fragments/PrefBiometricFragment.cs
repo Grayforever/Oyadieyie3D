@@ -28,12 +28,6 @@ namespace Oyadieyie3D.Fragments
         {
             base.OnCreate(savedInstanceState);
             PreferenceHelper.Init(Context);
-            executor = ContextCompat.GetMainExecutor(Context);
-                biometricPrompt = new BiometricPrompt(this, executor, GetAuthenticationCallback());
-                promptInfo = new BiometricPrompt.PromptInfo.Builder()
-                    .SetTitle("Confirm fingerprint")
-                    .SetNegativeButtonText("Cancel")
-                    .Build();
         }
 
         public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
@@ -53,6 +47,13 @@ namespace Oyadieyie3D.Fragments
             SetPrefValue(isBioLockOn);
             if (isBioLockOn)
             {
+                executor = ContextCompat.GetMainExecutor(Context);
+                biometricPrompt = new BiometricPrompt(this, executor, GetAuthenticationCallback());
+                promptInfo = new BiometricPrompt.PromptInfo.Builder()
+                    .SetTitle("Confirm fingerprint")
+                    .SetNegativeButtonText("Cancel")
+                    .Build();
+
                 biometricPrompt.Authenticate(promptInfo);
             }
 

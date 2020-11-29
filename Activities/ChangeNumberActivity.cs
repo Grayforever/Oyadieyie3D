@@ -1,15 +1,15 @@
 ﻿using Android.App;
+using Android.Content;
 using Android.OS;
 using Android.Runtime;
-using Android.Support.Design.Widget;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.AppCompat.Widget;
 using Com.Goodiebag.Pinview;
 using Com.Mukesh.CountryPickerLib;
-using Com.Mukesh.CountryPickerLib.Listeners;
 using Firebase;
 using Firebase.Auth;
+using Google.Android.Material.AppBar;
 using Google.Android.Material.Button;
 using Java.Util;
 using Java.Util.Concurrent;
@@ -58,6 +58,7 @@ namespace Oyadieyie3D.Activities
             oldPhoneNumEt = FindViewById<TextInputEditText>(Resource.Id.phone_number_et);
             oldDialcodeEt = FindViewById<AppCompatAutoCompleteTextView>(Resource.Id.dialcode_et);
             var confirmOtpBtn = FindViewById<MaterialButton>(Resource.Id.confirm_otp_btn);
+            var logoutBtn = FindViewById<MaterialButton>(Resource.Id.Log_out_btn);
 
             otpView.SetPinBackgroundRes(AppCompatDelegate.DefaultNightMode == AppCompatDelegate.ModeNightYes ? Resource.Color.gray_dark  : Resource.Color.gray_light); 
 
@@ -70,20 +71,20 @@ namespace Oyadieyie3D.Activities
             var builder = new CountryPicker.Builder()
                .With(this)
                .Listener(new CountryPickerListener(
-               actionOnSelectCountry: (c) =>
-               {
-                   switch (isNew)
+                   (c) =>
                    {
+                       switch (isNew)
+                       {
 
-                       case true:
-                           newDialcodeEt.Text = c.DialCode;
-                           break;
-                       default:
-                           oldDialcodeEt.Text = c.DialCode;
-                           break;
-                   }
+                           case true:
+                               newDialcodeEt.Text = c.DialCode;
+                               break;
+                           default:
+                               oldDialcodeEt.Text = c.DialCode;
+                               break;
+                       }
                    
-               }));
+                   }));
 
             picker = builder.Build();
             var country = picker.CountryFromSIM != null ? picker.CountryFromSIM : picker.GetCountryByLocale(Locale.Us);
@@ -100,7 +101,6 @@ namespace Oyadieyie3D.Activities
             {
 
             };
-
             nextBtn.Click += (s2, e2) =>
             {
                 var oldphone = oldDialcodeEt.Text + oldPhoneNumEt.Text;
@@ -132,19 +132,19 @@ namespace Oyadieyie3D.Activities
                             {
 
                             }
-                            catch (FirebaseTooManyRequestsException ftmre)
+                            catch (FirebaseTooManyRequestsException)
                             {
 
                             }
-                            catch (FirebaseAuthInvalidCredentialsException faice)
+                            catch (FirebaseAuthInvalidCredentialsException)
                             {
 
                             }
-                            catch (FirebaseAuthInvalidUserException fiue)
+                            catch (FirebaseAuthInvalidUserException)
                             {
 
                             }
-                            catch (Exception ex)
+                            catch (Exception)
                             {
                             }
                             finally
@@ -158,9 +158,23 @@ namespace Oyadieyie3D.Activities
                         }));
                 }
             };
-
             confirmOtpBtn.Click += (s, e) => VerifyCode(otpView.Value);
+
+            var confirmClick = new SweetConfirmClick(
+                    (s) =>
+                    {
+                        s.DismissWithAnimation();
+                        SessionManager.GetFirebaseAuth().SignOut();
+                        PreferenceHelper.Instance.ClearPrefs();
+
+                        var i = new Intent(this, typeof(OnboardingActivity));
+                        i.AddFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                        StartActivity(i);
+                    });
+
+            logoutBtn.Click += (s3, e3) => MainActivity.Instance.ShowWarning(this, "Sign out", "Are you sure you want to sign out?", confirmClick);
         }
+
 
         private void VerifyCode(string code)
         {
