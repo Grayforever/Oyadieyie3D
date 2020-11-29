@@ -68,7 +68,7 @@ namespace Oyadieyie3D.Fragments
 
         public void OnCancel() => Toast.MakeText(Activity, "Facebook login cancelled", ToastLength.Short).Show();
 
-        public void OnError(FacebookException error) => OnboardingActivity.ShowError(error.Source, error.Message);
+        public void OnError(FacebookException error) => OnboardingActivity.Instance.ShowError(error.Source, error.Message);
 
         public void OnSuccess(Java.Lang.Object result)
         {
@@ -97,7 +97,7 @@ namespace Oyadieyie3D.Fragments
                 }
             }, (e) =>
             {
-                OnboardingActivity.ShowError("Database error", e.Message);
+                OnboardingActivity.Instance.ShowError("Database error", e.Message);
             }));
         }
 

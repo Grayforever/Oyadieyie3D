@@ -2,31 +2,23 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
 xmlns:app="http://schemas.android.com/apk/res-auto"
 xmlns:tools="http://schemas.android.com/tools">
-  
-<item 
-	android:id="@+id/action_search"
-    app:showAsAction="always|withText"
-	android:icon="@drawable/ic_search"
-	app:actionViewClass="androidx.appcompat.widget.SearchView"
-	/>
 	
-<item 
-	android:id="@+id/action_dark_theme"
-    app:showAsAction="never"
-    android:title="Dark theme"
-	/>
+	<item android:id="@+id/action_market"
+		  app:showAsAction="always"
+		  android:title="Galleria"
+		  android:icon="@drawable/ic_store"/>
+	
+	<item android:id="@+id/action_dark_theme"
+		  app:showAsAction="never"
+		  android:title="Dark theme"/>
 
-	<item
-		android:id="@+id/action_light_theme"
-		app:showAsAction="never"
-		android:title="Light theme"
-	/>
+	<item android:id="@+id/action_light_theme"
+		  app:showAsAction="never"
+		  android:title="Light theme"/>
 
-<item
-	android:id="@+id/action_settings"
-	app:showAsAction="never"
-	android:title="Settings"
-/>
+	<item android:id="@+id/action_settings"
+		  app:showAsAction="never"
+		  android:title="Settings"/>
   
 </menu>
 

@@ -10,8 +10,6 @@ namespace Oyadieyie3D.Fragments
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-
-            // Create your fragment here
         }
 
         public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)

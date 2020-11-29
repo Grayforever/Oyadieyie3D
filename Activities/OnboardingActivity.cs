@@ -8,25 +8,26 @@ using Oyadieyie3D.Events;
 using Oyadieyie3D.Fragments;
 using Oyadieyie3D.HelperClasses;
 using Ramotion.PaperOnboarding;
-using Ramotion.PaperOnboarding.Listeners;
 using System.Collections.Generic;
 
 namespace Oyadieyie3D.Activities
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
-        ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
+        ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, 
+        WindowSoftInputMode = SoftInput.AdjustResize)]
     public class OnboardingActivity : AppCompatActivity
     {
         public static NoNetBottomSheet noNetBottomSheet = null;
-        private static AppCompatActivity _context;
         private static SweetAlertDialog loaderDialog;
         private static SweetAlertDialog infoDialog;
+
+        public static OnboardingActivity Instance { get; private set; }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.onboarding_activity);
-            _context = this;
+            Instance = this;
             GetStage(base.Intent.GetStringExtra(Constants.SESION_CHILD));
         }
 
@@ -52,7 +53,7 @@ namespace Oyadieyie3D.Activities
             SetStatusBarImmersiveMode();
         }
 
-        public static void GetStage(string stage)
+        public void GetStage(string stage)
         {
             switch (stage)
             {
@@ -68,33 +69,39 @@ namespace Oyadieyie3D.Activities
             }
         }
 
-        private static AndroidX.Fragment.App.Fragment InitWalkThrough()
+        public AndroidX.Fragment.App.Fragment InitWalkThrough()
         {
             var onboardingFragment = PaperOnboardingFragment.NewInstance(new List<PaperOnboardingPage>
             {
-                new PaperOnboardingPage(Constants.ONBDTITLE_1, Constants.ONBDESC_1, Color.ParseColor("#7C4DFF"), Resource.Drawable.hotels, Resource.Drawable.key),
-                new PaperOnboardingPage(Constants.ONBDTITLE_2, Constants.ONBDESC_2, Color.ParseColor("#FF4081"), Resource.Drawable.banks, Resource.Drawable.shopping_cart),
-                new PaperOnboardingPage(Constants.ONBDTITLE_3, Constants.ONBDESC_3, Color.ParseColor("#FF6E40"), Resource.Drawable.stores, Resource.Drawable.wallet)
+                new PaperOnboardingPage(Constants.ONBDTITLE_1, Constants.ONBDESC_1, Color.ParseColor("#EF9A9A"), 
+                Resource.Drawable.tailor, Resource.Drawable.shopping_cart),
+
+                new PaperOnboardingPage(Constants.ONBDTITLE_2, Constants.ONBDESC_2, Color.ParseColor("#F48FB1"), 
+                Resource.Drawable.tailor_with_client2, Resource.Drawable.shopping_cart),
+
+                new PaperOnboardingPage(Constants.ONBDTITLE_3, Constants.ONBDESC_3, Color.ParseColor("#CE93D8"), 
+                Resource.Drawable.pay, Resource.Drawable.wallet)
             });
 
             onboardingFragment.SetOnRightOutListener(new OnRightOutListener(
                 ()=> 
                 {
                     SetFragment(new OnboardingFragment());
-                    _context.Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
-                    _context.Window.DecorView.SystemUiVisibility = (StatusBarVisibility)SystemUiFlags.LightStatusBar;
+                    Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
+                    Window.DecorView.SystemUiVisibility = (StatusBarVisibility)SystemUiFlags.LightStatusBar;
                 }));
+
             return onboardingFragment;
         }
 
-        private static void SetFragment(AndroidX.Fragment.App.Fragment fragment)
+        private void SetFragment(AndroidX.Fragment.App.Fragment fragment)
         {
-            _context.SupportFragmentManager.BeginTransaction()
+            SupportFragmentManager.BeginTransaction()
                 .Replace(Resource.Id.frag_container, fragment)
                 .CommitAllowingStateLoss();
         }
 
-        public static void SetStatus(string status)
+        public void SetStatus(string status)
         {
             DismissLoader();
             var statusRef = SessionManager.GetFireDB().GetReference($"{Constants.REF_USER_SESSION}/{SessionManager.UserId}");
@@ -103,23 +110,19 @@ namespace Oyadieyie3D.Activities
 
         public override void OnBackPressed() => base.OnBackPressed();
 
-        public static void ShowNoNetDialog(bool val)
+        public void ShowNoNetDialog(bool flag)
         {
-            if (val != true)
-            {
-                noNetBottomSheet = new NoNetBottomSheet(_context);
-                noNetBottomSheet.Cancelable = false;
-                AndroidX.Fragment.App.FragmentTransaction ft = _context.SupportFragmentManager.BeginTransaction();
-                ft.Add(noNetBottomSheet, "no_net");
-                ft.CommitAllowingStateLoss();
-            }
-            else
-            {
+            if (flag)
                 return;
-            }
+
+            noNetBottomSheet = new NoNetBottomSheet(this);
+            noNetBottomSheet.Cancelable = false;
+            AndroidX.Fragment.App.FragmentTransaction ft = SupportFragmentManager.BeginTransaction();
+            ft.Add(noNetBottomSheet, "no_net");
+            ft.CommitAllowingStateLoss();
         }
 
-        public static void DismissLoader()
+        public void DismissLoader()
         {
             if (!loaderDialog.IsShowing || loaderDialog == null)
                 return;
@@ -127,9 +130,9 @@ namespace Oyadieyie3D.Activities
             loaderDialog.DismissWithAnimation();
         }
 
-        public static void ShowError(string title, string message)
+        public void ShowError(string title, string message)
         {
-            var errorDialog = new SweetAlertDialog(_context, SweetAlertDialog.ErrorType);
+            var errorDialog = new SweetAlertDialog(this, SweetAlertDialog.ErrorType);
             errorDialog.SetTitleText(title);
             errorDialog.SetContentText(message);
             errorDialog.SetConfirmText(Constants.DIALOG_OK);
@@ -138,17 +141,17 @@ namespace Oyadieyie3D.Activities
             errorDialog.Show();
         }
 
-        public static void ShowLoader()
+        public void ShowLoader()
         {
-            loaderDialog = new SweetAlertDialog(_context, SweetAlertDialog.ProgressType);
+            loaderDialog = new SweetAlertDialog(this, SweetAlertDialog.ProgressType);
             loaderDialog.SetTitleText(Constants.DIALOG_LOADING);
             loaderDialog.ShowCancelButton(false);
             loaderDialog.Show();
         }
 
-        public static void ShowInfo(string info)
+        public void ShowInfo(string info)
         {
-            infoDialog = new SweetAlertDialog(_context, SweetAlertDialog.NormalType);
+            infoDialog = new SweetAlertDialog(this, SweetAlertDialog.NormalType);
             infoDialog.SetTitleText("Info");
             infoDialog.SetContentText(info);
             infoDialog.SetConfirmText(Constants.DIALOG_OK);
@@ -157,9 +160,9 @@ namespace Oyadieyie3D.Activities
             infoDialog.Show();
         }
 
-        public static void ShowWarning(string warn)
+        public void ShowWarning(string warn)
         {
-            var warnDialog = new SweetAlertDialog(_context, SweetAlertDialog.WarningType);
+            var warnDialog = new SweetAlertDialog(this, SweetAlertDialog.WarningType);
             warnDialog.SetTitleText("Warning");
             warnDialog.SetContentText(warn);
             warnDialog.SetConfirmText(Constants.DIALOG_OK);
@@ -168,9 +171,9 @@ namespace Oyadieyie3D.Activities
             warnDialog.Show();
         }
 
-        public static void ShowSuccess()
+        public void ShowSuccess()
         {
-            var successDialog = new SweetAlertDialog(_context, SweetAlertDialog.SuccessType);
+            var successDialog = new SweetAlertDialog(this, SweetAlertDialog.SuccessType);
             successDialog.SetTitleText(Constants.DIALOG_SUCCESS);
             successDialog.SetConfirmText(Constants.DIALOG_OK);
             successDialog.ShowCancelButton(false);

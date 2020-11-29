@@ -1,6 +1,7 @@
 ﻿using Android.Content;
 using Android.OS;
 using Android.Views;
+using Android.Widget;
 using Google.Android.Material.Button;
 using Oyadieyie3D.Activities;
 using Oyadieyie3D.Events;
@@ -36,11 +37,38 @@ namespace Oyadieyie3D.Fragments
             nextBtn.Click += (s1, e1) =>
             {
                 PreferenceHelper.Instance.SetString("firstRun", "regd");
-                
-                OnboardingActivity.SetStatus(Constants.REG_STAGE_DONE);
-                var i = new Intent(Context, typeof(MainActivity));
-                i.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
-                StartActivity(i);
+                OnboardingActivity.Instance.SetStatus(Constants.REG_STAGE_DONE);
+
+
+                string userId = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
+                var userRef = SessionManager.GetFireDB().GetReference($"users/{userId}/profile");
+                userRef.AddValueEventListener(new SingleValueListener(
+                onDataChange: (snapshot) =>
+                {
+                    if (!snapshot.Exists())
+                        return;
+
+                    string username = snapshot.Child(Constants.SNAPSHOT_FNAME) != null ? snapshot.Child(Constants.SNAPSHOT_FNAME).Value.ToString() : "";
+                    string status = snapshot.Child(Constants.SNAPSHOT_GENDER) != null ? snapshot.Child(Constants.SNAPSHOT_GENDER).Value.ToString() : "";
+                    string profileImgUrl = snapshot.Child(Constants.SNAPSHOT_PHOTO_URL) != null ? snapshot.Child(Constants.SNAPSHOT_PHOTO_URL).Value.ToString() : "";
+                    string email = snapshot.Child(Constants.SNAPSHOT_EMAIL) != null ? snapshot.Child(Constants.SNAPSHOT_EMAIL).Value.ToString() : "";
+                    string phone = snapshot.Child(Constants.SNAPSHOT_PHONE) != null ? snapshot.Child(Constants.SNAPSHOT_PHONE).Value.ToString() : "";
+
+                    PreferenceHelper.Instance.SetString("username", username);
+                    PreferenceHelper.Instance.SetString("status", status);
+                    PreferenceHelper.Instance.SetString("profile_url", profileImgUrl);
+                    PreferenceHelper.Instance.SetString("email", email);
+                    PreferenceHelper.Instance.SetString("phone", phone);
+
+                    var intent = new Intent(Activity, typeof(MainActivity));
+                    intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                    StartActivity(intent);
+                    OnboardingActivity.Instance.DismissLoader();
+
+                }, onCancelled: (error) =>
+                {
+                    Toast.MakeText(Context, error.Message, ToastLength.Short).Show();
+                }));
             };
         }
     }

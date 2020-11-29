@@ -12,7 +12,7 @@
 
         public int ItemImgUrl { get; set; }
 
-        public int MapImgUrl { get; set; }
+        public int MapImgUrl { get; set; }  
 
         public string OpeningHours { get; set; }
 

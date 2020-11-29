@@ -9,7 +9,11 @@ using Oyadieyie3D.HelperClasses;
 
 namespace Oyadieyie3D.Activities
 {
-    [Activity(MainLauncher = true, Theme = "@style/AppTheme.Splash", Label ="@string/app_name", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout| Android.Content.PM.ConfigChanges.SmallestScreenSize| Android.Content.PM.ConfigChanges.Orientation)]
+    [Activity(MainLauncher = true, Theme = "@style/AppTheme.Splash", Label ="@string/app_name", 
+        ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait, 
+        ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout| Android.Content.PM.ConfigChanges.SmallestScreenSize| 
+        Android.Content.PM.ConfigChanges.Orientation)]
+
     [MetaData("android.app.shortcuts", Resource ="@xml/shortcuts")]
     public class SplashActivity : AppCompatActivity
     {
@@ -20,7 +24,8 @@ namespace Oyadieyie3D.Activities
             string firstRun = PreferenceHelper.Instance.GetString("firstRun", "");
             if (firstRun != "" && firstRun != "reg")
             {
-                StartActivity(typeof(MainActivity));
+                var i = new Intent(this, typeof(MainActivity));
+                StartActivity(i);
                 Finish();
             }
             else
@@ -35,8 +40,7 @@ namespace Oyadieyie3D.Activities
             switch (currentUser)
             {
                 case null:
-                    StartActivity(typeof(OnboardingActivity));
-                    Finish();
+                    StartOnboarding();
                     break;
                 default:
                     CheckStatus(currentUser.Uid);
@@ -44,33 +48,42 @@ namespace Oyadieyie3D.Activities
             }
         }
 
+        private void StartOnboarding()
+        {
+            var i = new Intent(this, typeof(OnboardingActivity));
+            StartActivity(i);
+            Finish();
+        }
+
         private void CheckStatus(string uid)
         {
-            Toast.MakeText(this, "Getting your last session", ToastLength.Long).Show();
             var statusRef = SessionManager.GetFireDB().GetReference("session");
             statusRef.OrderByKey().EqualTo(uid).AddListenerForSingleValueEvent(new SingleValueListener((s) => 
             {
                 if (!s.Child(uid).Exists())
                 {
-                    StartActivity(typeof(OnboardingActivity));
+                    var i = new Intent(this, typeof(OnboardingActivity));
+                    StartActivity(i);
                     Finish();
                 }
                 else
                 {
-                    string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
+                    string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? 
+                    s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
+
                     if (stage.Contains(Constants.REG_STAGE_DONE))
                     {
                         PreferenceHelper.Instance.SetString("firstRun", "regd");
 
-                        var intent = new Intent(this, typeof(MainActivity));
-                        intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                        var intent = new Intent(this, typeof(MainActivity));                     
                         StartActivity(intent);
-                        OnboardingActivity.DismissLoader();
+                        Finish();
+                        OnboardingActivity.Instance.DismissLoader();
                     }
                     else
                     {
-                        OnboardingActivity.GetStage(stage);
-                        OnboardingActivity.DismissLoader();
+                        OnboardingActivity.Instance.GetStage(stage);
+                        OnboardingActivity.Instance.DismissLoader();
                     }
                 }
                 

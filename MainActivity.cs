@@ -1,472 +1,629 @@
-﻿using Android.App;
+﻿using Android.Animation;
+using Android.App;
 using Android.Content;
-using Android.Gms.Tasks;
-using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.OS;
-using Android.Provider;
-using Android.Runtime;
+using Android.Util;
 using Android.Views;
 using Android.Widget;
+using AndroidX.Annotations;
 using AndroidX.AppCompat.App;
-using AndroidX.ConstraintLayout.Widget;
-using AndroidX.Core.App;
+using AndroidX.CardView.Widget;
+using AndroidX.Core.Content.Resources;
 using AndroidX.Core.View;
-using AndroidX.Core.Widget;
 using AndroidX.RecyclerView.Widget;
-using AndroidX.SwipeRefreshLayout.Widget;
 using BumpTech.GlideLib;
+using BumpTech.GlideLib.Requests;
 using CN.Pedant.SweetAlert;
-using Com.Yalantis.Ucrop;
-using Firebase.Database;
-using Firebase.Storage;
+using DE.Hdodenhof.CircleImageViewLib;
 using Google.Android.Material.BottomAppBar;
 using Google.Android.Material.BottomSheet;
 using Google.Android.Material.Button;
+using Google.Android.Material.Chip;
 using Google.Android.Material.FloatingActionButton;
 using Google.Android.Material.TextField;
-using Java.Util;
 using Oyadieyie3D.Activities;
 using Oyadieyie3D.Adapters;
-using Oyadieyie3D.Callbacks;
+using Oyadieyie3D.Cards;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
 using Oyadieyie3D.Models;
-using Oyadieyie3D.Parcelables;
 using Oyadieyie3D.Utils;
+using Ramotion.CardSliderLib;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using static CN.Pedant.SweetAlert.SweetAlertDialog;
 using Exception = System.Exception;
-using SearchView = AndroidX.AppCompat.Widget.SearchView;
-using Task = Android.Gms.Tasks.Task;
-using Uri = Android.Net.Uri;
-using ViewAnimator = Oyadieyie3D.HelperClasses.ViewAnimator;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D
 {
     [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
-        ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
+        ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | 
+        Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = SoftInput.AdjustResize)]
     public class MainActivity : AppCompatActivity
     {
-        private RecyclerView mainRecycler;
-        private ConstraintLayout emptyRoot;
-        private SwipeRefreshLayout swipe_container;
-        private FloatingActionButton addPostFab;
-        private List<Post> posts { get; set; }
-        public PostAdapter postAdapter;
-        private RecyclerViewEmptyObserver emptyObserver;
-        PostEventListener postEventListener = new PostEventListener();
-        private const string HAS_IMAGE_KEY = "has_image";
-        
-        private ImageView postImageView;
-        private TextInputLayout commentEt;
-        private MaterialButton doneBtn;
-        
-        public static string fileName;
-        private ImageCaptureUtils icu;
-        private bool hasImage = false;
-        private ProgressBar postProgress;
-        private static StorageReference imageRef;
-        private Uri uri;
+        private int[] pics;
+        private string[] names;
+        private string[] description;
+        private int[] maps;
+        private string[] title;
+        private double[] rating;
+        private string[] hours;
 
-        private BottomSheetBehavior postBottomsheetBehavior;
-        bool isRotate = false;
+        
+        
+        private readonly int[,] _dotCoords = new int[5, 2];
+
+        private CardSliderLayoutManager _layoutManger;
+        private RecyclerView _recyclerView;
+        private ImageSwitcher _mapSwitcher;
+        private TextSwitcher _ratingSwitcher, _featuredSwitcher, _clockSwitcher, _descriptionsSwitcher;
+        private View _greenDot;
+
+        private TextView _name1TextView, _name2TextView;
+        private int _nameOffset1, _nameOffset2;
+        private long _nameAnimDuration;
+        private int _currentPosition;
+
+        private DecodeBitmapTask _decodeMapBitmapTask;
+        private DecodeBitmapTask.IListener _mapLoadListener;
+
+        private SliderAdapter MySliderAdapter;
+        private CircleImageView profileImageView;
+        private string profileImgUrl;
+        private string phone;
+        private RequestOptions op;
+        private string username;
+        private string status;
+        private string email;
+        private List<Client> premiumClients;
+
+        public static MainActivity Instance { get; private set; }
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
-            base.OnCreate(savedInstanceState);
             PreferenceHelper.Init(this);
-            AppCompatDelegate.DefaultNightMode = PreferenceHelper.Instance.GetBoolean("theme") ? AppCompatDelegate.ModeNightYes : AppCompatDelegate.ModeNightNo;
+            AppCompatDelegate.DefaultNightMode = PreferenceHelper.Instance.GetBoolean("theme") ?
+                AppCompatDelegate.ModeNightYes : AppCompatDelegate.ModeNightNo;
 
-            SetContentView(Resource.Layout.activity_main);
-            mainRecycler = FindViewById<RecyclerView>(Resource.Id.main_recycler);
-            emptyRoot = FindViewById<ConstraintLayout>(Resource.Id.rv_empty_view);
-            swipe_container = FindViewById<SwipeRefreshLayout>(Resource.Id.main_refresher);
-            addPostFab = FindViewById<FloatingActionButton>(Resource.Id.post_fab);
-            var appbar = FindViewById<BottomAppBar>(Resource.Id.bottomAppBar);
-            var searchView = appbar.Menu.FindItem(Resource.Id.action_search).ActionView as SearchView;
+            base.OnCreate(savedInstanceState);
+            SetContentView(R.Layout.activity_main);
+            Instance = this;
+            SetUpFeatured();
+            InitRecyclerView();
+            InitCountryText();
+            InitSwitchers();
+            InitGreenDot();
 
-            UCropHelper.Init(this);
-            CreateBottomSheet();
+            var searchFab = FindViewById<FloatingActionButton>(R.Id.post_fab);
+            var appbar = FindViewById<BottomAppBar>(R.Id.bottomAppBar);
+            var searchRoot = FindViewById<LinearLayout>(R.Id.search_root);
+            profileImageView = appbar.FindViewById<CircleImageView>(R.Id.profile_iv);
+            BottomSheetBehavior searchSheet = SetSearchSheet(searchRoot);
 
-            searchView.QueryTextChange += (s, e) =>
-            {
-                //try
-                //{
-                //    List<Post> searchResult =
-                //            (from post in posts
-                //             where post.PostBody.ToLower().Contains(e.NewText.ToLower())
-                //             select post).ToList();
-
-                //    postAdapter = new PostAdapter(this, searchResult);
-                //    postAdapter.RegisterAdapterDataObserver(emptyObserver);
-                //    mainRecycler.SetAdapter(postAdapter);
-                //}
-                //catch (Exception)
-                //{
-                //    Toast.MakeText(this, "No data yet", ToastLength.Short).Show();
-                //}
-            };
-            appbar.NavigationClick += (s, e) =>
-            {
-
-            };
             appbar.MenuItemClick += (s2, e2) =>
             {
                 switch (e2.Item.ItemId)
                 {
-                    case Resource.Id.action_dark_theme:
+                    case R.Id.action_market:
+                        var marketIntent = new Intent(this, typeof(StoreActivity));
+                        StartActivity(marketIntent);
+                        break;
+
+                    case R.Id.action_dark_theme:
                         AppCompatDelegate.DefaultNightMode = AppCompatDelegate.ModeNightYes;
                         PreferenceHelper.Instance.SetBoolean("theme", true);
                         break;
 
-                    case Resource.Id.action_light_theme:
+                    case R.Id.action_light_theme:
                         AppCompatDelegate.DefaultNightMode = AppCompatDelegate.ModeNightNo;
                         PreferenceHelper.Instance.SetBoolean("theme", false);
                         break;
 
                     default:
-                        StartActivity(typeof(SettingsActivity));
+                        var intent = new Intent(this, typeof(SettingsActivity));
+                        StartActivity(intent);
                         break;
                 }
             };
-            addPostFab.Click += (s3, e3) =>
+            searchFab.Click += (s3, e3) =>
             {
                 try
                 {
-                    isRotate = ViewAnimator.RotateFab(addPostFab, !isRotate);
-                    switch (postBottomsheetBehavior.State)
+                    var animatable = searchFab.Drawable as AnimatedVectorDrawable;
+                    switch (searchSheet.State)
                     {
                         case BottomSheetBehavior.StateHidden:
-                            postBottomsheetBehavior.State = BottomSheetBehavior.StateExpanded;
+                            searchSheet.State = BottomSheetBehavior.StateExpanded;
+                            animatable.Start();
                             break;
 
                         default:
-                            postBottomsheetBehavior.State = BottomSheetBehavior.StateHidden;
+                            searchSheet.State = BottomSheetBehavior.StateHidden;
+                            animatable.Reset();
                             break;
                     }
+
+
+
                 }
-                catch (Exception e)
+                catch (Exception)
                 {
-                    ShowToast(e.Message);
+                    //
                 }
             };
+            profileImageView.Click += (s4, e4) => ShowProfileDialog();
 
-            //postEventListener.FetchPost();
-            //postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
+            profileImgUrl = PreferenceHelper.Instance.GetString(Constants.Profile_Url_Key, "");
+            username = PreferenceHelper.Instance.GetString(Constants.Username_Key, "");
+            status = PreferenceHelper.Instance.GetString(Constants.Status_Key, "");
+            email = PreferenceHelper.Instance.GetString(Constants.Email_Key, "");
+            phone = PreferenceHelper.Instance.GetString(Constants.Phone_Key, "");
+
+            op = new RequestOptions();
+            op.Placeholder(R.Drawable.ic_account_circle);
+            Glide.With(this).SetDefaultRequestOptions(op).Load(profileImgUrl).Into(profileImageView);
+
+            bool isFingerprintEnabled = PreferenceHelper.Instance.GetBoolean(Constants.BioStatusKey);
+            if (isFingerprintEnabled)
+            {
+                var intent = new Intent(this, typeof(FingerprintActivity));
+                StartActivity(intent);
+            }
         }
 
-        private void PostEventListener_OnPostRetrieved(object sender, PostEventListener.PostEventArgs e)
+        private BottomSheetBehavior SetSearchSheet(LinearLayout searchRoot)
         {
-            if (e.Posts == null)
+            var searchSheet = BottomSheetBehavior.From(searchRoot);
+            searchSheet.State = BottomSheetBehavior.StateHidden;
+            var searchbox = FindViewById<TextInputLayout>(R.Id.search_box_tl);
+            var filterchip = FindViewById<ChipGroup>(R.Id.cat_chip_group);
+            var resultRecycler = FindViewById<RecyclerView>(R.Id.search_recyler);
+
+            var adapter = new TailorFinderRAdapter(this, premiumClients);
+            resultRecycler.SetAdapter(adapter);
+
+            return searchSheet;
+        }
+
+        protected override void OnPause()
+        {
+            base.OnPause();
+            if (IsFinishing)
+                _decodeMapBitmapTask?.Cancel(true);
+        }
+
+        private void ShowProfileDialog()
+        {
+            var view = LayoutInflater.From(this).Inflate(R.Layout.profile_popup_window, null);
+            var dialog = new AndroidX.AppCompat.App.AlertDialog.Builder(this)
+                .SetView(view)
+                .Create();
+
+            dialog.Window.SetBackgroundDrawableResource(Android.Resource.Color.Transparent);
+            dialog.Show();
+
+            var image_view = view.FindViewById<CircleImageView>(R.Id.popup_prof_iv);
+            var username = view.FindViewById<TextView>(R.Id.popup_user_tv);
+            var phone = view.FindViewById<TextView>(R.Id.popup_phone_tv);
+            var manage = view.FindViewById<MaterialButton>(R.Id.popup_manage_btn);
+            var logout = view.FindViewById<ImageButton>(R.Id.dialog_logout_btn);
+
+            Glide.With(this).SetDefaultRequestOptions(op).Load(profileImgUrl).Into(image_view);
+            username.Text = this.username;
+            phone.Text = this.phone;
+            manage.Click += (s, e) =>
+            {
+                manage.Post(() =>
+                {
+                    var intent = new Intent(this, typeof(ProfileActivity));
+                    StartActivity(intent);
+                    dialog.Dismiss();
+                });
+            };
+            logout.Click += (s1, e1) =>
+            {
+                var confirmClick = new SweetConfirmClick(
+                    (s)=> 
+                    {
+                        s.DismissWithAnimation();
+                        SessionManager.GetFirebaseAuth().SignOut();
+                        PreferenceHelper.Instance.ClearPrefs();
+
+                        var i = new Intent(this, typeof(OnboardingActivity));
+                        i.AddFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                        StartActivity(i);
+                    });
+
+                ShowWarning(this, "Sign out", "Are you sure you want to sign-out?", confirmClick);
+            };
+        }
+
+        public void ShowWarning(Context context, string title, string warn, IOnSweetClickListener listener)
+        {
+            var warnDialog = new SweetAlertDialog(context, WarningType);
+            warnDialog.SetTitleText(title);
+            warnDialog.SetContentText(warn);
+            warnDialog.SetConfirmText("Yes");
+            warnDialog.SetCancelText("No");
+            warnDialog.SetConfirmClickListener(listener);
+            warnDialog.Show();
+        }
+
+        private void SetUpFeatured()
+        {
+            var client1 = new Client.Builder()
+                .SetClientName("Gray Labs")
+                .SetRating(4.4)
+                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
+                .SetMapUrl(R.Drawable.map_beijing)
+                .SetImageUrl(R.Drawable.p1)
+                .SetItemTitle("Sit duis aliquyam esse dolores")
+                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
+                .Build();
+
+            var client2 = new Client.Builder()
+                .SetClientName("Laddy")
+                .SetRating(4.4)
+                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
+                .SetMapUrl(R.Drawable.map_paris)
+                .SetImageUrl(R.Drawable.p2)
+                .SetItemTitle("Sit duis aliquyam esse dolores")
+                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
+                .Build();
+
+            var client3 = new Client.Builder()
+                .SetClientName("Jeffery")
+                .SetRating(4.4)
+                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
+                .SetMapUrl(R.Drawable.map_seoul)
+                .SetImageUrl(R.Drawable.p3)
+                .SetItemTitle("Sit duis aliquyam esse dolores")
+                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
+                .Build();
+
+            var client4 = new Client.Builder()
+                .SetClientName("Jenny")
+                .SetRating(4.4)
+                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
+                .SetMapUrl(R.Drawable.map_london)
+                .SetImageUrl(R.Drawable.p4)
+                .SetItemTitle("Sit duis aliquyam esse dolores")
+                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
+                .Build();
+
+            var client5 = new Client.Builder()
+                .SetClientName("Ea nonumy eos et dolor diam et et consequat ipsum")
+                .SetRating(4.4)
+                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
+                .SetMapUrl(R.Drawable.map_greece)
+                .SetImageUrl(R.Drawable.p5)
+                .SetItemTitle("Sit duis aliquyam esse dolores")
+                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
+                .Build();
+
+            premiumClients = new List<Client>();
+            premiumClients.Add(client1);
+            premiumClients.Add(client2);
+            premiumClients.Add(client3);
+            premiumClients.Add(client4);
+            premiumClients.Add(client5);
+
+            pics = premiumClients.Select(client => client.ItemImgUrl).ToArray();
+            names = premiumClients.Select(client => client.ClientName.ToUpper()).ToArray();
+            description = premiumClients.Select(client => client.ItemDescription).ToArray();
+            maps = premiumClients.Select(client => client.MapImgUrl).ToArray();
+            title = premiumClients.Select(client => client.ItemTitle).ToArray();
+            rating = premiumClients.Select(client => client.Rating).ToArray();
+            hours = premiumClients.Select(client => client.OpeningHours).ToArray();
+            MySliderAdapter = new SliderAdapter(pics, premiumClients.Count, OnCardClickListener);
+        }
+
+        private void InitRecyclerView()
+        {
+            _recyclerView = FindViewById<RecyclerView>(R.Id.finder_recycler);
+            _recyclerView.SetAdapter(MySliderAdapter);
+            _recyclerView.HasFixedSize = true;
+            _recyclerView.AddOnScrollListener(
+                new MyRvOnScrollListener(
+                    null,
+                    (rv, newState) =>
+                    {
+                        if (newState == RecyclerView.ScrollStateIdle)
+                            OnActiveCardChange();
+                    }
+                )
+            );
+
+            _layoutManger = (CardSliderLayoutManager)_recyclerView.GetLayoutManager();
+
+            new CardSnapHelper().AttachToRecyclerView(_recyclerView);
+        }
+
+        private void InitSwitchers()
+        {
+            _ratingSwitcher = FindViewById<TextSwitcher>(R.Id.ts_temperature);
+            _ratingSwitcher.SetFactory(new TextViewFactory(this, R.Style.AppTheme_RatingTextView, true));
+            _ratingSwitcher.SetCurrentText(rating[0].ToString());
+
+            _featuredSwitcher = FindViewById<TextSwitcher>(R.Id.ts_place);
+            _featuredSwitcher.SetFactory(new TextViewFactory(this, R.Style.AppTheme_NameTextView, false));
+            _featuredSwitcher.SetCurrentText(title[0]);
+
+            _clockSwitcher = FindViewById<TextSwitcher>(R.Id.ts_clock);
+            _clockSwitcher.SetFactory(new TextViewFactory(this, R.Style.AppTheme_ClockTextView, false));
+            _clockSwitcher.SetCurrentText(hours[0]);
+
+            _descriptionsSwitcher = FindViewById<TextSwitcher>(R.Id.ts_description);
+            _descriptionsSwitcher.SetInAnimation(this, Android.Resource.Animation.FadeIn);
+            _descriptionsSwitcher.SetOutAnimation(this, Android.Resource.Animation.FadeOut);
+            _descriptionsSwitcher.SetFactory(new TextViewFactory(this, R.Style.AppTheme_DescriptionTextView, false));
+            _descriptionsSwitcher.SetCurrentText(description[0]);
+
+            _mapSwitcher = FindViewById<ImageSwitcher>(R.Id.ts_map);
+            _mapSwitcher.SetInAnimation(this, R.Animation.fade_in);
+            _mapSwitcher.SetOutAnimation(this, R.Animation.fade_out);
+            _mapSwitcher.SetFactory(new ImageViewFactory(this));
+            _mapSwitcher.SetImageResource(maps[0]);
+
+            _mapLoadListener = new DecodeBitmapTask.Listener(
+                bmp =>
+                {
+                    (_mapSwitcher.NextView as ImageView)?.SetImageBitmap(bmp);
+                    _mapSwitcher.ShowNext();
+                }
+            );
+        }
+
+        private void InitCountryText()
+        {
+            _nameAnimDuration = Resources.GetInteger(R.Integer.labels_animation_duration);
+            _nameOffset1 = Resources.GetDimensionPixelSize(R.Dimension.left_offset);
+            _nameOffset2 = Resources.GetDimensionPixelSize(R.Dimension.card_width);
+            _name1TextView = FindViewById<TextView>(R.Id.tv_country_1);
+            _name2TextView = FindViewById<TextView>(R.Id.tv_country_2);
+
+            _name1TextView.SetX(_nameOffset1);
+            _name2TextView.SetX(_nameOffset2);
+            _name1TextView.Text = names[0];
+            _name2TextView.Alpha = 0f;
+
+            var typeface = ResourcesCompat.GetFont(this, R.Font.raleway_bold);
+            _name1TextView.Typeface = typeface;
+            _name2TextView.Typeface = typeface;
+        }
+
+        private void InitGreenDot()
+        {
+            try
+            {
+                var l = new MyVtoOnGlobalLayoutListener();
+                l.GlobalLayoutEvent += (s, e) =>
+                {
+                    _mapSwitcher.ViewTreeObserver.RemoveOnGlobalLayoutListener(l);
+
+                    var viewLeft = _mapSwitcher.Left;
+                    var viewTop = _mapSwitcher.Top + _mapSwitcher.Height / 3;
+
+                    const int border = 100;
+                    var xRange = Math.Max(1, _mapSwitcher.Width - border * 2);
+                    var yRange = Math.Max(1, _mapSwitcher.Height / 3 * 2 - border * 2);
+
+                    var rnd = new System.Random();
+
+                    for (int i = 0, cnt = _dotCoords.GetLength(0); i < cnt; i++)
+                    {
+                        _dotCoords[i, 0] = viewLeft + border + rnd.Next(xRange);
+                        _dotCoords[i, 1] = viewTop + border + rnd.Next(yRange);
+                    }
+
+                    _greenDot = FindViewById<View>(R.Id.green_dot);
+                    _greenDot.SetX(_dotCoords[0, 0]);
+                    _greenDot.SetY(_dotCoords[0, 1]);
+                };
+                _mapSwitcher.ViewTreeObserver.AddOnGlobalLayoutListener(l);
+            }
+            catch (Exception exc) when (exc is IndexOutOfRangeException)
+            {
+                LogW(exc.Message);
+            }
+        }
+
+        private void SetClientName(string text, bool left2Right)
+        {
+            TextView invisibleText;
+            TextView visibleText;
+
+            if (_name1TextView.Alpha > _name2TextView.Alpha)
+            {
+                visibleText = _name1TextView;
+                invisibleText = _name2TextView;
+            }
+            else
+            {
+                visibleText = _name2TextView;
+                invisibleText = _name1TextView;
+            }
+
+            int vOffset;
+            if (left2Right)
+            {
+                invisibleText.SetX(0);
+                vOffset = _nameOffset2;
+            }
+            else
+            {
+                invisibleText.SetX(_nameOffset2);
+                vOffset = 0;
+            }
+
+            invisibleText.Text = text;
+
+            var iAlpha = ObjectAnimator.OfFloat(invisibleText, "alpha", 1f);
+            var vAlpha = ObjectAnimator.OfFloat(visibleText, "alpha", 0f);
+            var iX = ObjectAnimator.OfFloat(invisibleText, "x", _nameOffset1);
+            var vX = ObjectAnimator.OfFloat(visibleText, "x", vOffset);
+
+            var animSet = new AnimatorSet();
+            animSet.PlayTogether(iAlpha, vAlpha, iX, vX);
+            animSet.SetDuration(_nameAnimDuration);
+            animSet.Start();
+        }
+
+        private void OnActiveCardChange()
+        {
+            var pos = _layoutManger.ActiveCardPosition;
+            if (pos == RecyclerView.NoPosition || pos == _currentPosition)
                 return;
 
-            posts = e.Posts.OrderByDescending(p => p.PostDate).ToList();
-            postAdapter = new PostAdapter(posts);
-            mainRecycler.SetAdapter(postAdapter);
-            emptyObserver = new RecyclerViewEmptyObserver(mainRecycler, emptyRoot);
-            postAdapter.RegisterAdapterDataObserver(emptyObserver);
+            OnActiveCardChange(pos);
+        }
 
-            postAdapter.ItemLongClick += (s1, e1) =>
+        private void OnActiveCardChange(int pos)
+        {
+            var animH = new[] { R.Animation.slide_in_right, R.Animation.slide_out_left };
+            var animV = new[] { R.Animation.slide_in_top, R.Animation.slide_out_bottom };
+
+            var left2Right = pos < _currentPosition;
+            if (left2Right)
             {
-                string postID = posts[e1.Position].ID;
-                string ownerID = posts[e1.Position].OwnerId;
+                animH[0] = R.Animation.slide_in_left;
+                animH[1] = R.Animation.slide_out_right;
 
-                if (SessionManager.GetFirebaseAuth().CurrentUser.Uid != ownerID)
+                animV[0] = R.Animation.slide_in_bottom;
+                animV[1] = R.Animation.slide_out_top;
+            }
+
+            SetClientName(names[pos % names.Length], left2Right);
+
+            _ratingSwitcher.SetInAnimation(this, animH[0]);
+            _ratingSwitcher.SetOutAnimation(this, animH[1]);
+            _ratingSwitcher.SetText(rating[pos % rating.ToString().Length].ToString());
+
+            _featuredSwitcher.SetInAnimation(this, animV[0]);
+            _featuredSwitcher.SetOutAnimation(this, animV[1]);
+            _featuredSwitcher.SetText(title[pos % title.Length]);
+
+            _clockSwitcher.SetInAnimation(this, animV[0]);
+            _clockSwitcher.SetOutAnimation(this, animV[1]);
+            _clockSwitcher.SetText(hours[pos % hours.Length]);
+
+            _descriptionsSwitcher.SetText(description[pos % description.Length]);
+
+            ShowMap(maps[pos % maps.Length]);
+
+            ViewCompat.Animate(_greenDot)
+                .TranslationX(_dotCoords[pos % _dotCoords.GetLength(0), 0])
+                .TranslationY(_dotCoords[pos % _dotCoords.GetLength(0), 1])
+                .Start();
+
+            _currentPosition = pos;
+        }
+
+        private void ShowMap([DrawableRes] int resId)
+        {
+            _decodeMapBitmapTask?.Cancel(true);
+
+            var w = _mapSwitcher.Width;
+            var h = _mapSwitcher.Height;
+
+            _decodeMapBitmapTask = new DecodeBitmapTask(Resources, resId, w, h, _mapLoadListener);
+            _decodeMapBitmapTask.Execute();
+        }
+        
+        private View.IOnClickListener OnCardClickListener => new MyViewOnClickListener(
+            v =>
+            {
+                var lm = (CardSliderLayoutManager)_recyclerView.GetLayoutManager();
+
+                if (lm.IsSmoothScrolling)
                     return;
 
-                var sweetDialog = new SweetAlertDialog(this, SweetAlertDialog.WarningType);
-                sweetDialog.SetTitleText("Post Options");
-                sweetDialog.SetContentText("Do you want to edit or delete selected post?");
-                sweetDialog.SetCancelText("Delete");
-                sweetDialog.SetConfirmText("Edit");
-                sweetDialog.SetConfirmClickListener(new SweetConfirmClick(
-                onClick: d1 =>
+                var activeCardPosition = lm.ActiveCardPosition;
+                if (activeCardPosition == RecyclerView.NoPosition)
+                    return;
+
+                var clickedPosition = _recyclerView.GetChildAdapterPosition(v);
+                if (clickedPosition == activeCardPosition)
                 {
-                    d1.ChangeAlertType(SweetAlertDialog.SuccessType);
-                    d1.SetTitleText("Done");
-                    d1.SetContentText("");
-                    d1.ShowCancelButton(false);
-                    d1.SetConfirmText("OK");
-                    d1.SetConfirmClickListener(null);
-                    d1.Show();
-                }));
-                sweetDialog.SetCancelClickListener(new SweetConfirmClick(
-                onClick: d2 =>
-                {
-                    SessionManager.GetFireDB().GetReference("posts").Child(postID).RemoveValue()
-                        .AddOnCompleteListener(new OncompleteListener((onComplete) =>
-                        {
-                            switch (onComplete.IsSuccessful)
-                            {
-                                case false:
-                                    break;
-                                default:
-                                    StorageReference storageReference = FirebaseStorage.Instance.GetReference("postImages/" + postID);
-                                    storageReference.DeleteAsync();
-                                    postAdapter.NotifyItemRemoved(e1.Position);
-                                    postAdapter.NotifyItemRangeChanged(e1.Position, posts.Count);
-                                    break;
-                            }
-                        }));
-                    d2.ChangeAlertType(SweetAlertDialog.SuccessType);
-                    d2.SetTitleText("Deleted");
-                    d2.SetContentText("");
-                    d2.ShowCancelButton(false);
-                    d2.SetConfirmText("OK");
-                    d2.SetConfirmClickListener(null);
-                    d2.Show();
-                }));
-                sweetDialog.Show();
-            };
-            postAdapter.ItemClick += (s2, e2) =>
-            {
-                var intent = new Intent(this, typeof(FullscreenImageActivity));
+                    var intent = new Intent(this, typeof(FeaturedDetailsActivity));
+                    intent.PutExtra(FeaturedDetailsActivity.BundleImageId, pics[activeCardPosition % pics.Length]);
 
-                PostParcelable postParcelable = new PostParcelable();
-                postParcelable.PostItem = posts[e2.Position];
-
-                intent.PutExtra(Constants.TRANSITION_NAME, ViewCompat.GetTransitionName(e2.ImageView));
-                intent.PutExtra(Constants.POST_DATA_EXTRA, postParcelable);
-                intent.PutExtra(Constants.PARCEL_TYPE, 0);
-                var options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, e2.ImageView,
-                    ViewCompat.GetTransitionName(e2.ImageView));
-                StartActivity(intent, options.ToBundle());
-            };
-        }      
-
-        //public User GetUserFromFireAsync()
-        //{
-        //    AsyncTask.Execute(new MyRunnable(() => 
-        //    {
-        //        try
-        //        {
-        //            Looper.Prepare();
-        //            string userId = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
-        //            var userRef = SessionManager.GetFireDB().GetReference($"users/{userId}/profile");
-        //            userRef.AddValueEventListener(new SingleValueListener(
-        //            onDataChange: (snapshot) =>
-        //            {
-        //                if (!snapshot.Exists())
-        //                    return;
-
-        //                var _user = new User
-        //                {
-        //                    ID = snapshot.Key,
-        //                    Username = snapshot.Child(Constants.SNAPSHOT_FNAME) != null ? snapshot.Child(Constants.SNAPSHOT_FNAME).Value.ToString() : "",
-        //                    Status = snapshot.Child(Constants.SNAPSHOT_GENDER) != null ? snapshot.Child(Constants.SNAPSHOT_GENDER).Value.ToString() : "",
-        //                    ProfileImgUrl = snapshot.Child(Constants.SNAPSHOT_PHOTO_URL) != null ? snapshot.Child(Constants.SNAPSHOT_PHOTO_URL).Value.ToString() : "",
-        //                    Email = snapshot.Child(Constants.SNAPSHOT_EMAIL) != null ? snapshot.Child(Constants.SNAPSHOT_EMAIL).Value.ToString() : "",
-        //                    Phone = snapshot.Child(Constants.SNAPSHOT_PHONE) != null ? snapshot.Child(Constants.SNAPSHOT_PHONE).Value.ToString() : ""
-        //                };
-        //                user = _user;
-        //            }, onCancelled: (exception) =>
-        //            {
-        //                Toast.MakeText(Application.Context, exception.Message, ToastLength.Short).Show();
-        //            }));
-        //            Looper.Loop();
-        //        }
-        //        catch (Exception e)
-        //        {
-        //            Toast.MakeText(this, e.Message, ToastLength.Short).Show();
-        //        }
-        //    }));
-        //    return user;
-        //}
-
-        private void ShowToast(string msg)
-        {
-            Toast.MakeText(this, msg, ToastLength.Short).Show();
-        }
-
-        private void CreateBottomSheet()
-        {
-            var postRoot = FindViewById<NestedScrollView>(Resource.Id.createpost_bottomsheet_root);
-            postBottomsheetBehavior = BottomSheetBehavior.From(postRoot);
-            postBottomsheetBehavior.Hideable = true;
-            postBottomsheetBehavior.State = BottomSheetBehavior.StateHidden;
-            postBottomsheetBehavior.AddBottomSheetCallback(new BottomSheetCallback(
-                onSlide: (bottomSheet, newState) =>
-                {
-
-                }, onStateChanged: (bottomsheet, state) =>
-                {
-                    isRotate = ViewAnimator.RotateFab(addPostFab, !isRotate);
-                }));
-
-            var postToggleBtn = FindViewById<MaterialButtonToggleGroup>(Resource.Id.picture_toggle_group);
-            postImageView = FindViewById<ImageView>(Resource.Id.post_imageview);
-            commentEt = FindViewById<TextInputLayout>(Resource.Id.comment_edit_text);
-            doneBtn = FindViewById<MaterialButton>(Resource.Id.done_btn);
-            postProgress = FindViewById<ProgressBar>(Resource.Id.post_progress);
-
-            icu = new ImageCaptureUtils(this);
-            icu.OnImageCaptured += Icu_OnImageCaptured;
-            icu.OnImageSelected += Icu_OnImageSelected;
-
-            postToggleBtn.AddOnButtonCheckedListener(new ButtonCheckedListener(
-            onbuttonChecked: (g, id, isChecked) =>
-            {
-                if (isChecked)
-                {
-                    switch (id)
+                    if (Build.VERSION.SdkInt < BuildVersionCodes.Lollipop)
                     {
-                        case Resource.Id.btn_open_camera:
-                            icu.TakeCameraImage();
-                            break;
-
-                        case Resource.Id.btn_choose_photo:
-                            icu.FetchImageFromGallery();
-                            break;
+                        StartActivity(intent);
+                    }
+                    else
+                    {
+                        var cardView = (CardView)v;
+                        var sharedView = cardView.GetChildAt(cardView.ChildCount - 1);
+                        var options = ActivityOptions.MakeSceneTransitionAnimation(this, sharedView, "shared");
+                        StartActivity(intent, options.ToBundle());
                     }
                 }
-            }));
-
-            doneBtn.Click += DoneBtn_Click;
-            commentEt.EditText.TextChanged += EditText_TextChanged;
-        }
-
-        private async void DoneBtn_Click(object sender, EventArgs e)
-        {
-            postProgress.Visibility = ViewStates.Visible;
-            doneBtn.Enabled = false;
-            doneBtn.Text = "Posting";
-            try
-            {
-                var stream = new System.IO.MemoryStream();
-                var bitmap = MediaStore.Images.Media.GetBitmap(ContentResolver, uri);
-                await bitmap.CompressAsync(Bitmap.CompressFormat.Webp, 70, stream);
-                var imgArray = stream.ToArray();
-
-                var postRef = SessionManager.GetFireDB().GetReference("posts").Push();
-                string imageId = postRef.Key;
-                imageRef = FirebaseStorage.Instance.GetReference("postImages/" + imageId);
-                imageRef.PutBytes(imgArray).ContinueWithTask(new ContinuationTask(
-                then: t =>
+                else if (clickedPosition > activeCardPosition)
                 {
-                    if (!t.IsSuccessful)
-                        throw t.Exception;
-
-                })).AddOnCompleteListener(new OncompleteListener(
-                onComplete: t =>
-                {
-                    if (!t.IsSuccessful)
-                        throw t.Exception;
-
-                    var postMap = new HashMap();
-                    postMap.Put("owner_id", SessionManager.GetFirebaseAuth().CurrentUser.Uid);
-                    postMap.Put("post_date", DateTime.UtcNow.ToString());
-                    postMap.Put("post_body", commentEt.EditText.Text);
-                    postMap.Put("download_url", t.Result.ToString());
-                    postMap.Put("image_id", imageId);
-                    postMap.Put("post_date", DateTime.UtcNow.ToString());
-                    postRef.SetValue(postMap).AddOnCompleteListener(new OncompleteListener(
-                    onComplete: task =>
-                    {
-                        try
-                        {
-                            if (!task.IsSuccessful)
-                                throw task.Exception;
-
-                            postBottomsheetBehavior.State = BottomSheetBehavior.StateHidden;
-
-                            
-                        }
-                        catch (DatabaseException de)
-                        {
-
-                        }
-
-                    }));
-                }));
-
-            }
-            catch (Exception ex)
-            {
-
-            }
-        }
-
-        private void EditText_TextChanged(object sender, Android.Text.TextChangedEventArgs e)
-        {
-            doneBtn.Enabled = commentEt.EditText.Text.Length >= 6 && hasImage;
-        }
-
-        private void Icu_OnImageSelected(object sender, ImageCaptureUtils.ImageSelectedEventArgs e)
-        {
-            StartActivityForResult(Intent.CreateChooser(e.imageIntent, "Select Picture"), Constants.SELECT_PICTURE);
-        }
-
-        private void Icu_OnImageCaptured(object sender, ImageCaptureUtils.ImageSelectedEventArgs e)
-        {
-            StartActivityForResult(e.imageIntent, Constants.REQUEST_IMAGE_CAPTURE);
-            fileName = e.fileName;
-        }
-
-        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
-        {
-            base.OnActivityResult(requestCode, resultCode, data);
-            try
-            {
-                switch (resultCode)
-                {
-                    case Result.Ok:
-                        switch (requestCode)
-                        {
-                            case Constants.SELECT_PICTURE:
-                                Uri selectedImageURI = data.Data;
-                                UCropHelper.Instance.CropImage(selectedImageURI, this);
-                                break;
-
-                            case Constants.REQUEST_IMAGE_CAPTURE:
-                                UCropHelper.Instance.CropImage(UCropHelper.Instance.GetCacheImagePath(fileName), this);
-                                break;
-
-                            case UCrop.RequestCrop:
-                                uri = UCrop.GetOutput(data);
-                                Glide.With(this).Load(uri).Into(postImageView);
-                                hasImage = true;
-                                doneBtn.Enabled = commentEt.EditText.Text.Length >= 6 && hasImage;
-                                UCropHelper.Instance.ClearCache();
-                                break;
-
-                            case UCrop.ResultError:
-                                throw UCrop.GetError(data);
-
-                            default:
-                                break;
-                        }
-                        break;
-                    case Result.Canceled:
-                        break;
-
-                    case Result.FirstUser:
-                        break;
-
-                    default:
-                        break;
+                    _recyclerView.SmoothScrollToPosition(clickedPosition);
+                    OnActiveCardChange(clickedPosition);
                 }
             }
-            catch (Exception)
-            {
+        );
 
-            }
-        }
+        private static void LogW(string msg) => Log.Warn(Constants.MyTag, msg);
 
-        private class ContinuationTask : Java.Lang.Object, IContinuation
+        private sealed class TextViewFactory : Java.Lang.Object, ViewSwitcher.IViewFactory
         {
-            private Action<Task> _then;
+            private readonly Context _ctx;
+            [StyleRes] private readonly int _styleId;
+            private readonly bool _center;
 
-            public ContinuationTask(Action<Task> then)
+            public TextViewFactory(Context ctx, [StyleRes] int styleId, bool center)
             {
-                _then = then;
+                _ctx = ctx;
+                _styleId = styleId;
+                _center = center;
             }
 
-            public Java.Lang.Object Then(Task task)
+            public View MakeView()
             {
-                _then?.Invoke(task);
-                return imageRef.GetDownloadUrl();
+                var textView = new TextView(_ctx);
+
+                if (_center)
+                    textView.Gravity = GravityFlags.Center;
+
+                if (Build.VERSION.SdkInt < BuildVersionCodes.M)
+#pragma warning disable 618
+                    textView.SetTextAppearance(_ctx, _styleId);
+#pragma warning restore 618
+                else
+                    textView.SetTextAppearance(_styleId);
+
+                return textView;
             }
         }
+
+        private sealed class ImageViewFactory : Java.Lang.Object, ViewSwitcher.IViewFactory
+        {
+            private readonly Context _ctx;
+
+            public ImageViewFactory(Context ctx)
+            {
+                _ctx = ctx;
+            }
+
+            public View MakeView()
+            {
+                var imageView = new ImageView(_ctx);
+                imageView.SetScaleType(ImageView.ScaleType.CenterCrop);
+                imageView.LayoutParameters = new FrameLayout.LayoutParams(
+                    ViewGroup.LayoutParams.MatchParent,
+                    ViewGroup.LayoutParams.MatchParent
+                );
+                return imageView;
+            }
+        }
+
     }
 }

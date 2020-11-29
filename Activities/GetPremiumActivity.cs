@@ -53,9 +53,9 @@ namespace Oyadieyie3D.Activities
             var ft = SupportFragmentManager.BeginTransaction();
             var onboardingFragment = PaperOnboardingFragment.NewInstance(new List<PaperOnboardingPage>
             {
-                new PaperOnboardingPage("On top of the world", "Amet stet diam dolor erat lorem amet lorem et molestie", Color.ParseColor("#FFD54F"), Resource.Drawable.hotels, Resource.Drawable.key),
-                new PaperOnboardingPage("Get featured","Nihil eos eos ea consequat consetetur et rebum elit no", Color.ParseColor("#4DB6AC"), Resource.Drawable.banks, Resource.Drawable.shopping_cart),
-                new PaperOnboardingPage("Get noticed", "Lorem consetetur eum lorem ut accusam illum dolor esse est", Color.ParseColor("#9575CD"), Resource.Drawable.stores, Resource.Drawable.wallet)
+                new PaperOnboardingPage("On top of the world", "Amet stet diam dolor erat lorem amet lorem et molestie", Color.ParseColor("#FFD54F"), Resource.Drawable.machine, Resource.Drawable.shopping_cart),
+                new PaperOnboardingPage("Get featured","Nihil eos eos ea consequat consetetur et rebum elit no", Color.ParseColor("#4DB6AC"), Resource.Drawable.machine, Resource.Drawable.shopping_cart),
+                new PaperOnboardingPage("Get noticed", "Lorem consetetur eum lorem ut accusam illum dolor esse est", Color.ParseColor("#9575CD"), Resource.Drawable.machine, Resource.Drawable.shopping_cart)
             });
 
             onboardingFragment.SetOnRightOutListener(new OnRightOutListener(

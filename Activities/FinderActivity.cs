@@ -61,7 +61,16 @@ namespace Oyadieyie3D.Activities
         {
             base.OnCreate(savedInstanceState);
             SetContentView(R.Layout.finder_layout);
+            SetUpFeatured();
 
+            InitRecyclerView();
+            InitCountryText();
+            InitSwitchers();
+            InitGreenDot();
+        }
+
+        private void SetUpFeatured()
+        {
             var client1 = new Client.Builder()
                 .SetClientName("Gray Labs")
                 .SetRating(4.4)
@@ -127,11 +136,6 @@ namespace Oyadieyie3D.Activities
             rating = premiumClients.Select(client => client.Rating).ToArray();
             hours = premiumClients.Select(client => client.OpeningHours).ToArray();
             MySliderAdapter = new SliderAdapter(pics, premiumClients.Count, OnCardClickListener);
-
-            InitRecyclerView();
-            InitCountryText();
-            InitSwitchers();
-            InitGreenDot();
         }
 
         private void InitRecyclerView()

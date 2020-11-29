@@ -9,6 +9,9 @@
         <item name="colorAccent">@color/colorAccent</item>
 		<item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox</item>
 		<item name="android:fontFamily">@font/raleway_family</item>
+		<item name="android:windowSharedElementsUseOverlay">true</item>
+        <item name="android:windowSharedElementEnterTransition">@transition/smooth_transition</item>
+        <item name="android:windowSharedElementExitTransition">@transition/smooth_transition</item>
     </style>
 
 	<style name="AppTheme.Splash" parent="Theme.MaterialComponents.Light.NoActionBar">

@@ -24,15 +24,6 @@ namespace Oyadieyie3D.Activities
     {
         private const string SettingsKey = "Settings";
         private Toolbar toolbar;
-        private ConstraintLayout profileConstraint;
-        private CircleImageView profileIv;
-        private TextView username_tv;
-        private TextView status_tv;
-        private string imgUrl;
-        private string username;
-        private string phone;
-        private string email;
-        private string status;
 
         private string tag;
 
@@ -41,15 +32,8 @@ namespace Oyadieyie3D.Activities
             base.OnCreate(savedInstanceState);
 
             SetContentView(Resource.Layout.settings_activity);
-
-            username_tv = FindViewById<TextView>(Resource.Id.set_prof_name_tv);
-            status_tv = FindViewById<TextView>(Resource.Id.set_prof_extras_tv);
-            profileConstraint = FindViewById<ConstraintLayout>(Resource.Id.profile_const);
-            profileIv = FindViewById<CircleImageView>(Resource.Id.set_prof_iv);
             var appBar = FindViewById<AppBarLayout>(Resource.Id.settings_appbar);
             toolbar = appBar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
-
-            profileConstraint.Click += ProfileConstraint_Click;
 
             if (savedInstanceState == null)
             {
@@ -80,13 +64,6 @@ namespace Oyadieyie3D.Activities
             }));
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-
-            //RequestOptions requestOptions = new RequestOptions();
-            //requestOptions.Placeholder(Resource.Drawable.user);
-            //Glide.With(this)
-            //    .SetDefaultRequestOptions(requestOptions)
-            //    .Load(imgUrl)
-            //    .Into(profileIv);
         }
 
         protected override void OnSaveInstanceState(Bundle outState)
@@ -99,13 +76,6 @@ namespace Oyadieyie3D.Activities
         {
             base.OnBackPressed();
             return true;
-        }
-
-        private void ProfileConstraint_Click(object sender, System.EventArgs e)
-        {
-            var intent = new Intent(this, typeof(ProfileActivity));
-            ActivityOptionsCompat op = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, profileIv, "profile_holder");
-            StartActivity(intent, op.ToBundle());
         }
 
         public bool OnPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref)

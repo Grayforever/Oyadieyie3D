@@ -9,7 +9,8 @@
     android:focusable="true"
     android:fillViewport="true"
     android:clickable="true"
-    app:layout_behavior="com.google.android.material.bottomsheet.BottomSheetBehavior">
+    app:behavior_hideable="true"
+    app:layout_behavior="id.Oyadieyie3D.Utils.LockableBottomsheetBehavior">
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
@@ -24,8 +25,7 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             android:padding="8dp"
-            android:clipToPadding="false"
-            android:background="?attr/colorPrimary">
+            android:clipToPadding="false">
 
             <TextView
                 android:layout_width="0dp"

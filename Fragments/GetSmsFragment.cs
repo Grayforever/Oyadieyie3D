@@ -1,5 +1,4 @@
-﻿using Android.App;
-using Android.Content;
+﻿using Android.Content;
 using Android.Content.Res;
 using Android.Graphics;
 using Android.OS;
@@ -28,10 +27,7 @@ namespace Oyadieyie3D.Fragments
         private FloatingActionButton verifiyBtn;
         private MaterialButton resendBtn;
         private TextView numTv;
-        private CountDownTimer resendBtnTimer;
-
-        private ISharedPreferences preferences = Application.Context.GetSharedPreferences("userInfo", FileCreationMode.Private);
-        private ISharedPreferencesEditor editor;
+        //private CountDownTimer resendBtnTimer;
         private string verificationId { get; set; }
         private string phone { get; set; }
 
@@ -40,7 +36,12 @@ namespace Oyadieyie3D.Fragments
             base.OnCreate(savedInstanceState);
             PreferenceHelper.Init(Context);
             phone = Arguments.GetString(Constants.PHONE_KEY);
-            SendVerificationCode();
+            PhoneAuthProvider.Instance.VerifyPhoneNumber(
+                phone, 
+                30, 
+                TimeUnit.Seconds, 
+                Activity, 
+                VerificationCallback);
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -68,22 +69,22 @@ namespace Oyadieyie3D.Fragments
             resendBtn.Click += (s3, e3) => { };
             verifiyBtn.Click += (s4, e4) => VerifyCode(otpView.Value);
 
-            resendBtnTimer = new CountdownTimer(30000, 1000, 
-            onFinsh: () =>
-            {
-                resendBtn.Enabled = true;
-                resendBtn.Text = "resend otp";
-            }, onTick: (millisUntilFinished) =>
-            {
-                resendBtn.Text = "Resend OTP in " + millisUntilFinished / 1000;
-            }).Start();
+            //resendBtnTimer = new CountdownTimer(30000, 1000, 
+            //onFinsh: () =>
+            //{
+            //    resendBtn.Enabled = true;
+            //    resendBtn.Text = "resend otp";
+            //}, onTick: (millisUntilFinished) =>
+            //{
+            //    resendBtn.Text = "Resend OTP in " + millisUntilFinished / 1000;
+            //}).Start();
         }
 
         private void VerifyCode(string code)
         {
             try
             {
-                OnboardingActivity.ShowLoader();
+                OnboardingActivity.Instance.ShowLoader();
                 PhoneAuthCredential cred = PhoneAuthProvider.GetCredential(verificationId, code);
                 SessionManager.GetFirebaseAuth().SignInWithCredential(cred)
                     .AddOnCompleteListener(new OncompleteListener(
@@ -103,28 +104,28 @@ namespace Oyadieyie3D.Fragments
                         }
                         catch (FirebaseAuthInvalidCredentialsException fiace)
                         {
-                            OnboardingActivity.DismissLoader();
-                            OnboardingActivity.ShowError(fiace.Source, fiace.Message);
+                            OnboardingActivity.Instance.DismissLoader();
+                            OnboardingActivity.Instance.ShowError(fiace.Source, fiace.Message);
                         }
                         catch (FirebaseTooManyRequestsException ftmre)
                         {
-                            OnboardingActivity.DismissLoader();
-                            OnboardingActivity.ShowError(ftmre.Source, ftmre.Message);
+                            OnboardingActivity.Instance.DismissLoader();
+                            OnboardingActivity.Instance.ShowError(ftmre.Source, ftmre.Message);
                         }
                         catch (FirebaseAuthInvalidUserException fiue)
                         {
-                            OnboardingActivity.DismissLoader();
-                            OnboardingActivity.ShowError(fiue.Source, fiue.Message);
+                            OnboardingActivity.Instance.DismissLoader();
+                            OnboardingActivity.Instance.ShowError(fiue.Source, fiue.Message);
                         }
                         catch (FirebaseNetworkException)
                         {
-                            OnboardingActivity.DismissLoader();
-                            OnboardingActivity.ShowNoNetDialog(false);
+                            OnboardingActivity.Instance.DismissLoader();
+                            OnboardingActivity.Instance.ShowNoNetDialog(false);
                         }
                         catch (Exception e)
                         {
-                            OnboardingActivity.DismissLoader();
-                            OnboardingActivity.ShowError(e.Source, e.Message);
+                            OnboardingActivity.Instance.DismissLoader();
+                            OnboardingActivity.Instance.ShowError(e.Source, e.Message);
                         }
 
 
@@ -132,8 +133,8 @@ namespace Oyadieyie3D.Fragments
             }
             catch (Exception e)
             {
-                OnboardingActivity.DismissLoader();
-                OnboardingActivity.ShowError(e.Source, e.Message);
+                OnboardingActivity.Instance.DismissLoader();
+                OnboardingActivity.Instance.ShowError(e.Source, e.Message);
 
             }
             
@@ -142,7 +143,8 @@ namespace Oyadieyie3D.Fragments
         private void CheckUserAvailability()
         {
             var statusRef = SessionManager.GetFireDB().GetReference("session");
-            statusRef.OrderByKey().EqualTo(SessionManager.GetFirebaseAuth().CurrentUser.Uid).AddListenerForSingleValueEvent(new SingleValueListener((s) =>
+            statusRef.OrderByKey().EqualTo(SessionManager.GetFirebaseAuth().CurrentUser.Uid).AddListenerForSingleValueEvent(
+            new SingleValueListener((s) =>
             {
                 if (!s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Exists())
                 {
@@ -150,42 +152,78 @@ namespace Oyadieyie3D.Fragments
                 }
                 else
                 {
-                    string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
+                    string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? 
+                    s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
+
                     if (stage.Contains(Constants.REG_STAGE_DONE))
                     {
-                        PreferenceHelper.Instance.SetString("firstRun", "regd");
-
-                        var intent = new Intent(Activity, typeof(MainActivity));
-                        intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
-                        StartActivity(intent);
-                        OnboardingActivity.DismissLoader();
+                        SetUserAndGoHome();
                     }
                     else
                     {
-                        OnboardingActivity.GetStage(stage);
-                        OnboardingActivity.DismissLoader();
+                        OnboardingActivity.Instance.GetStage(stage);
+                        OnboardingActivity.Instance.DismissLoader();
                     }
                 }   
 
             }, (e) =>
             {
-                OnboardingActivity.DismissLoader();
-                OnboardingActivity.ShowError("Database error", e.Message);
+                OnboardingActivity.Instance.DismissLoader();
+                OnboardingActivity.Instance.ShowError("Database error", e.Message);
             }));
+        }
+
+        private void SetUserAndGoHome()
+        {
+            PreferenceHelper.Instance.SetString("firstRun", "regd");
+
+            string userId = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
+            var userRef = SessionManager.GetFireDB().GetReference($"users/{userId}/profile");
+            userRef.AddValueEventListener(new SingleValueListener(
+            onDataChange: (snapshot) =>
+            {
+                if (!snapshot.Exists())
+                    return;
+
+
+                PreferenceHelper.Instance.SetString(Constants.Username_Key, snapshot.Child(Constants.SNAPSHOT_FNAME) != null ? 
+                    snapshot.Child(Constants.SNAPSHOT_FNAME).Value.ToString() : "");
+
+                PreferenceHelper.Instance.SetString(Constants.Status_Key, snapshot.Child(Constants.SNAPSHOT_GENDER) != null ? 
+                    snapshot.Child(Constants.SNAPSHOT_GENDER).Value.ToString() : "");
+
+                PreferenceHelper.Instance.SetString(Constants.Profile_Url_Key, snapshot.Child(Constants.SNAPSHOT_PHOTO_URL) != null ? 
+                    snapshot.Child(Constants.SNAPSHOT_PHOTO_URL).Value.ToString() : "");
+
+                PreferenceHelper.Instance.SetString(Constants.Email_Key, snapshot.Child(Constants.SNAPSHOT_EMAIL) != null ? 
+                    snapshot.Child(Constants.SNAPSHOT_EMAIL).Value.ToString() : "");
+
+                PreferenceHelper.Instance.SetString(Constants.Phone_Key, snapshot.Child(Constants.SNAPSHOT_PHONE) != null ? 
+                    snapshot.Child(Constants.SNAPSHOT_PHONE).Value.ToString() : "");
+
+                OnboardingActivity.Instance.DismissLoader();
+                var intent = new Intent(Activity, typeof(MainActivity));
+                intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                StartActivity(intent);
+                
+
+            }, onCancelled: (error) =>
+            {
+                Toast.MakeText(Context, error.Message, ToastLength.Short).Show();
+            }));  
         }
 
         private void GotoProfile()
         {
-            OnboardingActivity.SetStatus(Constants.REG_STAGE_CREATE_PROFILE);
-            OnboardingActivity.DismissLoader();
+            OnboardingActivity.Instance.SetStatus(Constants.REG_STAGE_CREATE_PROFILE);
+            OnboardingActivity.Instance.DismissLoader();
             ParentFragmentManager.BeginTransaction()
                 .Replace(Resource.Id.frag_container, new CreateProfileFragment())
                 .CommitAllowingStateLoss();
         }
 
-        private void SendVerificationCode()
-        {
-            PhoneAuthProvider.Instance.VerifyPhoneNumber(phone, 30, TimeUnit.Seconds, Activity, new PhoneVerificationCallbacks(
+        private PhoneVerificationCallbacks VerificationCallback => new PhoneVerificationCallbacks
+            (
                 onVerificationCompleted: (cred) =>
                 {
                     var code = cred.SmsCode;
@@ -194,31 +232,32 @@ namespace Oyadieyie3D.Fragments
 
                     otpView.Value = code;
                     VerifyCode(code);
-                }, onVerificationFailed: (e) =>
+                },
+                onVerificationFailed: (e) =>
                 {
                     try
                     {
                         throw e;
                     }
-                    catch (FirebaseNetworkException)                    
+                    catch (FirebaseNetworkException)
                     {
-                        OnboardingActivity.ShowNoNetDialog(false);
+                        OnboardingActivity.Instance.ShowNoNetDialog(false);
                     }
                     catch (FirebaseTooManyRequestsException ftmre)
                     {
-                        OnboardingActivity.ShowError(ftmre.Source, ftmre.Message);
+                        OnboardingActivity.Instance.ShowError(ftmre.Source, ftmre.Message);
                     }
                     catch (FirebaseAuthInvalidCredentialsException faice)
                     {
-                        OnboardingActivity.ShowError(faice.Source, faice.Message);
+                        OnboardingActivity.Instance.ShowError(faice.Source, faice.Message);
                     }
                     catch (FirebaseAuthInvalidUserException fiue)
                     {
-                        OnboardingActivity.ShowError(fiue.Source, fiue.Message);
+                        OnboardingActivity.Instance.ShowError(fiue.Source, fiue.Message);
                     }
                     catch (Exception ex)
                     {
-                        OnboardingActivity.ShowError(ex.Source, ex.Message);
+                        OnboardingActivity.Instance.ShowError(ex.Source, ex.Message);
                     }
                     finally
                     {
@@ -226,11 +265,12 @@ namespace Oyadieyie3D.Fragments
                         numTv.SetText(Resource.String.wrong_num_msg);
                         numTv.SetTextColor(ColorStateList.ValueOf(Color.Red));
                     }
-                    
-                }, onCodeSent: (code, token) =>
+
+                },
+                onCodeSent: (code, token) =>
                 {
                     verificationId = code;
-                }));
-        }
+                }
+            );
     }
 }

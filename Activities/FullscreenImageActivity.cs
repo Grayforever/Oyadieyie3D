@@ -1,135 +1,102 @@
 ﻿using Android.App;
 using Android.Content;
 using Android.OS;
-using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using BumpTech.GlideLib;
+using BumpTech.GlideLib.Load;
+using BumpTech.GlideLib.Load.Engines;
+using BumpTech.GlideLib.Requests;
+using BumpTech.GlideLib.Requests.Target;
 using IGreenWood.LoupeLib;
 using Oyadieyie3D.HelperClasses;
-using Oyadieyie3D.Parcelables;
 using System;
-using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
 namespace Oyadieyie3D.Activities
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", MainLauncher = false, ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait)]
+    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme")]
     public class FullscreenImageActivity : AppCompatActivity
     {
         private ImageView imageView;
-        private Toolbar fullToolbar;
         private FrameLayout container;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.fullscreen_imageviewer);
-            imageView = (ImageView)FindViewById(Resource.Id.image);
-            fullToolbar = (Toolbar)FindViewById(Resource.Id.fullscreen_toolbar);
+            PostponeEnterTransition();
+            imageView = FindViewById<ImageView>(Resource.Id.image);
             container = FindViewById<FrameLayout>(Resource.Id.container);
-            SetSupportActionBar(fullToolbar);
-            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-
 
             try
             {
                 Bundle extras = Intent.Extras;
-                int type = extras.GetInt(Constants.PARCEL_TYPE);
-                switch (type)
-                {
-                    case 0:
-                        PostParcelable postParcel = (PostParcelable)extras.GetParcelable(Constants.POST_DATA_EXTRA);
-                        Glide.With(this).Load(postParcel.PostItem.DownloadUrl).Into(imageView);
-                        break;
-                    default:
-                        ProfileParcelable profileParcel = (ProfileParcelable)extras.GetParcelable(Constants.PROFILE_DATA_EXTRA);
-                        Glide.With(this).Load(profileParcel.UserProfile.ProfileImgUrl).Into(imageView);
-                        break;
-                }
+                string img_url = extras.GetString("img_url");
                 string imageTransitionName = extras.GetString(Constants.TRANSITION_NAME);
                 imageView.TransitionName = imageTransitionName;
+                Glide.With(this).Load(img_url).Listener(RequestListener).Into(imageView);
             }
             catch (Exception e)
             {
                 Toast.MakeText(this, e.Message, ToastLength.Short).Show();
             }
-
-            var loupe = new Loupe(imageView, container);
-            loupe.UseFlingToDismissGesture = false;
-            loupe.OnViewTranslateListener = new OnViewTranslateListener((v1) =>
-            {
-                SupportFinishAfterTransition();
-            }, null, null, null);
         }
 
-        public override bool OnCreateOptionsMenu(IMenu menu)
+        private GlideRequestListener RequestListener => new GlideRequestListener()
         {
-            MenuInflater.Inflate(Resource.Menu.fullscreen_menu, menu);
-            return base.OnCreateOptionsMenu(menu);
-        }
-
-        public override bool OnOptionsItemSelected(IMenuItem item)
-        {
-            switch (item.ItemId)
+            LoadFailed = () => { },
+            ResourceReady = () =>
             {
-                case Resource.Id.action_whatsapp:
-                    var intent = new Intent();
-                    intent.PutExtra(Intent.ExtraText, "Intent hghghg");
-                    intent.SetType("text/plain");
-                    intent.SetPackage("com.whatsapp");
-                    StartActivity(intent);
-                    break;
-
-                case Resource.Id.action_call:
-                    break;
-
+                StartPostponedEnterTransition();
+                var loupe = new Loupe(imageView, container);
+                loupe.UseFlingToDismissGesture = false;
+                loupe.OnViewTranslateListener = new OnViewTranslateListener
+                {
+                    Dismiss = (ImageView v) => SupportFinishAfterTransition()
+                };
             }
-            return base.OnOptionsItemSelected(item);
-        }
-
-        public override bool OnSupportNavigateUp()
-        {
-            OnBackPressed();
-            return base.OnSupportNavigateUp();
-        }
-
-        public override void OnBackPressed()
-        {
-            base.OnBackPressed();
-        }
+        };
 
         internal sealed class OnViewTranslateListener : Java.Lang.Object, Loupe.IOnViewTranslateListener
         {
-            Action<ImageView> _onDismiss;
-            Action<ImageView> _onRestore;
-            Action<ImageView> _onStart;
-            Action<ImageView, float> _onViewTranslate;
-            public OnViewTranslateListener(Action<ImageView> onDismiss, Action<ImageView> onRestore, 
-                Action<ImageView> onStart, Action<ImageView, float> onViewTranslate)
-            {
-                _onDismiss = onDismiss;
-                _onRestore = onRestore;
-                _onStart = onStart;
-                _onViewTranslate = onViewTranslate;
-            }
+            public Action<ImageView> Dismiss;
+
             public void OnDismiss(ImageView view)
             {
-                _onDismiss?.Invoke(view);
+                Dismiss(view);
             }
 
             public void OnRestore(ImageView view)
             {
-                _onRestore?.Invoke(view);
+
             }
 
             public void OnStart(ImageView view)
             {
-                _onStart?.Invoke(view);
+
             }
 
             public void OnViewTranslate(ImageView view, float amount)
             {
-                _onViewTranslate?.Invoke(view, amount);
+                
+            }
+        }
+
+        internal sealed class GlideRequestListener : Java.Lang.Object, IRequestListener
+        {
+            public Action LoadFailed;
+            public Action ResourceReady;
+
+            public bool OnLoadFailed(GlideException e, Java.Lang.Object model, ITarget target, bool isFirstResource)
+            {
+                LoadFailed();
+                return false;
+            }
+
+            public bool OnResourceReady(Java.Lang.Object resource, Java.Lang.Object model, ITarget target, DataSource dataSource, bool isFirstResource)
+            {
+                ResourceReady();
+                return false;
             }
         }
     }
