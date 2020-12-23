@@ -11,6 +11,7 @@ using AndroidX.AppCompat.App;
 using AndroidX.CardView.Widget;
 using AndroidX.Core.Content.Resources;
 using AndroidX.RecyclerView.Widget;
+using AndroidX.SwipeRefreshLayout.Widget;
 using BumpTech.GlideLib;
 using BumpTech.GlideLib.Requests;
 using CN.Pedant.SweetAlert;
@@ -72,6 +73,8 @@ namespace Oyadieyie3D
         private string status;
         private string email;
         private List<Client> premiumClients;
+        private BottomSheetBehavior searchSheet;
+        private AnimatedVectorDrawable animatable;
 
         public static MainActivity Instance { get; private set; }
 
@@ -88,8 +91,11 @@ namespace Oyadieyie3D
             var searchFab = FindViewById<FloatingActionButton>(R.Id.post_fab);
             var appbar = FindViewById<BottomAppBar>(R.Id.bottomAppBar);
             var searchRoot = FindViewById<LinearLayout>(R.Id.search_root);
+            var swipeRoot = FindViewById<SwipeRefreshLayout>(R.Id.finder_swipe_root);
             profileImageView = appbar.FindViewById<CircleImageView>(R.Id.profile_iv);
-            BottomSheetBehavior searchSheet = SetSearchSheet(searchRoot);
+
+            swipeRoot.Refreshing = true;
+            searchSheet = SetSearchSheet(searchRoot);
 
             appbar.MenuItemClick += (s2, e2) =>
             {
@@ -120,7 +126,7 @@ namespace Oyadieyie3D
             {
                 try
                 {
-                    var animatable = searchFab.Drawable as AnimatedVectorDrawable;
+                    animatable = searchFab.Drawable as AnimatedVectorDrawable;
                     switch (searchSheet.State)
                     {
                         case BottomSheetBehavior.StateHidden:
@@ -155,6 +161,22 @@ namespace Oyadieyie3D
             Glide.With(this).SetDefaultRequestOptions(op).Load(profileImgUrl).Into(profileImageView);
 
             FetchClients();
+        }
+
+        public override void OnBackPressed()
+        {
+            var currentState = searchSheet.State;
+            if (currentState == BottomSheetBehavior.StateExpanded)
+            {
+                currentState = BottomSheetBehavior.StateHidden;
+                searchSheet.State = currentState;
+                animatable.Reset();
+            }
+            else
+            {
+                base.OnBackPressed();
+            }
+            
         }
 
         private BottomSheetBehavior SetSearchSheet(LinearLayout searchRoot)

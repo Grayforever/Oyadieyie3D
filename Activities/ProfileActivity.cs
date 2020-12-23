@@ -4,6 +4,7 @@ using Android.Graphics;
 using Android.OS;
 using Android.Provider;
 using Android.Views;
+using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.AppCompat.Widget;
 using AndroidX.Core.App;
@@ -12,6 +13,7 @@ using BumpTech.GlideLib;
 using BumpTech.GlideLib.Requests;
 using CN.Pedant.SweetAlert;
 using DE.Hdodenhof.CircleImageViewLib;
+using Firebase.Database;
 using Firebase.Storage;
 using Google.Android.Material.FloatingActionButton;
 using Google.Android.Material.TextField;
@@ -20,6 +22,7 @@ using Oyadieyie3D.Events;
 using Oyadieyie3D.Fragments;
 using Oyadieyie3D.HelperClasses;
 using System;
+using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
 namespace Oyadieyie3D.Activities
 {
@@ -32,6 +35,7 @@ namespace Oyadieyie3D.Activities
         private TextInputEditText usernameEditText;
         private TextInputEditText phoneEditText;
         private AppCompatAutoCompleteTextView statusEditText;
+        private DatabaseReference statusUpdateRef;
         private string img_url;
         private ProfileChooserFragment profileChooserFrag;
         private SweetAlertDialog loaderDialog;
@@ -65,11 +69,31 @@ namespace Oyadieyie3D.Activities
             usernameEditText = usernameEt.FindViewById<TextInputEditText>(Resource.Id.name_edittext);
             statusEditText = statusEt.FindViewById<AppCompatAutoCompleteTextView>(Resource.Id.status_autocomplete);
 
+            statusUpdateRef = SessionManager.GetFireDB().GetReference($"users/{SessionManager.UserId}/profile");
             img_url = PreferenceHelper.Instance.GetString("profile_url", "");
             phoneEditText.Text = PreferenceHelper.Instance.GetString("phone", "");
             usernameEditText.Text = PreferenceHelper.Instance.GetString("username", "");
             statusEditText.Text = PreferenceHelper.Instance.GetString("status", "");
             statusEditText.Adapter = ArrayAdapterClass.CreateArrayAdapter(this, new string[] { "Available", "Away", "Leave a message", "Busy", "Closed"});
+            statusEditText.ItemClick += (s1, e1) =>
+            {
+                var status = e1.Parent.GetItemAtPosition(e1.Position).ToString();
+                
+                statusUpdateRef.Child("gender").SetValue(status).AddOnCompleteListener(new OncompleteListener(
+                (t) =>
+                {
+                    if (t.IsSuccessful)
+                    {
+                        PreferenceHelper.Instance.SetString("status", status);
+                    }
+                    else
+                    {
+                        Toast.MakeText(this, t.Exception.Message, ToastLength.Short).Show();
+                    }  
+                }));
+                
+            };
+
 
             phoneEditText.SetOnClickListener(this);
             usernameEditText.SetOnClickListener(this);
