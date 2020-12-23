@@ -10,12 +10,12 @@ using AndroidX.Annotations;
 using AndroidX.AppCompat.App;
 using AndroidX.CardView.Widget;
 using AndroidX.Core.Content.Resources;
-using AndroidX.Core.View;
 using AndroidX.RecyclerView.Widget;
 using BumpTech.GlideLib;
 using BumpTech.GlideLib.Requests;
 using CN.Pedant.SweetAlert;
 using DE.Hdodenhof.CircleImageViewLib;
+using Firebase.Database;
 using Google.Android.Material.BottomAppBar;
 using Google.Android.Material.BottomSheet;
 using Google.Android.Material.Button;
@@ -23,14 +23,12 @@ using Google.Android.Material.Chip;
 using Google.Android.Material.FloatingActionButton;
 using Google.Android.Material.TextField;
 using Oyadieyie3D.Activities;
-using Oyadieyie3D.Adapters;
 using Oyadieyie3D.Cards;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
 using Oyadieyie3D.Models;
 using Oyadieyie3D.Utils;
 using Ramotion.CardSliderLib;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using static CN.Pedant.SweetAlert.SweetAlertDialog;
@@ -52,15 +50,10 @@ namespace Oyadieyie3D
         private double[] rating;
         private string[] hours;
 
-        
-        
-        private readonly int[,] _dotCoords = new int[5, 2];
-
         private CardSliderLayoutManager _layoutManger;
         private RecyclerView _recyclerView;
         private ImageSwitcher _mapSwitcher;
         private TextSwitcher _ratingSwitcher, _featuredSwitcher, _clockSwitcher, _descriptionsSwitcher;
-        private View _greenDot;
 
         private TextView _name1TextView, _name2TextView;
         private int _nameOffset1, _nameOffset2;
@@ -91,11 +84,6 @@ namespace Oyadieyie3D
             base.OnCreate(savedInstanceState);
             SetContentView(R.Layout.activity_main);
             Instance = this;
-            SetUpFeatured();
-            InitRecyclerView();
-            InitCountryText();
-            InitSwitchers();
-            InitGreenDot();
 
             var searchFab = FindViewById<FloatingActionButton>(R.Id.post_fab);
             var appbar = FindViewById<BottomAppBar>(R.Id.bottomAppBar);
@@ -166,12 +154,7 @@ namespace Oyadieyie3D
             op.Placeholder(R.Drawable.ic_account_circle);
             Glide.With(this).SetDefaultRequestOptions(op).Load(profileImgUrl).Into(profileImageView);
 
-            bool isFingerprintEnabled = PreferenceHelper.Instance.GetBoolean(Constants.BioStatusKey);
-            if (isFingerprintEnabled)
-            {
-                var intent = new Intent(this, typeof(FingerprintActivity));
-                StartActivity(intent);
-            }
+            FetchClients();
         }
 
         private BottomSheetBehavior SetSearchSheet(LinearLayout searchRoot)
@@ -181,9 +164,6 @@ namespace Oyadieyie3D
             var searchbox = FindViewById<TextInputLayout>(R.Id.search_box_tl);
             var filterchip = FindViewById<ChipGroup>(R.Id.cat_chip_group);
             var resultRecycler = FindViewById<RecyclerView>(R.Id.search_recyler);
-
-            var adapter = new TailorFinderRAdapter(this, premiumClients);
-            resultRecycler.SetAdapter(adapter);
 
             return searchSheet;
         }
@@ -252,73 +232,52 @@ namespace Oyadieyie3D
             warnDialog.Show();
         }
 
-        private void SetUpFeatured()
+        private void FetchClients()
         {
-            var client1 = new Client.Builder()
-                .SetClientName("Gray Labs")
-                .SetRating(4.4)
-                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
-                .SetMapUrl(R.Drawable.map_beijing)
-                .SetImageUrl(R.Drawable.p1)
-                .SetItemTitle("Sit duis aliquyam esse dolores")
-                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
-                .Build();
+            var clientsDbSnapshot = SessionManager.GetFireDB().GetReference("");
+            clientsDbSnapshot.AddListenerForSingleValueEvent(new SingleValueListener(
+                (s) => 
+                {
+                    if (!s.Exists())
+                        return;
 
-            var client2 = new Client.Builder()
-                .SetClientName("Laddy")
-                .SetRating(4.4)
-                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
-                .SetMapUrl(R.Drawable.map_paris)
-                .SetImageUrl(R.Drawable.p2)
-                .SetItemTitle("Sit duis aliquyam esse dolores")
-                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
-                .Build();
+                    var snapshot = s.Children.ToEnumerable<DataSnapshot>();
 
-            var client3 = new Client.Builder()
-                .SetClientName("Jeffery")
-                .SetRating(4.4)
-                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
-                .SetMapUrl(R.Drawable.map_seoul)
-                .SetImageUrl(R.Drawable.p3)
-                .SetItemTitle("Sit duis aliquyam esse dolores")
-                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
-                .Build();
+                    if (snapshot.Count() == 0)
+                        return;
 
-            var client4 = new Client.Builder()
-                .SetClientName("Jenny")
-                .SetRating(4.4)
-                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
-                .SetMapUrl(R.Drawable.map_london)
-                .SetImageUrl(R.Drawable.p4)
-                .SetItemTitle("Sit duis aliquyam esse dolores")
-                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
-                .Build();
+                    foreach(var child in snapshot)
+                    {
+                        var client = new Client.Builder()
+                            .SetClientName(child.Child("client_name") != null ? child.Child("client_name").Value.ToString() : "")
+                            .SetImageUrl(0)
+                            .SetRating(4.3)
+                            .SetOpeningHours(child.Child("client_name") != null ? child.Child("client_name").Value.ToString() : "")
+                            .SetItemTitle(child.Child("client_name") != null ? child.Child("client_name").Value.ToString() : "")
+                            .SetItemDescription(child.Child("client_name") != null ? child.Child("client_name").Value.ToString() : "")
+                            .SetMapUrl(0)
+                            .Build();
 
-            var client5 = new Client.Builder()
-                .SetClientName("Ea nonumy eos et dolor diam et et consequat ipsum")
-                .SetRating(4.4)
-                .SetOpeningHours("Mon-Thu 7:00am-8:00pm")
-                .SetMapUrl(R.Drawable.map_greece)
-                .SetImageUrl(R.Drawable.p5)
-                .SetItemTitle("Sit duis aliquyam esse dolores")
-                .SetItemDescription("Sed amet ut dolor stet ut dolore nonumy invidunt consequat")
-                .Build();
+                        premiumClients.Add(client);
 
-            premiumClients = new List<Client>();
-            premiumClients.Add(client1);
-            premiumClients.Add(client2);
-            premiumClients.Add(client3);
-            premiumClients.Add(client4);
-            premiumClients.Add(client5);
+                        pics = premiumClients.Select(client => client.ItemImgUrl).ToArray();
+                        names = premiumClients.Select(client => client.ClientName.ToUpper()).ToArray();
+                        description = premiumClients.Select(client => client.ItemDescription).ToArray();
+                        maps = premiumClients.Select(client => client.MapImgUrl).ToArray();
+                        title = premiumClients.Select(client => client.ItemTitle).ToArray();
+                        rating = premiumClients.Select(client => client.Rating).ToArray();
+                        hours = premiumClients.Select(client => client.OpeningHours).ToArray();
+                        MySliderAdapter = new SliderAdapter(pics, premiumClients.Count, OnCardClickListener);
+                    }
 
-            pics = premiumClients.Select(client => client.ItemImgUrl).ToArray();
-            names = premiumClients.Select(client => client.ClientName.ToUpper()).ToArray();
-            description = premiumClients.Select(client => client.ItemDescription).ToArray();
-            maps = premiumClients.Select(client => client.MapImgUrl).ToArray();
-            title = premiumClients.Select(client => client.ItemTitle).ToArray();
-            rating = premiumClients.Select(client => client.Rating).ToArray();
-            hours = premiumClients.Select(client => client.OpeningHours).ToArray();
-            MySliderAdapter = new SliderAdapter(pics, premiumClients.Count, OnCardClickListener);
+                    InitRecyclerView();
+                    InitCountryText();
+                    InitSwitchers();
+
+                }, (e) => 
+                {
+                    Toast.MakeText(this, e.Message, ToastLength.Short).Show();
+                }));
         }
 
         private void InitRecyclerView()
@@ -393,42 +352,6 @@ namespace Oyadieyie3D
             var typeface = ResourcesCompat.GetFont(this, R.Font.raleway_bold);
             _name1TextView.Typeface = typeface;
             _name2TextView.Typeface = typeface;
-        }
-
-        private void InitGreenDot()
-        {
-            try
-            {
-                var l = new MyVtoOnGlobalLayoutListener();
-                l.GlobalLayoutEvent += (s, e) =>
-                {
-                    _mapSwitcher.ViewTreeObserver.RemoveOnGlobalLayoutListener(l);
-
-                    var viewLeft = _mapSwitcher.Left;
-                    var viewTop = _mapSwitcher.Top + _mapSwitcher.Height / 3;
-
-                    const int border = 100;
-                    var xRange = Math.Max(1, _mapSwitcher.Width - border * 2);
-                    var yRange = Math.Max(1, _mapSwitcher.Height / 3 * 2 - border * 2);
-
-                    var rnd = new System.Random();
-
-                    for (int i = 0, cnt = _dotCoords.GetLength(0); i < cnt; i++)
-                    {
-                        _dotCoords[i, 0] = viewLeft + border + rnd.Next(xRange);
-                        _dotCoords[i, 1] = viewTop + border + rnd.Next(yRange);
-                    }
-
-                    _greenDot = FindViewById<View>(R.Id.green_dot);
-                    _greenDot.SetX(_dotCoords[0, 0]);
-                    _greenDot.SetY(_dotCoords[0, 1]);
-                };
-                _mapSwitcher.ViewTreeObserver.AddOnGlobalLayoutListener(l);
-            }
-            catch (Exception exc) when (exc is IndexOutOfRangeException)
-            {
-                LogW(exc.Message);
-            }
         }
 
         private void SetClientName(string text, bool left2Right)
@@ -512,25 +435,7 @@ namespace Oyadieyie3D
 
             _descriptionsSwitcher.SetText(description[pos % description.Length]);
 
-            ShowMap(maps[pos % maps.Length]);
-
-            ViewCompat.Animate(_greenDot)
-                .TranslationX(_dotCoords[pos % _dotCoords.GetLength(0), 0])
-                .TranslationY(_dotCoords[pos % _dotCoords.GetLength(0), 1])
-                .Start();
-
             _currentPosition = pos;
-        }
-
-        private void ShowMap([DrawableRes] int resId)
-        {
-            _decodeMapBitmapTask?.Cancel(true);
-
-            var w = _mapSwitcher.Width;
-            var h = _mapSwitcher.Height;
-
-            _decodeMapBitmapTask = new DecodeBitmapTask(Resources, resId, w, h, _mapLoadListener);
-            _decodeMapBitmapTask.Execute();
         }
         
         private View.IOnClickListener OnCardClickListener => new MyViewOnClickListener(
