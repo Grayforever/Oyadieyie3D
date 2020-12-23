@@ -1,151 +1,104 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.swiperefreshlayout.widget.SwipeRefreshLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:clipChildren="false">
+    android:id="@+id/finder_swipe_root">
 
-    <RelativeLayout
+    <LinearLayout 
         android:layout_width="match_parent"
-        android:layout_height="38dp"
-        android:layout_marginTop="30dp">
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        android:clipChildren="false">
 
-        <FrameLayout
-            android:id="@+id/countries"
+        <RelativeLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_centerVertical="true"
-            android:layout_alignParentStart="true"
-            android:layout_toStartOf="@+id/frameLayout"
-            android:layout_marginEnd="4dp">
+            android:layout_height="38dp"
+            android:layout_marginTop="30dp">
 
-            <TextView
-                android:id="@+id/tv_country_1"
+            <FrameLayout
+                android:id="@+id/countries"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_gravity="center_vertical"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:textAppearance="?attr/textAppearanceHeadline5"
-                />
+                android:layout_height="match_parent"
+                android:layout_centerVertical="true"
+                android:layout_alignParentStart="true"
+                android:layout_toStartOf="@+id/frameLayout"
+                android:layout_marginEnd="4dp">
 
-            <TextView
-                android:id="@+id/tv_country_2"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textAppearance="?attr/textAppearanceHeadline5"
-                android:maxLines="1"
-                android:ellipsize="end"
-                android:layout_gravity="center_vertical"/>
+                <TextView
+                    android:id="@+id/tv_country_1"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:textAppearance="?attr/textAppearanceHeadline5"
+                    />
 
-        </FrameLayout>
+                <TextView
+                    android:id="@+id/tv_country_2"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAppearance="?attr/textAppearanceHeadline5"
+                    android:maxLines="1"
+                    android:ellipsize="end"
+                    android:layout_gravity="center_vertical"/>
 
-        <FrameLayout
-            android:layout_width="72dp"
-            android:layout_height="match_parent"
-            android:layout_alignParentEnd="true"
-            android:background="@drawable/temperature_background"
-            android:layout_centerVertical="true"
-            android:id="@+id/frameLayout"
-            android:padding="8dp">
+            </FrameLayout>
 
-            <TextSwitcher
-                android:id="@+id/ts_temperature"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_gravity="start|center_vertical"
-                />
+            <FrameLayout
+                android:layout_width="72dp"
+                android:layout_height="match_parent"
+                android:layout_alignParentEnd="true"
+                android:background="@drawable/temperature_background"
+                android:layout_centerVertical="true"
+                android:id="@+id/frameLayout"
+                android:padding="8dp">
 
-            <ImageView
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_gravity="end|center_vertical"
-                android:src="@drawable/ic_rating_star"
-                />
+                <TextSwitcher
+                    android:id="@+id/ts_temperature"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="start|center_vertical"
+                    />
 
-        </FrameLayout>
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:layout_gravity="end|center_vertical"
+                    android:src="@drawable/ic_rating_star"
+                    />
 
-    </RelativeLayout>
+            </FrameLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/finder_recycler"
-        android:layout_width="match_parent"
-        android:layout_height="210dp"
-        android:layout_marginTop="18dp"
-        android:layout_marginStart="@dimen/recycler_view_left_offset"
-        android:clipChildren="false"
-        android:overScrollMode="never"
-        app:layoutManager="com.ramotion.cardslider.CardSliderLayoutManager"
-        app:viewUpdater="id.Oyadieyie3D.Cards.CardsUpdater"/>
+        </RelativeLayout>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="15dp">
-
-        <ImageView
-            android:layout_width="13dp"
-            android:layout_height="13dp"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="30dp"
-            android:scaleType="fitCenter"/>
-
-        <TextSwitcher
-            android:id="@+id/ts_place"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:layout_marginStart="@dimen/left_offset"/>
-
-    </FrameLayout>
-
-    <RelativeLayout
-        android:layout_marginTop="10dp"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:animateLayoutChanges="true">
-
-        <ImageSwitcher
-            android:id="@+id/ts_map"
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/finder_recycler"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-        <View
-            android:id="@+id/gradient_top"
-            android:layout_width="match_parent"
-            android:layout_height="90dp"
-            android:background="?android:attr/colorBackground"/>
-
-        <View
-            android:layout_width="match_parent"
-            android:layout_height="150dp"
-            android:background="@drawable/gradient_map"
-            android:layout_below="@+id/gradient_top"/>
-
-        <TextSwitcher
-            android:id="@+id/ts_description"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/left_offset"
-            android:layout_marginEnd="10dp"/>
+            android:layout_height="210dp"
+            android:layout_marginTop="18dp"
+            android:layout_marginStart="@dimen/recycler_view_left_offset"
+            android:clipChildren="false"
+            android:overScrollMode="never"
+            app:layoutManager="com.ramotion.cardslider.CardSliderLayoutManager"
+            app:viewUpdater="id.Oyadieyie3D.Cards.CardsUpdater"/>
 
         <FrameLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="10dp"
-            android:layout_below="@+id/ts_description">
+            android:layout_marginTop="15dp">
 
             <ImageView
                 android:layout_width="13dp"
                 android:layout_height="13dp"
                 android:layout_gravity="center_vertical"
                 android:layout_marginStart="30dp"
-                android:src="@drawable/ic_clock"
                 android:scaleType="fitCenter"/>
 
             <TextSwitcher
-                android:id="@+id/ts_clock"
+                android:id="@+id/ts_place"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
@@ -153,25 +106,60 @@
 
         </FrameLayout>
 
-        <FrameLayout
-            android:id="@+id/green_dot"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content">
+        <RelativeLayout
+            android:layout_marginTop="10dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:animateLayoutChanges="true">
+
+            <ImageSwitcher
+                android:id="@+id/ts_map"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"/>
 
             <View
-                android:layout_width="22dp"
-                android:layout_height="22dp"
-                android:background="@drawable/green_dot_big"
-                android:alpha="0.5"/>
+                android:id="@+id/gradient_top"
+                android:layout_width="match_parent"
+                android:layout_height="90dp"
+                android:background="?android:attr/colorBackground"/>
 
             <View
-                android:layout_width="14dp"
-                android:layout_height="14dp"
-                android:layout_gravity="center"
-                android:background="@drawable/green_dot_small"/>
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:background="@drawable/gradient_map"
+                android:layout_below="@+id/gradient_top"/>
 
-        </FrameLayout>
+            <TextSwitcher
+                android:id="@+id/ts_description"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="@dimen/left_offset"
+                android:layout_marginEnd="10dp"/>
 
-    </RelativeLayout>
+            <FrameLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:layout_below="@+id/ts_description">
 
-</LinearLayout>
+                <ImageView
+                    android:layout_width="13dp"
+                    android:layout_height="13dp"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="30dp"
+                    android:src="@drawable/ic_clock"
+                    android:scaleType="fitCenter"/>
+
+                <TextSwitcher
+                    android:id="@+id/ts_clock"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center_vertical"
+                    android:layout_marginStart="@dimen/left_offset"/>
+
+            </FrameLayout>
+
+        </RelativeLayout>
+
+    </LinearLayout>
+</androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
