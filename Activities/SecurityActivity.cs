@@ -15,18 +15,18 @@ namespace Oyadieyie3D.Activities
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.security);
+            SetContentView(Resource.Layout.search_item);
 
-            var appbar = FindViewById<AppBarLayout>(Resource.Id.security_appbar);
-            var toolbar = appbar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
-            SetSupportActionBar(toolbar);
-            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+            //var appbar = FindViewById<AppBarLayout>(Resource.Id.security_appbar);
+            //var toolbar = appbar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
+            //SetSupportActionBar(toolbar);
+            //SupportActionBar.SetDisplayHomeAsUpEnabled(true);
         }
 
-        public override bool OnSupportNavigateUp()
-        {
-            OnBackPressed();
-            return true;
-        }
+        //public override bool OnSupportNavigateUp()
+        //{
+        //    OnBackPressed();
+        //    return true;
+        //}
     }
 }

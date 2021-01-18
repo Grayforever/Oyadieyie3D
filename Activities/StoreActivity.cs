@@ -9,6 +9,7 @@ using AndroidX.Core.View;
 using AndroidX.Core.Widget;
 using AndroidX.RecyclerView.Widget;
 using AndroidX.SwipeRefreshLayout.Widget;
+using Bumptech.Glide;
 using BumpTech.GlideLib;
 using CN.Pedant.SweetAlert;
 using Com.Yalantis.Ucrop;

@@ -17,15 +17,6 @@
         <ImageButton
             android:layout_width="40dp"
             android:layout_height="40dp"
-            android:id="@+id/dialog_close_btn"
-            android:background="@android:color/transparent"
-            android:src="@drawable/ic_close"
-            android:contentDescription="@string/mal_close"
-            />
-
-        <ImageButton
-            android:layout_width="40dp"
-            android:layout_height="40dp"
             android:id="@+id/dialog_logout_btn"
             android:background="@android:color/transparent"
             android:src="@drawable/ic_logout"
@@ -49,7 +40,6 @@
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/popup_brand_iv"
             app:layout_constraintEnd_toStartOf="@+id/popup_user_tv"
-            android:src="@drawable/ic_account_circle"
             android:layout_marginEnd="16dp"
             android:layout_marginTop="16dp"
             />

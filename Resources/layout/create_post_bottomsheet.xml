@@ -110,7 +110,7 @@
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:text="Menswear"
                     app:chipIconEnabled="true"
-                    app:chipIcon="@drawable/ic_user_male"
+                    app:chipIcon="@drawable/man"
                     />
 
                 <com.google.android.material.chip.Chip
@@ -120,7 +120,7 @@
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:text="Wemen wear"
                     app:chipIconEnabled="true"
-                    app:chipIcon="@drawable/ic_female"
+                    app:chipIcon="@drawable/woman"
                     />
 
                 <com.google.android.material.chip.Chip
@@ -130,7 +130,7 @@
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:text="Children"
                     app:chipIconEnabled="true"
-                    app:chipIcon="@drawable/ic_children"
+                    app:chipIcon="@drawable/baby_boy"
                     />
 
                 <com.google.android.material.chip.Chip
@@ -140,7 +140,7 @@
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:text="Unisex"
                     app:chipIconEnabled="true"
-                    app:chipIcon="@drawable/ic_unisex"
+                    app:chipIcon="@drawable/bathroom"
                     />
 
                 <com.google.android.material.chip.Chip
@@ -150,7 +150,7 @@
                     style="@style/Widget.MaterialComponents.Chip.Choice"
                     android:text="PPEs"
                     app:chipIconEnabled="true"
-                    app:chipIcon="@drawable/ic_protection_mask"
+                    app:chipIcon="@drawable/hazmat"
                     />
 
             </com.google.android.material.chip.ChipGroup>

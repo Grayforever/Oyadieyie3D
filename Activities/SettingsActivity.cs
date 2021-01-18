@@ -1,18 +1,8 @@
 ﻿using Android.App;
-using Android.Content;
 using Android.OS;
-using Android.Views;
-using Android.Widget;
 using AndroidX.AppCompat.App;
-using AndroidX.ConstraintLayout.Widget;
-using AndroidX.Core.App;
 using AndroidX.Preference;
-using BumpTech.GlideLib;
-using BumpTech.GlideLib.Requests;
-using DE.Hdodenhof.CircleImageViewLib;
 using Google.Android.Material.AppBar;
-using Oyadieyie3D.HelperClasses;
-using Oyadieyie3D.Parcelables;
 using static AndroidX.Fragment.App.FragmentManager;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
@@ -38,7 +28,7 @@ namespace Oyadieyie3D.Activities
             if (savedInstanceState == null)
             {
                 var fragment = SupportFragmentManager.FindFragmentByTag(SettingsFragment.FRAGMENT_TAG);
-                if(fragment == null)
+                if (fragment == null)
                 {
                     fragment = new SettingsFragment();
                 }
@@ -53,14 +43,14 @@ namespace Oyadieyie3D.Activities
                 Title = savedInstanceState.GetCharSequence(SettingsKey);
             }
 
-            SupportFragmentManager.AddOnBackStackChangedListener(new OnBackStackChangedlistener(() => 
+            SupportFragmentManager.AddOnBackStackChangedListener(new OnBackStackChangedlistener(() =>
             {
                 var id = SupportFragmentManager.BackStackEntryCount;
                 if (SupportFragmentManager.BackStackEntryCount == 0)
                 {
                     SetTitle(Resource.String.settings_title);
                 }
-                
+
             }));
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);

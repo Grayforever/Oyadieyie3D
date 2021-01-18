@@ -8,7 +8,7 @@
 	<SwitchPreferenceCompat
         app:key="online_switch"
         app:summaryOff="Not available for work"
-        app:summaryOn="Avalable for work"
+        app:summaryOn="Available for work"
         app:defaultValue="false"
         app:title="My availability"
 		app:icon="@drawable/ic_public"

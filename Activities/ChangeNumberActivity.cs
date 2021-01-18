@@ -7,7 +7,6 @@ using AndroidX.AppCompat.App;
 using AndroidX.AppCompat.Widget;
 using Com.Goodiebag.Pinview;
 using Com.Mukesh.CountryPickerLib;
-using Firebase;
 using Firebase.Auth;
 using Google.Android.Material.AppBar;
 using Google.Android.Material.Button;
@@ -60,7 +59,7 @@ namespace Oyadieyie3D.Activities
             var confirmOtpBtn = FindViewById<MaterialButton>(Resource.Id.confirm_otp_btn);
             var logoutBtn = FindViewById<MaterialButton>(Resource.Id.Log_out_btn);
 
-            otpView.SetPinBackgroundRes(AppCompatDelegate.DefaultNightMode == AppCompatDelegate.ModeNightYes ? Resource.Color.gray_dark  : Resource.Color.gray_light); 
+            otpView.SetPinBackgroundRes(AppCompatDelegate.DefaultNightMode == AppCompatDelegate.ModeNightYes ? Resource.Color.gray_dark : Resource.Color.gray_light);
 
             coordRoot.RequestFocus();
             SetSupportActionBar(toolbar);
@@ -83,7 +82,7 @@ namespace Oyadieyie3D.Activities
                                oldDialcodeEt.Text = c.DialCode;
                                break;
                        }
-                   
+
                    }));
 
             picker = builder.Build();
@@ -112,7 +111,7 @@ namespace Oyadieyie3D.Activities
                 }
                 else
                 {
-                    PhoneAuthProvider.Instance.VerifyPhoneNumber(phone, 30, TimeUnit.Seconds, this, new PhoneVerificationCallbacks(
+                    var callback = new PhoneVerificationCallbacks(
                         onVerificationCompleted: (cred) =>
                         {
                             var code = cred.SmsCode;
@@ -128,26 +127,7 @@ namespace Oyadieyie3D.Activities
                             {
                                 throw e;
                             }
-                            catch (FirebaseNetworkException)
-                            {
-
-                            }
-                            catch (FirebaseTooManyRequestsException)
-                            {
-
-                            }
-                            catch (FirebaseAuthInvalidCredentialsException)
-                            {
-
-                            }
-                            catch (FirebaseAuthInvalidUserException)
-                            {
-
-                            }
                             catch (Exception)
-                            {
-                            }
-                            finally
                             {
 
                             }
@@ -155,7 +135,17 @@ namespace Oyadieyie3D.Activities
                         }, onCodeSent: (verificationId, token) =>
                         {
                             this.verificationId = verificationId;
-                        }));
+                        });
+
+                    PhoneAuthOptions options = PhoneAuthOptions.NewBuilder(SessionManager.GetFirebaseAuth())
+                    .SetPhoneNumber(phone)
+                    .SetTimeout((Java.Lang.Long)30L, TimeUnit.Seconds)
+                    .SetActivity(this)
+                    .SetCallbacks(callback)
+                    .Build();
+
+                    PhoneAuthProvider.VerifyPhoneNumber(options);
+
                 }
             };
             confirmOtpBtn.Click += (s, e) => VerifyCode(otpView.Value);

@@ -2,19 +2,19 @@
 using Android.Content;
 using Android.Graphics;
 using Android.OS;
-using Android.Provider;
 using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.AppCompat.Widget;
 using AndroidX.Core.App;
 using AndroidX.Core.View;
-using BumpTech.GlideLib;
-using BumpTech.GlideLib.Requests;
+using Bumptech.Glide;
+using Bumptech.Glide.Request;
 using CN.Pedant.SweetAlert;
 using DE.Hdodenhof.CircleImageViewLib;
 using Firebase.Database;
 using Firebase.Storage;
+using Google.Android.Material.AppBar;
 using Google.Android.Material.FloatingActionButton;
 using Google.Android.Material.TextField;
 using Oyadieyie3D.Adapters;
@@ -30,6 +30,7 @@ namespace Oyadieyie3D.Activities
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = SoftInput.StateAlwaysHidden)]
     public class ProfileActivity : AppCompatActivity, View.IOnClickListener
     {
+
         private FloatingActionButton camFab;
         private CircleImageView profileImageView;
         private TextInputEditText usernameEditText;
@@ -44,41 +45,44 @@ namespace Oyadieyie3D.Activities
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.profile_activity);
+            PreferenceHelper.Init(this);
 
-            var toolbar = FindViewById<Toolbar>(Resource.Id.profile_toolbar);
+            var appBar = FindViewById<AppBarLayout>(Resource.Id.profile_appbar);
+            var toolbar = appBar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
+
             camFab = FindViewById<FloatingActionButton>(Resource.Id.cam_fab);
             profileImageView = FindViewById<CircleImageView>(Resource.Id.prof_prof_iv);
             var usernameEt = FindViewById<TextInputLayout>(Resource.Id.prof_fname_et);
             var phoneEt = FindViewById<TextInputLayout>(Resource.Id.prof_phone_et);
             var statusEt = FindViewById<TextInputLayout>(Resource.Id.prof_about_et);
+            phoneEditText = phoneEt.FindViewById<TextInputEditText>(Resource.Id.phone_edittext);
+            usernameEditText = usernameEt.FindViewById<TextInputEditText>(Resource.Id.name_edittext);
+            statusEditText = statusEt.FindViewById<AppCompatAutoCompleteTextView>(Resource.Id.status_autocomplete);
+
             toolbar.Title = "Profile";
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             toolbar.NavigationClick += Toolbar_NavigationClick;
+
             camFab.Click += CamFab_Click;
             profileChooserFrag = new ProfileChooserFragment();
             profileChooserFrag.OnCropComplete += ProfileChooserFrag_OnCropComplete;
 
             RequestOptions requestOptions = new RequestOptions();
             requestOptions.Placeholder(Resource.Drawable.user);
-            
+
             profileImageView.Click += ProfileImageView_Click;
-
-
-            phoneEditText = phoneEt.FindViewById<TextInputEditText>(Resource.Id.phone_edittext);
-            usernameEditText = usernameEt.FindViewById<TextInputEditText>(Resource.Id.name_edittext);
-            statusEditText = statusEt.FindViewById<AppCompatAutoCompleteTextView>(Resource.Id.status_autocomplete);
 
             statusUpdateRef = SessionManager.GetFireDB().GetReference($"users/{SessionManager.UserId}/profile");
             img_url = PreferenceHelper.Instance.GetString("profile_url", "");
             phoneEditText.Text = PreferenceHelper.Instance.GetString("phone", "");
             usernameEditText.Text = PreferenceHelper.Instance.GetString("username", "");
             statusEditText.Text = PreferenceHelper.Instance.GetString("status", "");
-            statusEditText.Adapter = ArrayAdapterClass.CreateArrayAdapter(this, new string[] { "Available", "Away", "Leave a message", "Busy", "Closed"});
+            statusEditText.Adapter = ArrayAdapterClass.CreateArrayAdapter(this, new string[] { "Available", "Away", "Leave a message", "Busy", "Closed" });
             statusEditText.ItemClick += (s1, e1) =>
             {
                 var status = e1.Parent.GetItemAtPosition(e1.Position).ToString();
-                
+
                 statusUpdateRef.Child("gender").SetValue(status).AddOnCompleteListener(new OncompleteListener(
                 (t) =>
                 {
@@ -89,19 +93,15 @@ namespace Oyadieyie3D.Activities
                     else
                     {
                         Toast.MakeText(this, t.Exception.Message, ToastLength.Short).Show();
-                    }  
+                    }
                 }));
-                
-            };
 
+            };
 
             phoneEditText.SetOnClickListener(this);
             usernameEditText.SetOnClickListener(this);
 
-            Glide.With(this)
-                .SetDefaultRequestOptions(requestOptions)
-                .Load(img_url)
-                .Into(profileImageView);
+            PreferenceHelper.Instance.SetImageResource(profileImageView, img_url, PlaceholderType.Profile);
         }
 
         private void ProfileImageView_Click(object sender, EventArgs e)
@@ -124,7 +124,8 @@ namespace Oyadieyie3D.Activities
                 StorageReference storageReference = FirebaseStorage.Instance.GetReference("userProfile/" + userId);
 
                 var stream = new System.IO.MemoryStream();
-                var bitmap = MediaStore.Images.Media.GetBitmap(ContentResolver, e.imageUri);
+                var source = ImageDecoder.CreateSource(ContentResolver, e.imageUri);
+                var bitmap = ImageDecoder.DecodeBitmap(source);
                 await bitmap.CompressAsync(Bitmap.CompressFormat.Webp, 70, stream);
                 var imgArray = stream.ToArray();
                 storageReference.PutBytes(imgArray)
@@ -136,7 +137,7 @@ namespace Oyadieyie3D.Activities
                         Glide.With(this).Load(e.imageUri).Into(profileImageView);
                         DismissLoading();
                     }));
-                
+
             }
             catch (Exception)
             {
@@ -180,11 +181,6 @@ namespace Oyadieyie3D.Activities
             }, 2000);
         }
 
-        private void ShowEditSheet(int which)
-        {
-            
-        }
-
         public void OnClick(View v)
         {
             switch (v.Id)
@@ -193,7 +189,7 @@ namespace Oyadieyie3D.Activities
                     MainActivity.Instance.ShowWarning(this, "Change number", "Do you wish to change your number?", ConfirmYes());
                     break;
                 case Resource.Id.name_edittext:
-                    ShowEditSheet(0);
+
                     break;
             }
         }

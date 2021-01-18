@@ -113,18 +113,6 @@
                 android:maxLines="1"
                 android:ellipsize="end"
                 android:paddingStart="8dp"
-                
-                />
-        
-            <Like.Lib.LikeButton
-                android:layout_width="32dp"
-                android:layout_height="32dp"
-                android:id="@+id/post_like_btn"
-                app:icon_type="heart"
-                app:layout_constraintEnd_toStartOf="@+id/post_like_count_tv"
-                app:layout_constraintTop_toBottomOf="@+id/post_septor1"
-                app:layout_constraintBottom_toBottomOf="parent"
-                android:layout_marginEnd="4dp"
                 />
 
             <TextView

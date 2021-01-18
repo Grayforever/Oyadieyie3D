@@ -5,5 +5,5 @@
         android:fromYScale="95%p"
         android:pivotX="50%p"
         android:pivotY="50%p"
-        android:duration="@android:integer/config_shortAnimTime" />
+        android:duration="@android:integer/config_mediumAnimTime" />
 </set>

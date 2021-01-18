@@ -7,6 +7,7 @@ using Android.Util;
 using Android.Views;
 using Android.Widget;
 using AndroidX.Fragment.App;
+using Bumptech.Glide;
 using BumpTech.GlideLib;
 using DE.Hdodenhof.CircleImageViewLib;
 using Firebase;
@@ -104,7 +105,8 @@ namespace Oyadieyie3D.Fragments
                 var profileRef = SessionManager.GetFireDB().GetReference($"users/{SessionManager.UserId}/profile");
                 var userMap = new HashMap();
                 var stream = new System.IO.MemoryStream();
-                var bitmap = MediaStore.Images.Media.GetBitmap(Context.ContentResolver, img_uri);
+                var source = ImageDecoder.CreateSource(Activity.ContentResolver, img_uri);
+                var bitmap = ImageDecoder.DecodeBitmap(source);
                 await bitmap.CompressAsync(Bitmap.CompressFormat.Webp, 90, stream);
                 var imgArray = stream.ToArray();
 

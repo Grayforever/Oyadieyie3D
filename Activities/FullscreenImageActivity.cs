@@ -3,11 +3,11 @@ using Android.Content;
 using Android.OS;
 using Android.Widget;
 using AndroidX.AppCompat.App;
-using BumpTech.GlideLib;
-using BumpTech.GlideLib.Load;
-using BumpTech.GlideLib.Load.Engines;
-using BumpTech.GlideLib.Requests;
-using BumpTech.GlideLib.Requests.Target;
+using Bumptech.Glide;
+using Bumptech.Glide.Load;
+using Bumptech.Glide.Load.Engine;
+using Bumptech.Glide.Request;
+using Bumptech.Glide.Request.Target;
 using IGreenWood.LoupeLib;
 using Oyadieyie3D.HelperClasses;
 using System;
@@ -44,8 +44,8 @@ namespace Oyadieyie3D.Activities
 
         private GlideRequestListener RequestListener => new GlideRequestListener()
         {
-            LoadFailed = () => { },
-            ResourceReady = () =>
+            LoadFailed = (p0, p1, p2, p3) => { },
+            ResourceReady = (p0, p1, p2, p3, p4) =>
             {
                 StartPostponedEnterTransition();
                 var loupe = new Loupe(imageView, container);
@@ -78,24 +78,24 @@ namespace Oyadieyie3D.Activities
 
             public void OnViewTranslate(ImageView view, float amount)
             {
-                
+
             }
         }
 
         internal sealed class GlideRequestListener : Java.Lang.Object, IRequestListener
         {
-            public Action LoadFailed;
-            public Action ResourceReady;
+            public Action<GlideException, Java.Lang.Object, ITarget, bool> LoadFailed;
+            public Action<Java.Lang.Object, Java.Lang.Object, ITarget, DataSource, bool> ResourceReady;
 
-            public bool OnLoadFailed(GlideException e, Java.Lang.Object model, ITarget target, bool isFirstResource)
+            public bool OnLoadFailed(GlideException p0, Java.Lang.Object p1, ITarget p2, bool p3)
             {
-                LoadFailed();
+                LoadFailed(p0, p1, p2, p3);
                 return false;
             }
 
-            public bool OnResourceReady(Java.Lang.Object resource, Java.Lang.Object model, ITarget target, DataSource dataSource, bool isFirstResource)
+            public bool OnResourceReady(Java.Lang.Object p0, Java.Lang.Object p1, ITarget p2, DataSource p3, bool p4)
             {
-                ResourceReady();
+                ResourceReady(p0, p1, p2, p3, p4);
                 return false;
             }
         }

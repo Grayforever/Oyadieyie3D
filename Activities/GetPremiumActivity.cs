@@ -3,7 +3,6 @@ using Android.Graphics;
 using Android.OS;
 using Android.Runtime;
 using Android.Views;
-using Android.Widget;
 using AndroidX.AppCompat.App;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.Fragments;
@@ -22,8 +21,18 @@ namespace Oyadieyie3D.Activities
         {
             base.OnCreate(savedInstanceState);
             SetContentView(Resource.Layout.get_premium);
-            // Create your application here
-            InitWalkThrough();
+            var isInvokeFromHome = Intent.GetBooleanExtra(MainActivity.premiumLauncherKey, false);
+            if (!isInvokeFromHome)
+            {
+                InitWalkThrough();
+            }
+            else
+            {
+                Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
+                Window.DecorView.SystemUiVisibility = (StatusBarVisibility)SystemUiFlags.LightStatusBar;
+                SetPremiumFragmnt();
+            }
+
         }
 
         private void SetStatusBarImmersiveMode()
@@ -59,18 +68,18 @@ namespace Oyadieyie3D.Activities
             });
 
             onboardingFragment.SetOnRightOutListener(new OnRightOutListener(
-                () =>
-                {
-                    Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
-                    Window.DecorView.SystemUiVisibility = (StatusBarVisibility)SystemUiFlags.LightStatusBar;
-                    var mainFt = SupportFragmentManager.BeginTransaction();
-                    var premiumFrag = new PremiumFragment();
-                    mainFt.Replace(container, premiumFrag);
-                    mainFt.CommitAllowingStateLoss();
-                }));
+                () => { SetPremiumFragmnt(); }));
 
             ft.Add(container, onboardingFragment);
             ft.CommitAllowingStateLoss();
+        }
+
+        private void SetPremiumFragmnt()
+        {
+            var mainFt = SupportFragmentManager.BeginTransaction();
+            var premiumFrag = new PremiumFragment();
+            mainFt.Replace(container, premiumFrag);
+            mainFt.CommitAllowingStateLoss();
         }
     }
 }

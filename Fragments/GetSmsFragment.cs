@@ -27,6 +27,7 @@ namespace Oyadieyie3D.Fragments
         private FloatingActionButton verifiyBtn;
         private MaterialButton resendBtn;
         private TextView numTv;
+
         //private CountDownTimer resendBtnTimer;
         private string verificationId { get; set; }
         private string phone { get; set; }
@@ -36,12 +37,12 @@ namespace Oyadieyie3D.Fragments
             base.OnCreate(savedInstanceState);
             PreferenceHelper.Init(Context);
             phone = Arguments.GetString(Constants.PHONE_KEY);
-            PhoneAuthProvider.Instance.VerifyPhoneNumber(
-                phone, 
-                30, 
-                TimeUnit.Seconds, 
-                Activity, 
-                VerificationCallback);
+            PhoneAuthProvider.VerifyPhoneNumber(PhoneAuthOptions.NewBuilder()
+                .SetPhoneNumber(phone)
+                .SetTimeout((Java.Lang.Long)30L, TimeUnit.Seconds)
+                .SetActivity(Activity)
+                .SetCallbacks(VerificationCallback)
+                .Build());
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
@@ -146,25 +147,21 @@ namespace Oyadieyie3D.Fragments
             statusRef.OrderByKey().EqualTo(SessionManager.GetFirebaseAuth().CurrentUser.Uid).AddListenerForSingleValueEvent(
             new SingleValueListener((s) =>
             {
-                if (!s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Exists())
+                if (s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Exists())
                 {
-                    GotoProfile();
-                }
-                else
-                {
-                    string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ? 
+                    string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ?
                     s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
 
-                    if (stage.Contains(Constants.REG_STAGE_DONE))
-                    {
-                        SetUserAndGoHome();
-                    }
-                    else
+                    if (!stage.Contains(Constants.REG_STAGE_DONE))
                     {
                         OnboardingActivity.Instance.GetStage(stage);
                         OnboardingActivity.Instance.DismissLoader();
                     }
-                }   
+                    else
+                        SetUserAndGoHome();
+                }
+                else
+                    GotoProfile();
 
             }, (e) =>
             {

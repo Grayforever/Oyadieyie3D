@@ -1,117 +1,271 @@
-﻿using Android.Animation;
-using Android.App;
-using Android.Content;
+﻿using Android.App;
 using Android.Graphics;
+using Android.Graphics.Drawables;
 using Android.OS;
-using Android.Util;
+using Android.Runtime;
+using Android.Transitions;
 using Android.Views;
-using Android.Widget;
+using AndroidX.Annotations;
 using AndroidX.AppCompat.App;
-using AndroidX.CardView.Widget;
-using Oyadieyie3D.Events;
-using Oyadieyie3D.Utils;
+using AndroidX.AppCompat.Widget;
+using AndroidX.Core.View;
+using AndroidX.Palette.Graphics;
+using AndroidX.ViewPager2.Widget;
+using Bumptech.Glide;
+using Bumptech.Glide.Load.Resource.Drawable;
+using Bumptech.Glide.Request.Target;
+using Bumptech.Glide.Request.Transition;
+using Google.Android.Material.AppBar;
+using Google.Android.Material.ImageView;
+using Google.Android.Material.Tabs;
+using Oyadieyie3D.Adapters;
+using System;
+using static Android.Transitions.Transition;
+using static AndroidX.Palette.Graphics.Palette;
+using static Google.Android.Material.Tabs.TabLayoutMediator;
 using R = Oyadieyie3D.Resource;
+
 namespace Oyadieyie3D.Activities
 {
-    [Activity(Label = "FeaturedDetailsActivity")]
-    public class FeaturedDetailsActivity : AppCompatActivity, DecodeBitmapTask.IListener
+    [Activity(Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
+        ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
+    public class FeaturedDetailsActivity : AppCompatActivity
     {
-        public const string BundleImageId = "BUNDLE_IMAGE_ID";
-
-        private ImageView _imageView;
-        private DecodeBitmapTask _decodeBitmapTask;
+        private string url;
+        private CollapsingToolbarLayout collapsingToolbar;
+        private Toolbar toolbar;
+        private ViewPager2 viewPager;
+        private ShapeableImageView imageView;
+        internal static string BANNER_URL = "bannerUrl";
+        internal static string SHARED_TRANS_NAME = "shared";
+        private TabLayout tabLayout;
+        private string[] tabTitle = { "Details", "Gallery", "Book" };
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
             SetContentView(R.Layout.featured_details);
+            url = Intent.GetStringExtra(BANNER_URL);
 
-            var smallResId = Intent.GetIntExtra(BundleImageId, -1);
-            if (smallResId == -1)
+            collapsingToolbar = FindViewById<CollapsingToolbarLayout>(R.Id.mycoll);
+            collapsingToolbar.Animate();
+
+            toolbar = FindViewById<Toolbar>(R.Id.featured_toolbar);
+            SetSupportActionBar(toolbar);
+            SupportActionBar.SetDisplayHomeAsUpEnabled(true);
+
+            imageView = FindViewById<ShapeableImageView>(R.Id.collimg);
+            ViewCompat.SetTransitionName(imageView, SHARED_TRANS_NAME);
+
+            LoadImage();
+            SetUpPager();
+            SetupTabLayout();
+        }
+
+        private void SetupTabLayout()
+        {
+            tabLayout = FindViewById<TabLayout>(R.Id.featured_tablayout);
+            new TabLayoutMediator(tabLayout, viewPager, new TabConfigStrategy 
             {
-                Finish();
-                return;
-            }
+                ConfigureTab = (tab, position) =>
+                {
+                    tab.SetText(tabTitle[position]);
+                    viewPager.SetCurrentItem(tab.Position, true);
+                }
+            }).Attach();
+        }
 
-            _imageView = FindViewById<ImageView>(R.Id.image);
-            _imageView.SetImageResource(smallResId);
-            _imageView.Click += (s, e) => OnBackPressed();
+        private void SetUpPager()
+        {
+            var pagerAdapter = new FeaturedPagerAdapter(this);
+            viewPager = FindViewById<ViewPager2>(R.Id.featured_viewpager);
 
-            if (Build.VERSION.SdkInt < BuildVersionCodes.Lollipop)
-            {
-                LoadFullSizeBitmap(smallResId);
-            }
-            else
-            {
-                var isClosing = false;
+            pagerAdapter.AddFragment(new DetailsFragment());
+            pagerAdapter.AddFragment(new GalleryFragment());
+            pagerAdapter.AddFragment(new BookingFragment());
+            viewPager.Adapter = pagerAdapter;
+        }
 
-                Window.SharedElementEnterTransition.AddListener(
-                    new MyTransitionListener(
-                        transition =>
+        public override bool OnSupportNavigateUp()
+        {
+            OnBackPressed();
+            return true;
+        }
+
+        private void LoadImage()
+        {
+            Glide.With(this)
+                .AsBitmap()
+                .Load(url)
+                .Transition(DrawableTransitionOptions.WithCrossFade())
+                .Into(new CustomTargetView
+                {
+                    LoadCleared = (d) => { },
+                    ResourceReady = (b, t) =>
+                    {
+                        imageView.SetImageBitmap(b);
+                        var palette = Palette.From(b).Generate(new PaletteAsyncListener
                         {
-                            if (isClosing)
-                                AddCardCorners();
-                        },
-                        null,
-                        transition =>
-                        {
-                            if (isClosing) return;
-
-                            isClosing = true;
-
-                            RemoveCardCorners();
-                            LoadFullSizeBitmap(smallResId);
-                        },
-                        null,
-                        null
-                    )
-                );
-            }
+                            Generated = (p) =>
+                            {
+                                var vibrant = p.VibrantSwatch;
+                                if (vibrant != null)
+                                {
+                                    collapsingToolbar.SetContentScrimColor(vibrant.Rgb);
+                                }
+                            }
+                        });
+                    }
+                });
         }
 
-        protected override void OnPause()
+        [RequiresApi(Api = 21)]
+        public bool AddTransitionListener()
         {
-            base.OnPause();
-            if (IsFinishing)
-                _decodeBitmapTask?.Cancel(true);
-        }
-
-        private void AddCardCorners()
-        {
-            FindViewById<CardView>(R.Id.card).Radius = 25f;
-        }
-
-        private void RemoveCardCorners()
-        {
-            var cardView = FindViewById<CardView>(R.Id.card);
-            ObjectAnimator.OfFloat(cardView, "radius", 0f)
-                .SetDuration(50)
-                .Start();
-        }
-
-        private void LoadFullSizeBitmap(int smallResId)
-        {
-            var bigResId = smallResId switch
+            var transition = Window.SharedElementEnterTransition;
+            if (transition != null)
             {
-                R.Drawable.p1 => R.Drawable.p1_big,
-                R.Drawable.p2 => R.Drawable.p2_big,
-                R.Drawable.p3 => R.Drawable.p3_big,
-                R.Drawable.p4 => R.Drawable.p4_big,
-                R.Drawable.p5 => R.Drawable.p5_big,
-                _ => R.Drawable.p1_big
+                transition.AddListener(GetTransitionListener());
+                return true;
+            }
+            return false;
+        }
+
+        private TransitionListener GetTransitionListener()
+        {
+            var l = new TransitionListener();
+            l.TransitionCancel = (t) =>
+            {
+                t.RemoveListener(l);
             };
 
-            var metrics = new DisplayMetrics();
-            WindowManager.DefaultDisplay.GetRealMetrics(metrics);
+            l.TransitionEnd = (t) =>
+            {
+                LoadImage();
+                t.RemoveListener(l);
+            };
 
-            var w = metrics.WidthPixels;
-            var h = metrics.HeightPixels;
-
-            _decodeBitmapTask = new DecodeBitmapTask(Resources, bigResId, w, h, this);
-            _decodeBitmapTask.Execute();
+            return l;
         }
 
-        public void OnPostExecuted(Bitmap bitmap)
-            => _imageView.SetImageBitmap(bitmap);
+        internal sealed class CustomTargetView : CustomTarget
+        {
+            public Action<Drawable> LoadCleared;
+            public Action<Bitmap, ITransition> ResourceReady;
+            public override void OnLoadCleared(Drawable p0)
+            {
+                LoadCleared(p0);
+            }
+
+            public override void OnResourceReady(Java.Lang.Object resource, ITransition transition)
+            {
+                ResourceReady(resource.JavaCast<Bitmap>(), transition);
+            }
+        }
+
+        internal sealed class PaletteAsyncListener : Java.Lang.Object, IPaletteAsyncListener
+        {
+            public Action<Palette> Generated;
+            public void OnGenerated(Palette palette)
+            {
+                Generated(palette);
+            }
+        }
+
+        internal sealed class TransitionListener : Java.Lang.Object, ITransitionListener
+        {
+            public Action<Transition> TransitionCancel;
+            public Action<Transition> TransitionEnd;
+            public Action<Transition> TransitionPause;
+            public Action<Transition> TransitionResume;
+            public Action<Transition> TransitionStart;
+            public void OnTransitionCancel(Transition transition)
+            {
+                TransitionCancel(transition);
+            }
+
+            public void OnTransitionEnd(Transition transition)
+            {
+                TransitionEnd(transition);
+            }
+
+            public void OnTransitionPause(Transition transition)
+            {
+                TransitionPause(transition);
+            }
+
+            public void OnTransitionResume(Transition transition)
+            {
+                TransitionResume(transition);
+            }
+
+            public void OnTransitionStart(Transition transition)
+            {
+                TransitionStart(transition);
+            }
+        }
+
+        private class TabConfigStrategy : Java.Lang.Object, ITabConfigurationStrategy
+        {
+            public Action<TabLayout.Tab, int> ConfigureTab;
+            public void OnConfigureTab(TabLayout.Tab p0, int p1)
+            {
+                ConfigureTab(p0, p1);
+            }
+        }
+
+        private class DetailsFragment : AndroidX.Fragment.App.Fragment
+        {
+            public override void OnCreate(Bundle savedInstanceState)
+            {
+                base.OnCreate(savedInstanceState);
+            }
+
+            public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+            {
+                return inflater.Inflate(R.Layout.details_frag, container, false);
+            }
+
+            public override void OnViewCreated(View view, Bundle savedInstanceState)
+            {
+                base.OnViewCreated(view, savedInstanceState);
+            }
+        }
+
+        private class GalleryFragment : AndroidX.Fragment.App.Fragment
+        {
+            public override void OnCreate(Bundle savedInstanceState)
+            {
+                base.OnCreate(savedInstanceState);
+            }
+
+            public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+            {
+                return inflater.Inflate(R.Layout.gallery_frag, container, false);
+            }
+
+            public override void OnViewCreated(View view, Bundle savedInstanceState)
+            {
+                base.OnViewCreated(view, savedInstanceState);
+            }
+        }
+
+        private class BookingFragment : AndroidX.Fragment.App.Fragment
+        {
+            public override void OnCreate(Bundle savedInstanceState)
+            {
+                base.OnCreate(savedInstanceState);
+            }
+
+            public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
+            {
+                return inflater.Inflate(R.Layout.booking_frag, container, false);
+            }
+
+            public override void OnViewCreated(View view, Bundle savedInstanceState)
+            {
+                base.OnViewCreated(view, savedInstanceState);
+            }
+        }
     }
 }

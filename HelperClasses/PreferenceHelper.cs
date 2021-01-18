@@ -1,9 +1,19 @@
 ﻿using Android.Content;
+using Android.Widget;
 using AndroidX.Preference;
+using Bumptech.Glide;
+using Bumptech.Glide.Request;
 using Java.Lang;
 
 namespace Oyadieyie3D.HelperClasses
 {
+    public enum PlaceholderType
+    {
+        Normal,
+        Profile,
+        Landscape
+    }
+
     public class PreferenceHelper
     {
         private static ISharedPreferences preferences;
@@ -84,5 +94,29 @@ namespace Oyadieyie3D.HelperClasses
         public int GetInt(string key) => preferences.GetInt(key, 0);
 
         public void LoggedOut() => ClearPrefs();
+
+        internal void SetImageResource(ImageView imageview, string url, PlaceholderType placeholderType)
+        {
+            int placeholder = Resource.Drawable.placeholder;
+            switch (placeholderType)
+            {
+                case PlaceholderType.Normal:
+                    placeholder = Resource.Drawable.placeholder;
+                    break;
+                case PlaceholderType.Profile:
+                    placeholder = Resource.Drawable.ic_account_circle;
+                    break;
+                case PlaceholderType.Landscape:
+                    placeholder = Resource.Drawable.placeholder;
+                    break;
+            }
+            var op = new RequestOptions();
+            op.Placeholder(placeholder);
+
+            Glide.With(imageview.Context)
+                .SetDefaultRequestOptions(op)
+                .Load(url)
+                .Into(imageview);
+        }
     }
 }
