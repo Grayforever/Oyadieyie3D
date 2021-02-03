@@ -8,6 +8,7 @@ using Java.IO;
 using Java.Lang;
 using static AndroidX.Core.Content.FileProvider;
 using Uri = Android.Net.Uri;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.HelperClasses
 {
@@ -49,9 +50,9 @@ namespace Oyadieyie3D.HelperClasses
             Uri destinationUri = Uri.FromFile(new File(_context.CacheDir, QueryName(_context.ContentResolver, selectedImageURI)));
             UCrop.Options options = new UCrop.Options();
             options.SetCompressionQuality(Constants.IMAGE_COMPRESSION);
-            options.SetToolbarColor(ContextCompat.GetColor(_context, Resource.Color.colorPrimary));
-            options.SetStatusBarColor(ContextCompat.GetColor(_context, Resource.Color.colorPrimaryDark));
-            options.SetActiveControlsWidgetColor(ContextCompat.GetColor(_context, Resource.Color.colorAccent));
+            options.SetToolbarColor(ContextCompat.GetColor(_context, R.Color.colorPrimary));
+            options.SetStatusBarColor(ContextCompat.GetColor(_context, R.Color.colorPrimaryDark));
+            options.SetActiveControlsWidgetColor(ContextCompat.GetColor(_context, R.Color.colorAccent));
 
             if (Constants.lockAspectRatio)
                 options.WithAspectRatio(Constants.ASPECT_RATIO_X, Constants.ASPECT_RATIO_Y);

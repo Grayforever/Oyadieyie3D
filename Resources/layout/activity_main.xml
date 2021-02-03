@@ -5,26 +5,93 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:ignore="HardcodedText"
-    android:focusableInTouchMode="true">
+    android:focusableInTouchMode="true"
+    android:focusable="true"
+    android:clickable="true">
 
-    <androidx.core.widget.NestedScrollView
+    <com.google.android.material.appbar.AppBarLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/action_appbar">
+
+        <androidx.appcompat.widget.Toolbar
+            android:layout_width="match_parent"
+            android:layout_height="?android:attr/actionBarSize"
+            android:id="@+id/action_toolbar"
+            app:contentInsetStart="0dp"
+            app:contentInsetEnd="0dp">
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="40dp"
+                android:background="@drawable/intoolbar_bg"
+                android:padding="4dp"
+                android:gravity="center"
+                android:layout_marginStart="16dp"
+                android:layout_marginEnd="16dp">
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:id="@+id/field_iv"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentStart="true"
+                    android:src="@drawable/ic_search"
+                    />
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:id="@+id/actionSearchField"
+                    android:background="@null"
+                    android:hint="Search"
+                    android:inputType="textAutoComplete"
+                    android:imeOptions="actionSearch"
+                    android:layout_toEndOf="@+id/field_iv"
+                    android:layout_toStartOf="@+id/filterBtn"
+                    android:layout_centerVertical="true"
+                    android:textSize="14sp"
+                    android:paddingStart="8dp"
+                    android:paddingEnd="8dp"
+                    />
+
+                <ImageView
+                    android:layout_width="24dp"
+                    android:layout_height="24dp"
+                    android:id="@+id/filterBtn"
+                    android:layout_centerVertical="true"
+                    android:layout_alignParentEnd="true"
+                    android:src="@drawable/ic_filter"
+                    android:clickable="true"
+                    />
+
+            </RelativeLayout>
+        
+        </androidx.appcompat.widget.Toolbar>
+
+        <com.google.android.material.tabs.TabLayout
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/tab_height"
+            android:id="@+id/action_tablayout"
+            app:tabMode="fixed"
+            app:tabGravity="center"
+        />
+    
+    </com.google.android.material.appbar.AppBarLayout>
+
+    <androidx.viewpager2.widget.ViewPager2
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:id="@+id/action_viewpager"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
-        android:fillViewport="true">
-
-        <include
-            layout="@layout/finder_layout"
-            />
-
-    </androidx.core.widget.NestedScrollView>
+        android:overScrollMode="never"
+        />
 
     <com.google.android.material.bottomappbar.BottomAppBar
         android:id="@+id/bottomAppBar"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="?android:attr/actionBarSize"
         android:layout_gravity="bottom"
-        style="@style/Widget.MaterialComponents.BottomAppBar"
         app:menu="@menu/main_menu"
         app:hideOnScroll="true">
 
@@ -32,9 +99,7 @@
             android:layout_width="32dp"
             android:layout_height="32dp"
             android:id="@+id/profile_iv"
-            android:src="@drawable/ic_account_circle"
             android:clickable="true"
-            android:foreground="?android:attr/selectableItemBackgroundBorderless"
             android:scaleType="centerCrop"
             android:tooltipText="Account"
             app:civ_border_width="1dp"
@@ -42,21 +107,5 @@
             />
 
     </com.google.android.material.bottomappbar.BottomAppBar>
-
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/post_fab"
-        app:layout_anchor="@+id/bottomAppBar"
-        app:layout_anchorGravity="end|bottom"
-        app:useCompatPadding="true"
-        app:srcCompat="@drawable/search_to_close"
-        android:tooltipText="Finder"
-        />
-   
-
-    <include
-        layout="@layout/search_sheet"
-    />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

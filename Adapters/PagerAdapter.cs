@@ -4,13 +4,13 @@ using System.Collections.Generic;
 
 namespace Oyadieyie3D.Adapters
 {
-    public class FeaturedPagerAdapter : FragmentStateAdapter
+    public class PagerAdapter : FragmentStateAdapter
     {
         private List<Fragment> FragmentList;
 
         public override int ItemCount => FragmentList.Count;
 
-        public FeaturedPagerAdapter(FragmentActivity activity) : base(activity)
+        public PagerAdapter(FragmentActivity activity) : base(activity)
         {
             FragmentList = new List<Fragment>();
         }

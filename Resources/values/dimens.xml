@@ -7,4 +7,6 @@
 
 	<dimen name="card_height_q">352dp</dimen>
     <dimen name="card_width_q">256dp</dimen>
+
+    <dimen name="tab_height">48dp</dimen>
 </resources>

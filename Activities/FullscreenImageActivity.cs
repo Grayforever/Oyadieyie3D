@@ -11,6 +11,7 @@ using Bumptech.Glide.Request.Target;
 using IGreenWood.LoupeLib;
 using Oyadieyie3D.HelperClasses;
 using System;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Activities
 {
@@ -23,10 +24,10 @@ namespace Oyadieyie3D.Activities
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.fullscreen_imageviewer);
+            SetContentView(R.Layout.fullscreen_imageviewer);
             PostponeEnterTransition();
-            imageView = FindViewById<ImageView>(Resource.Id.image);
-            container = FindViewById<FrameLayout>(Resource.Id.container);
+            imageView = FindViewById<ImageView>(R.Id.image);
+            container = FindViewById<FrameLayout>(R.Id.container);
 
             try
             {

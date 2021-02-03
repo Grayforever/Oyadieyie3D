@@ -20,6 +20,7 @@ using CoordinatorLayout = AndroidX.CoordinatorLayout.Widget.CoordinatorLayout;
 using CountryPickerListener = Com.Mukesh.CountryPickerLib.Listeners.CountryPickerListener;
 using TextInputEditText = Google.Android.Material.TextField.TextInputEditText;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Activities
 {
@@ -41,25 +42,25 @@ namespace Oyadieyie3D.Activities
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.change_number);
+            SetContentView(R.Layout.change_number);
             InitControls();
         }
 
         private void InitControls()
         {
-            var appbar = FindViewById<AppBarLayout>(Resource.Id.change_appbar);
-            var toolbar = appbar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
-            var coordRoot = FindViewById<CoordinatorLayout>(Resource.Id.change_root);
-            nextBtn = FindViewById<MaterialButton>(Resource.Id.confirm_change_btn);
-            var otpView = FindViewById<Pinview>(Resource.Id.change_otp_tv);
-            newPhoneNumEt = FindViewById<TextInputEditText>(Resource.Id.phone_number_et_2);
-            newDialcodeEt = FindViewById<AppCompatAutoCompleteTextView>(Resource.Id.dialcode_et_2);
-            oldPhoneNumEt = FindViewById<TextInputEditText>(Resource.Id.phone_number_et);
-            oldDialcodeEt = FindViewById<AppCompatAutoCompleteTextView>(Resource.Id.dialcode_et);
-            var confirmOtpBtn = FindViewById<MaterialButton>(Resource.Id.confirm_otp_btn);
-            var logoutBtn = FindViewById<MaterialButton>(Resource.Id.Log_out_btn);
+            var appbar = FindViewById<AppBarLayout>(R.Id.change_appbar);
+            var toolbar = appbar.FindViewById<Toolbar>(R.Id.main_toolbar);
+            var coordRoot = FindViewById<CoordinatorLayout>(R.Id.change_root);
+            nextBtn = FindViewById<MaterialButton>(R.Id.confirm_change_btn);
+            var otpView = FindViewById<Pinview>(R.Id.change_otp_tv);
+            newPhoneNumEt = FindViewById<TextInputEditText>(R.Id.phone_number_et_2);
+            newDialcodeEt = FindViewById<AppCompatAutoCompleteTextView>(R.Id.dialcode_et_2);
+            oldPhoneNumEt = FindViewById<TextInputEditText>(R.Id.phone_number_et);
+            oldDialcodeEt = FindViewById<AppCompatAutoCompleteTextView>(R.Id.dialcode_et);
+            var confirmOtpBtn = FindViewById<MaterialButton>(R.Id.confirm_otp_btn);
+            var logoutBtn = FindViewById<MaterialButton>(R.Id.Log_out_btn);
 
-            otpView.SetPinBackgroundRes(AppCompatDelegate.DefaultNightMode == AppCompatDelegate.ModeNightYes ? Resource.Color.gray_dark : Resource.Color.gray_light);
+            otpView.SetPinBackgroundRes(AppCompatDelegate.DefaultNightMode == AppCompatDelegate.ModeNightYes ? R.Color.gray_dark : R.Color.gray_light);
 
             coordRoot.RequestFocus();
             SetSupportActionBar(toolbar);

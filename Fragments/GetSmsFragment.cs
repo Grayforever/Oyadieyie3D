@@ -18,6 +18,7 @@ using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
 using System;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -47,18 +48,18 @@ namespace Oyadieyie3D.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.get_sms_fragment, container, false);
+            return inflater.Inflate(R.Layout.get_sms_fragment, container, false);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            otpView = view.FindViewById<Pinview>(Resource.Id.otp_tv);
-            verifiyBtn = view.FindViewById<FloatingActionButton>(Resource.Id.verify_otp_fab);
-            resendBtn = view.FindViewById<MaterialButton>(Resource.Id.resend_code_btn);
-            numTv = view.FindViewById<TextView>(Resource.Id.get_sms_sub2);
-            var editNumTv  = view.FindViewById<TextView>(Resource.Id.get_sms_sub3);
-            var toolbarMain = view.FindViewById<Toolbar>(Resource.Id.get_sms_toolbar);
+            otpView = view.FindViewById<Pinview>(R.Id.otp_tv);
+            verifiyBtn = view.FindViewById<FloatingActionButton>(R.Id.verify_otp_fab);
+            resendBtn = view.FindViewById<MaterialButton>(R.Id.resend_code_btn);
+            numTv = view.FindViewById<TextView>(R.Id.get_sms_sub2);
+            var editNumTv  = view.FindViewById<TextView>(R.Id.get_sms_sub3);
+            var toolbarMain = view.FindViewById<Toolbar>(R.Id.get_sms_toolbar);
 
             string smsTxt = "An SMS code was sent to\n";
             var ss = new SpannableString(smsTxt + phone);
@@ -215,7 +216,7 @@ namespace Oyadieyie3D.Fragments
             OnboardingActivity.Instance.SetStatus(Constants.REG_STAGE_CREATE_PROFILE);
             OnboardingActivity.Instance.DismissLoader();
             ParentFragmentManager.BeginTransaction()
-                .Replace(Resource.Id.frag_container, new CreateProfileFragment())
+                .Replace(R.Id.frag_container, new CreateProfileFragment())
                 .CommitAllowingStateLoss();
         }
 
@@ -259,7 +260,7 @@ namespace Oyadieyie3D.Fragments
                     finally
                     {
                         resendBtn.Visibility = ViewStates.Invisible;
-                        numTv.SetText(Resource.String.wrong_num_msg);
+                        numTv.SetText(R.String.wrong_num_msg);
                         numTv.SetTextColor(ColorStateList.ValueOf(Color.Red));
                     }
 

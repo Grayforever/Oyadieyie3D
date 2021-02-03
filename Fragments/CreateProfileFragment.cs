@@ -22,6 +22,7 @@ using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
 using System;
 using static Android.Widget.RadioGroup;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -47,21 +48,21 @@ namespace Oyadieyie3D.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.profile_fragment, container, false);
+            return inflater.Inflate(R.Layout.profile_fragment, container, false);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            dobLayout = view.FindViewById<TextInputLayout>(Resource.Id.pro_dob_et);
-            dobEditText = dobLayout.FindViewById<TextInputEditText>(Resource.Id.dob_et);
-            fabPictureOptions = view.FindViewById<FloatingActionButton>(Resource.Id.pro_cam_fab);
-            profileImageView = view.FindViewById<CircleImageView>(Resource.Id.pro_prof_iv);
-            continueBtn = view.FindViewById<MaterialButton>(Resource.Id.pro_cont_btn);
-            fullnameEt = view.FindViewById<TextInputLayout>(Resource.Id.pro_full_name_et);
-            emailEt = view.FindViewById<TextInputLayout>(Resource.Id.pro_email_et);
-            locationEt = view.FindViewById<TextInputLayout>(Resource.Id.pro_loc_et);
-            genderRadioGroup = view.FindViewById<RadioGroup>(Resource.Id.pro_gender_grp);
+            dobLayout = view.FindViewById<TextInputLayout>(R.Id.pro_dob_et);
+            dobEditText = dobLayout.FindViewById<TextInputEditText>(R.Id.dob_et);
+            fabPictureOptions = view.FindViewById<FloatingActionButton>(R.Id.pro_cam_fab);
+            profileImageView = view.FindViewById<CircleImageView>(R.Id.pro_prof_iv);
+            continueBtn = view.FindViewById<MaterialButton>(R.Id.pro_cont_btn);
+            fullnameEt = view.FindViewById<TextInputLayout>(R.Id.pro_full_name_et);
+            emailEt = view.FindViewById<TextInputLayout>(R.Id.pro_email_et);
+            locationEt = view.FindViewById<TextInputLayout>(R.Id.pro_loc_et);
+            genderRadioGroup = view.FindViewById<RadioGroup>(R.Id.pro_gender_grp);
 
             genderRadioGroup.SetOnCheckedChangeListener(this);
 
@@ -138,7 +139,7 @@ namespace Oyadieyie3D.Fragments
 
                             OnboardingActivity.Instance.SetStatus(Constants.REG_STAGE_SET_PARTNER);
                             ParentFragmentManager.BeginTransaction()
-                                .Replace(Resource.Id.frag_container, new PartnerFragment())
+                                .Replace(R.Id.frag_container, new PartnerFragment())
                                 .CommitAllowingStateLoss();
 
                         }
@@ -191,10 +192,10 @@ namespace Oyadieyie3D.Fragments
         {
             switch (checkedId)
             {
-                case Resource.Id.pro_male:
+                case R.Id.pro_male:
                     userGender = Gender.Male;
                     break;
-                case Resource.Id.pro_female:
+                case R.Id.pro_female:
                     userGender = Gender.Female;
                     break;
             }                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                           

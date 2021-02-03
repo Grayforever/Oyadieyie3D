@@ -1,5 +1,6 @@
 ﻿using Android.OS;
 using Android.Views;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -14,7 +15,7 @@ namespace Oyadieyie3D.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.premium_fragment, container, false);
+            return inflater.Inflate(R.Layout.premium_fragment, container, false);
         }
     }
 }

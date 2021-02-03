@@ -6,6 +6,7 @@ using Android.Provider;
 using Android.Runtime;
 using AndroidX.Preference;
 using Oyadieyie3D.HelperClasses;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -24,7 +25,7 @@ namespace Oyadieyie3D.Fragments
 
         public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
         {
-            SetPreferencesFromResource(Resource.Xml.notifications_pref_screen, rootKey);
+            SetPreferencesFromResource(R.Xml.notifications_pref_screen, rootKey);
             ringtonePref = PreferenceScreen.FindPreference(Ringtone_Key);
             ringtonePref.Summary = GetToneName(PreferenceHelper.Instance.GetString(Ringtone_Key, Settings.System.DefaultNotificationUri.ToString()));
         }

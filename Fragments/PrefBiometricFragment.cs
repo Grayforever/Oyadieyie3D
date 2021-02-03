@@ -8,6 +8,7 @@ using Java.Util.Concurrent;
 using Oyadieyie3D.Callbacks;
 using Oyadieyie3D.HelperClasses;
 using static AndroidX.Preference.Preference;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -32,7 +33,7 @@ namespace Oyadieyie3D.Fragments
 
         public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
         {
-            SetPreferencesFromResource(Resource.Xml.biometric_pref_screen, rootKey);
+            SetPreferencesFromResource(R.Xml.biometric_pref_screen, rootKey);
             bioSwitchPreference = (SwitchPreferenceCompat)PreferenceScreen.FindPreference(BioSwitchKey);
             durationlistPreference = (ListPreference)PreferenceScreen.FindPreference(DurationListKey);
             bioSwitchPreference.OnPreferenceChangeListener = this;

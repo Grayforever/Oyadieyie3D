@@ -6,6 +6,7 @@ using DanielStone.MaterialAboutLibrary;
 using DanielStone.MaterialAboutLibrary.Items;
 using DanielStone.MaterialAboutLibrary.Model;
 using Java.Lang;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Activities
 {
@@ -14,7 +15,7 @@ namespace Oyadieyie3D.Activities
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
     public class AboutActivity : MaterialAboutActivity
     {
-        protected override ICharSequence ActivityTitleFormatted => GetTextFormatted(Resource.String.app_name);
+        protected override ICharSequence ActivityTitleFormatted => GetTextFormatted(R.String.app_name);
 
         protected override MaterialAboutList GetMaterialAboutList(Context context)
         {
@@ -22,7 +23,7 @@ namespace Oyadieyie3D.Activities
             aboutCard.AddItem(new MaterialAboutTitleItem.Builder()
                 .Text("Oyadieyie3D")
                 .Desc("© 2020 Gray Labs")
-                .Icon(Resource.Mipmap.ic_launcher)
+                .Icon(R.Mipmap.ic_launcher)
                 .Build());
 
             return new MaterialAboutList(aboutCard.Build());

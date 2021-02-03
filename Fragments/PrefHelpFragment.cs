@@ -1,6 +1,7 @@
 ﻿using Android.OS;
 using Android.Runtime;
 using AndroidX.Preference;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -14,7 +15,7 @@ namespace Oyadieyie3D.Fragments
 
         public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
         {
-            SetPreferencesFromResource(Resource.Xml.help_pref_screen, rootKey);
+            SetPreferencesFromResource(R.Xml.help_pref_screen, rootKey);
         }
     }
 }

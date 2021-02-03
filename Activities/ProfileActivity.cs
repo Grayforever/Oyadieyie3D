@@ -23,6 +23,7 @@ using Oyadieyie3D.Fragments;
 using Oyadieyie3D.HelperClasses;
 using System;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Activities
 {
@@ -44,20 +45,20 @@ namespace Oyadieyie3D.Activities
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.profile_activity);
+            SetContentView(R.Layout.profile_activity);
             PreferenceHelper.Init(this);
 
-            var appBar = FindViewById<AppBarLayout>(Resource.Id.profile_appbar);
-            var toolbar = appBar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
+            var appBar = FindViewById<AppBarLayout>(R.Id.profile_appbar);
+            var toolbar = appBar.FindViewById<Toolbar>(R.Id.main_toolbar);
 
-            camFab = FindViewById<FloatingActionButton>(Resource.Id.cam_fab);
-            profileImageView = FindViewById<CircleImageView>(Resource.Id.prof_prof_iv);
-            var usernameEt = FindViewById<TextInputLayout>(Resource.Id.prof_fname_et);
-            var phoneEt = FindViewById<TextInputLayout>(Resource.Id.prof_phone_et);
-            var statusEt = FindViewById<TextInputLayout>(Resource.Id.prof_about_et);
-            phoneEditText = phoneEt.FindViewById<TextInputEditText>(Resource.Id.phone_edittext);
-            usernameEditText = usernameEt.FindViewById<TextInputEditText>(Resource.Id.name_edittext);
-            statusEditText = statusEt.FindViewById<AppCompatAutoCompleteTextView>(Resource.Id.status_autocomplete);
+            camFab = FindViewById<FloatingActionButton>(R.Id.cam_fab);
+            profileImageView = FindViewById<CircleImageView>(R.Id.prof_prof_iv);
+            var usernameEt = FindViewById<TextInputLayout>(R.Id.prof_fname_et);
+            var phoneEt = FindViewById<TextInputLayout>(R.Id.prof_phone_et);
+            var statusEt = FindViewById<TextInputLayout>(R.Id.prof_about_et);
+            phoneEditText = phoneEt.FindViewById<TextInputEditText>(R.Id.phone_edittext);
+            usernameEditText = usernameEt.FindViewById<TextInputEditText>(R.Id.name_edittext);
+            statusEditText = statusEt.FindViewById<AppCompatAutoCompleteTextView>(R.Id.status_autocomplete);
 
             toolbar.Title = "Profile";
             SetSupportActionBar(toolbar);
@@ -69,7 +70,7 @@ namespace Oyadieyie3D.Activities
             profileChooserFrag.OnCropComplete += ProfileChooserFrag_OnCropComplete;
 
             RequestOptions requestOptions = new RequestOptions();
-            requestOptions.Placeholder(Resource.Drawable.user);
+            requestOptions.Placeholder(R.Drawable.user);
 
             profileImageView.Click += ProfileImageView_Click;
 
@@ -185,10 +186,10 @@ namespace Oyadieyie3D.Activities
         {
             switch (v.Id)
             {
-                case Resource.Id.phone_edittext:
+                case R.Id.phone_edittext:
                     MainActivity.Instance.ShowWarning(this, "Change number", "Do you wish to change your number?", ConfirmYes());
                     break;
-                case Resource.Id.name_edittext:
+                case R.Id.name_edittext:
 
                     break;
             }

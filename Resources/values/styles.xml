@@ -12,12 +12,31 @@
 		<item name="android:windowSharedElementsUseOverlay">true</item>
         <item name="android:windowSharedElementEnterTransition">@transition/smooth_transition</item>
         <item name="android:windowSharedElementExitTransition">@transition/smooth_transition</item>
+		<item name="tabStyle">@style/Widget.App.TabLayout</item>
     </style>
+
+	<style name="Widget.App.TabLayout" parent="Widget.MaterialComponents.TabLayout">
+		<item name="tabTextAppearance">@style/TabTextAppearance</item>
+	</style>
+
+	<style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+		<item name="textAllCaps">false</item>
+	</style>
 
 	<style name="AppTheme.Splash" parent="Theme.MaterialComponents.Light.NoActionBar">
 		<item name="android:windowFullscreen">true</item>
 		<item name="android:windowBackground">@drawable/splash_drawable</item>
 		<item name="android:windowNoTitle">true</item>
+	</style>
+
+
+	<style name="AppTheme.CustomFeaturedTheme">
+		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
+		<item name="android:statusBarColor">@android:color/transparent</item>
+	</style>
+
+	<style name="ShapeAppearanceOverlay.App.CornerSize10Percent" parent="">
+		<item name="cornerSize">10%</item>
 	</style>
 
 	<style name="AppTheme.RatingTextView">

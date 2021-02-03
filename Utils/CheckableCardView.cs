@@ -6,6 +6,7 @@ using Android.Views;
 using Android.Widget;
 using Google.Android.Material.Card;
 using System;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Utils
 {
@@ -31,21 +32,21 @@ namespace Oyadieyie3D.Utils
 
         private void Init(IAttributeSet attrs)
         {
-            LayoutInflater.From(Context).Inflate(Resource.Layout.checkable_cardview, this, true);
+            LayoutInflater.From(Context).Inflate(R.Layout.checkable_cardview, this, true);
             Radius = TypedValue.ApplyDimension(ComplexUnitType.Dip, 12, Context.Resources.DisplayMetrics);
 
             if(attrs != null)
             {
-                TypedArray ta = Context.ObtainStyledAttributes(attrs, Resource.Styleable.CheckableCardView, 0, 0);
+                TypedArray ta = Context.ObtainStyledAttributes(attrs, R.Styleable.CheckableCardView, 0, 0);
                 try
                 {
-                    string planTitle = ta.GetString(Resource.Styleable.CheckableCardView_planTitle);
-                    string planOffer = ta.GetString(Resource.Styleable.CheckableCardView_planOffer);
-                    string planTerms = ta.GetString(Resource.Styleable.CheckableCardView_planTerms);
+                    string planTitle = ta.GetString(R.Styleable.CheckableCardView_planTitle);
+                    string planOffer = ta.GetString(R.Styleable.CheckableCardView_planOffer);
+                    string planTerms = ta.GetString(R.Styleable.CheckableCardView_planTerms);
 
-                    TextView titleTv = FindViewById<TextView>(Resource.Id.s_card_txt);
-                    TextView offerTv = FindViewById<TextView>(Resource.Id.s_card_box_txt);
-                    TextView termsTv = FindViewById<TextView>(Resource.Id.s_card_offer_det_txt);
+                    TextView titleTv = FindViewById<TextView>(R.Id.s_card_txt);
+                    TextView offerTv = FindViewById<TextView>(R.Id.s_card_box_txt);
+                    TextView termsTv = FindViewById<TextView>(R.Id.s_card_offer_det_txt);
 
                     titleTv.Text = !string.IsNullOrEmpty(planTitle) ? planTitle : "";
                     offerTv.Text = !string.IsNullOrEmpty(planOffer) ? planOffer : "";

@@ -8,6 +8,7 @@ using Oyadieyie3D.Events;
 using Oyadieyie3D.Fragments;
 using Ramotion.PaperOnboarding;
 using System.Collections.Generic;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Activities
 {
@@ -16,22 +17,12 @@ namespace Oyadieyie3D.Activities
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
     public class GetPremiumActivity : AppCompatActivity
     {
-        private const int container = Resource.Id.premium_container;
+        private const int container = R.Id.premium_container;
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.get_premium);
-            var isInvokeFromHome = Intent.GetBooleanExtra(MainActivity.premiumLauncherKey, false);
-            if (!isInvokeFromHome)
-            {
-                InitWalkThrough();
-            }
-            else
-            {
-                Window.ClearFlags(WindowManagerFlags.TranslucentStatus);
-                Window.DecorView.SystemUiVisibility = (StatusBarVisibility)SystemUiFlags.LightStatusBar;
-                SetPremiumFragmnt();
-            }
+            SetContentView(R.Layout.get_premium);
+            InitWalkThrough();
 
         }
 
@@ -62,9 +53,9 @@ namespace Oyadieyie3D.Activities
             var ft = SupportFragmentManager.BeginTransaction();
             var onboardingFragment = PaperOnboardingFragment.NewInstance(new List<PaperOnboardingPage>
             {
-                new PaperOnboardingPage("On top of the world", "Amet stet diam dolor erat lorem amet lorem et molestie", Color.ParseColor("#FFD54F"), Resource.Drawable.machine, Resource.Drawable.shopping_cart),
-                new PaperOnboardingPage("Get featured","Nihil eos eos ea consequat consetetur et rebum elit no", Color.ParseColor("#4DB6AC"), Resource.Drawable.machine, Resource.Drawable.shopping_cart),
-                new PaperOnboardingPage("Get noticed", "Lorem consetetur eum lorem ut accusam illum dolor esse est", Color.ParseColor("#9575CD"), Resource.Drawable.machine, Resource.Drawable.shopping_cart)
+                new PaperOnboardingPage("On top of the world", "Amet stet diam dolor erat lorem amet lorem et molestie", Color.ParseColor("#FFD54F"), R.Drawable.machine, R.Drawable.shopping_cart),
+                new PaperOnboardingPage("Get featured","Nihil eos eos ea consequat consetetur et rebum elit no", Color.ParseColor("#4DB6AC"), R.Drawable.machine, R.Drawable.shopping_cart),
+                new PaperOnboardingPage("Get noticed", "Lorem consetetur eum lorem ut accusam illum dolor esse est", Color.ParseColor("#9575CD"), R.Drawable.machine, R.Drawable.shopping_cart)
             });
 
             onboardingFragment.SetOnRightOutListener(new OnRightOutListener(

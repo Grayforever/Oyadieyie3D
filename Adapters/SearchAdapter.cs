@@ -2,12 +2,12 @@
 using Android.Widget;
 using AndroidX.RecyclerView.Widget;
 using Bumptech.Glide;
-using BumpTech.GlideLib;
 using Google.Android.Material.Chip;
 using Google.Android.Material.ImageView;
 using Oyadieyie3D.Models;
 using System;
 using System.Collections.Generic;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Adapters
 {
@@ -25,7 +25,7 @@ namespace Oyadieyie3D.Adapters
         // Create new views (invoked by the layout manager)
         public override RecyclerView.ViewHolder OnCreateViewHolder(ViewGroup parent, int viewType)
         {
-            var id = Resource.Layout.search_item;
+            var id = R.Layout.search_item;
             var itemView = LayoutInflater.From(parent.Context).Inflate(id, parent, false);
 
             var vh = new SearchAdapterViewHolder(itemView, OnClick, OnLongClick);
@@ -75,13 +75,13 @@ namespace Oyadieyie3D.Adapters
         public SearchAdapterViewHolder(View itemView, Action<SearchAdapterClickEventArgs> clickListener,
                             Action<SearchAdapterClickEventArgs> longClickListener) : base(itemView)
         {
-            BannerImage = itemView.FindViewById<ShapeableImageView>(Resource.Id.banner_iv);
-            ClientName = itemView.FindViewById<TextView>(Resource.Id.client_name_tv);
-            ClientLocation = itemView.FindViewById<TextView>(Resource.Id.client_location_tv);
-            ClientOpeningHours = itemView.FindViewById<TextView>(Resource.Id.open_label);
-            ClientFavCount = itemView.FindViewById<TextView>(Resource.Id.favs_tv);
-            ClientRating = itemView.FindViewById<Chip>(Resource.Id.rating_chip);
-            ClientDistanceAway = itemView.FindViewById<TextView>(Resource.Id.meters_away_tv);
+            BannerImage = itemView.FindViewById<ShapeableImageView>(R.Id.banner_iv);
+            ClientName = itemView.FindViewById<TextView>(R.Id.client_name_tv);
+            ClientLocation = itemView.FindViewById<TextView>(R.Id.client_location_tv);
+            ClientOpeningHours = itemView.FindViewById<TextView>(R.Id.open_label);
+            ClientFavCount = itemView.FindViewById<TextView>(R.Id.favs_tv);
+            ClientRating = itemView.FindViewById<Chip>(R.Id.rating_chip);
+            ClientDistanceAway = itemView.FindViewById<TextView>(R.Id.meters_away_tv);
 
             itemView.Click += (sender, e) => clickListener(new SearchAdapterClickEventArgs { View = itemView, Position = AdapterPosition });
             itemView.LongClick += (sender, e) => longClickListener(new SearchAdapterClickEventArgs { View = itemView, Position = AdapterPosition });

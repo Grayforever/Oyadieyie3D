@@ -3,52 +3,57 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:fitsSystemWindows="true">
 
     <com.google.android.material.appbar.AppBarLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/featured_appbar"
-        app:liftOnScroll="true">
+        android:fitsSystemWindows="true">
 
         <com.google.android.material.appbar.CollapsingToolbarLayout
             android:id="@+id/mycoll"
             android:layout_width="match_parent"
-            android:layout_height="256dp"
-            app:layout_scrollFlags="scroll|exitUntilCollapsed|snap"
-            android:background="?android:attr/colorBackground"
-            app:titleEnabled="false">
+            android:layout_height="226.5dp"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            android:fitsSystemWindows="true"
+            app:statusBarScrim="@android:color/transparent"
+            android:background="?android:attr/colorBackground">
 
-            <com.google.android.material.imageview.ShapeableImageView
-                android:id="@+id/collimg"
-                android:scaleType="centerCrop"
+            <FrameLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
+                android:id="@+id/iv_container"
+                android:fitsSystemWindows="true"
                 app:layout_collapseMode="parallax"
-                app:layout_collapseParallaxMultiplier="0.8"/>
+                app:layout_collapseParallaxMultiplier="0.8">
 
-            <View
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:alpha="0.3"
-                android:background="@android:color/black"
-                android:fitsSystemWindows="true"/>
+                <com.flaviofaria.kenburnsview.KenBurnsView
+                    android:id="@+id/collimg"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:fitsSystemWindows="true"
+                    android:contentDescription="@null"
+                    />
+
+            </FrameLayout>         
 
             <androidx.appcompat.widget.Toolbar
                 android:layout_width="match_parent"
                 android:layout_height="?android:attr/actionBarSize"
                 app:layout_collapseMode="pin"
                 android:layout_gravity="top"
-                android:layout_marginBottom="48dp"
                 android:id="@+id/featured_toolbar"
-                app:menu="@menu/featured_menu"
             />
 
             <com.google.android.material.tabs.TabLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
+                android:layout_height="@dimen/tab_height"
                 android:id="@+id/featured_tablayout"
                 android:layout_gravity="bottom"
+                app:tabMode="fixed"
+                app:tabGravity="center"
             />
 
         </com.google.android.material.appbar.CollapsingToolbarLayout>
@@ -60,6 +65,7 @@
         android:layout_height="match_parent"
         android:id="@+id/featured_viewpager"
         app:layout_behavior="@string/appbar_scrolling_view_behavior"
+        android:overScrollMode="never"
         />
  
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

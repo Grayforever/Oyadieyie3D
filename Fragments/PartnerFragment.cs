@@ -7,6 +7,7 @@ using Oyadieyie3D.Activities;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
 using Fragment = AndroidX.Fragment.App.Fragment;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -21,14 +22,14 @@ namespace Oyadieyie3D.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.account_type_fragment, container, false);
+            return inflater.Inflate(R.Layout.account_type_fragment, container, false);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            var buttonToggleGrp = view.FindViewById<MaterialButtonToggleGroup>(Resource.Id.acc_type_opt_tglgrp);
-            var nextBtn = view.FindViewById<MaterialButton>(Resource.Id.acc_type_nxt_btn);
+            var buttonToggleGrp = view.FindViewById<MaterialButtonToggleGroup>(R.Id.acc_type_opt_tglgrp);
+            var nextBtn = view.FindViewById<MaterialButton>(R.Id.acc_type_nxt_btn);
             buttonToggleGrp.AddOnButtonCheckedListener(new ButtonCheckedListener((group, id, isChecked) => 
             {
                 

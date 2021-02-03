@@ -9,6 +9,7 @@ using Oyadieyie3D.Fragments;
 using Oyadieyie3D.HelperClasses;
 using Ramotion.PaperOnboarding;
 using System.Collections.Generic;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Activities
 {
@@ -26,7 +27,7 @@ namespace Oyadieyie3D.Activities
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.onboarding_activity);
+            SetContentView(R.Layout.onboarding_activity);
             Instance = this;
             GetStage(base.Intent.GetStringExtra(Constants.SESION_CHILD));
         }
@@ -74,13 +75,13 @@ namespace Oyadieyie3D.Activities
             var onboardingFragment = PaperOnboardingFragment.NewInstance(new List<PaperOnboardingPage>
             {
                 new PaperOnboardingPage(Constants.ONBDTITLE_1, Constants.ONBDESC_1, Color.ParseColor("#EF9A9A"), 
-                Resource.Drawable.tailor, Resource.Drawable.shopping_cart),
+                R.Drawable.tailor, R.Drawable.shopping_cart),
 
                 new PaperOnboardingPage(Constants.ONBDTITLE_2, Constants.ONBDESC_2, Color.ParseColor("#F48FB1"), 
-                Resource.Drawable.tailor_with_client2, Resource.Drawable.shopping_cart),
+                R.Drawable.tailor_with_client2, R.Drawable.shopping_cart),
 
                 new PaperOnboardingPage(Constants.ONBDTITLE_3, Constants.ONBDESC_3, Color.ParseColor("#CE93D8"), 
-                Resource.Drawable.pay, Resource.Drawable.wallet)
+                R.Drawable.pay, R.Drawable.wallet)
             });
 
             onboardingFragment.SetOnRightOutListener(new OnRightOutListener(
@@ -97,7 +98,7 @@ namespace Oyadieyie3D.Activities
         private void SetFragment(AndroidX.Fragment.App.Fragment fragment)
         {
             SupportFragmentManager.BeginTransaction()
-                .Replace(Resource.Id.frag_container, fragment)
+                .Replace(R.Id.frag_container, fragment)
                 .CommitAllowingStateLoss();
         }
 

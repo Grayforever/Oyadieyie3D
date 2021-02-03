@@ -9,6 +9,7 @@ using Google.Android.Material.Button;
 using Java.Lang;
 using Java.Util.Concurrent;
 using Oyadieyie3D.Callbacks;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Activities
 {
@@ -23,9 +24,9 @@ namespace Oyadieyie3D.Activities
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.biometric_prompt_sheet);
+            SetContentView(R.Layout.biometric_prompt_sheet);
             
-            var unlockBtn = FindViewById<MaterialButton>(Resource.Id.unlock_bio_btn);
+            var unlockBtn = FindViewById<MaterialButton>(R.Id.unlock_bio_btn);
             unlockBtn.Click += UnlockBtn_Click;
         }
 

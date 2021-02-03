@@ -2,6 +2,7 @@
 using Android.Runtime;
 using AndroidX.Preference;
 using Oyadieyie3D.HelperClasses;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -20,7 +21,7 @@ namespace Oyadieyie3D.Fragments
 
         public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
         {
-            SetPreferencesFromResource(Resource.Xml.privacy_pref_screen, rootKey);
+            SetPreferencesFromResource(R.Xml.privacy_pref_screen, rootKey);
             lablePref = PreferenceScreen.FindPreference(LablePrefKey);
             bioStatus = PreferenceHelper.Instance.GetBoolean(Constants.BioStatusKey);
             lablePref.Summary = bioStatus != true ? "Disabled" : "Enabled";

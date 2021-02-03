@@ -5,6 +5,7 @@ using AndroidX.Preference;
 using Google.Android.Material.AppBar;
 using static AndroidX.Fragment.App.FragmentManager;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Activities
 {
@@ -21,9 +22,9 @@ namespace Oyadieyie3D.Activities
         {
             base.OnCreate(savedInstanceState);
 
-            SetContentView(Resource.Layout.settings_activity);
-            var appBar = FindViewById<AppBarLayout>(Resource.Id.settings_appbar);
-            toolbar = appBar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
+            SetContentView(R.Layout.settings_activity);
+            var appBar = FindViewById<AppBarLayout>(R.Id.settings_appbar);
+            toolbar = appBar.FindViewById<Toolbar>(R.Id.main_toolbar);
 
             if (savedInstanceState == null)
             {
@@ -34,7 +35,7 @@ namespace Oyadieyie3D.Activities
                 }
 
                 var ft = SupportFragmentManager.BeginTransaction();
-                ft.Replace(Resource.Id.frag_container_s, fragment, SettingsFragment.FRAGMENT_TAG);
+                ft.Replace(R.Id.frag_container_s, fragment, SettingsFragment.FRAGMENT_TAG);
                 ft.Commit();
 
             }
@@ -48,7 +49,7 @@ namespace Oyadieyie3D.Activities
                 var id = SupportFragmentManager.BackStackEntryCount;
                 if (SupportFragmentManager.BackStackEntryCount == 0)
                 {
-                    SetTitle(Resource.String.settings_title);
+                    SetTitle(R.String.settings_title);
                 }
 
             }));
@@ -79,8 +80,8 @@ namespace Oyadieyie3D.Activities
             fragment.Arguments = args;
             fragment.SetTargetFragment(caller, 0);
 
-            ft.SetCustomAnimations(Resource.Animation.enter, Resource.Animation.exit, Resource.Animation.pop_enter, Resource.Animation.pop_exit);
-            ft.Replace(Resource.Id.frag_container_s, fragment, pref.Key);
+            ft.SetCustomAnimations(R.Animation.enter, R.Animation.exit, R.Animation.pop_enter, R.Animation.pop_exit);
+            ft.Replace(R.Id.frag_container_s, fragment, pref.Key);
             ft.AddToBackStack(null);
             ft.Commit();
 
@@ -111,7 +112,7 @@ namespace Oyadieyie3D.Activities
 
             public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
             {
-                SetPreferencesFromResource(Resource.Xml.settings_pref, rootKey);
+                SetPreferencesFromResource(R.Xml.settings_pref, rootKey);
             }
 
             public override AndroidX.Fragment.App.Fragment CallbackFragment => this;

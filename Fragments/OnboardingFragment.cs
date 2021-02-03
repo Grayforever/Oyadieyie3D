@@ -13,6 +13,7 @@ using Oyadieyie3D.Utils;
 using System.Collections.Generic;
 using Xamarin.Facebook;
 using Xamarin.Facebook.Login;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -34,15 +35,15 @@ namespace Oyadieyie3D.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.get_started_fragment, container, false);
+            return inflater.Inflate(R.Layout.get_started_fragment, container, false);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            phoneEt = view.FindViewById<TextInputLayout>(Resource.Id.phone_et);
-            var gsPhoneEt = view.FindViewById<TextInputEditText>(Resource.Id.gs_phone_et);
-            var facebookTv = view.FindViewById<TextView>(Resource.Id.facebook_log_btn);
+            phoneEt = view.FindViewById<TextInputLayout>(R.Id.phone_et);
+            var gsPhoneEt = view.FindViewById<TextInputEditText>(R.Id.gs_phone_et);
+            var facebookTv = view.FindViewById<TextView>(R.Id.facebook_log_btn);
 
             gsPhoneEt.Click += (s2, e2) => GotoEnterPhone();
 
@@ -56,7 +57,7 @@ namespace Oyadieyie3D.Fragments
             ParentFragmentManager.BeginTransaction()
                 .AddSharedElement(phoneEt, "phone_et")
                 .AddToBackStack(TAG)
-                .Replace(Resource.Id.frag_container, new EnterPhoneFragment())
+                .Replace(R.Id.frag_container, new EnterPhoneFragment())
                 .CommitAllowingStateLoss();
         }
 

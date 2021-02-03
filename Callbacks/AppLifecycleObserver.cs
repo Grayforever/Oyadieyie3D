@@ -7,6 +7,7 @@ using Oyadieyie3D.Activities;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
 using System;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Callbacks
 {
@@ -70,7 +71,7 @@ namespace Oyadieyie3D.Callbacks
 
             if (isFingerprintEnabled)
             {
-                string strDuration = PreferenceHelper.Instance.GetString(Constants.LockDuration, GetString(Resource.String.default_lock));
+                string strDuration = PreferenceHelper.Instance.GetString(Constants.LockDuration, GetString(R.String.default_lock));
                 int duration = int.Parse(strDuration);
                 timer = new CountdownTimer(duration, 1000,
                 onFinsh: () =>

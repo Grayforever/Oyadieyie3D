@@ -4,14 +4,13 @@ using Android.Widget;
 using AndroidX.ConstraintLayout.Widget;
 using AndroidX.Transitions;
 using Com.Mukesh.CountryPickerLib;
-using Firebase.Database.Core;
 using Google.Android.Material.Button;
 using Google.Android.Material.TextField;
 using Java.Util;
 using Oyadieyie3D.Activities;
 using Oyadieyie3D.Events;
-using Oyadieyie3D.HelperClasses;
 using Constants = Oyadieyie3D.HelperClasses.Constants;
+using R = Oyadieyie3D.Resource;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
 namespace Oyadieyie3D.Fragments
@@ -28,20 +27,20 @@ namespace Oyadieyie3D.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.enter_phone_fragment, container, false);
+            return inflater.Inflate(R.Layout.enter_phone_fragment, container, false);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
 
-            var toolbarMain = view.FindViewById<Toolbar>(Resource.Id.enter_phone_toolbar);
-            var countryLinear = view.FindViewById<ConstraintLayout>(Resource.Id.cpicker_lin);
-            var phoneEt = view.FindViewById<TextInputLayout>(Resource.Id.enter_phone_et);
-            var nextBtn = view.FindViewById<MaterialButton>(Resource.Id.enter_cont_btn);
-            var countryFlagIv = view.FindViewById<ImageView>(Resource.Id.cflag_iv);
-            var dialcodeTv = view.FindViewById<TextView>(Resource.Id.dialcode_tv);
-            
+            var toolbarMain = view.FindViewById<Toolbar>(R.Id.enter_phone_toolbar);
+            var countryLinear = view.FindViewById<ConstraintLayout>(R.Id.cpicker_lin);
+            var phoneEt = view.FindViewById<TextInputLayout>(R.Id.enter_phone_et);
+            var nextBtn = view.FindViewById<MaterialButton>(R.Id.enter_cont_btn);
+            var countryFlagIv = view.FindViewById<ImageView>(R.Id.cflag_iv);
+            var dialcodeTv = view.FindViewById<TextView>(R.Id.dialcode_tv);
+
             var builder = new CountryPicker.Builder()
                 .With(Context)
                 .Listener(new CountryPickerListener(
@@ -73,10 +72,10 @@ namespace Oyadieyie3D.Fragments
 
                 ParentFragmentManager.BeginTransaction()
                     .AddToBackStack(null)
-                    .Replace(Resource.Id.frag_container, smsFragment)
+                    .Replace(R.Id.frag_container, smsFragment)
                     .CommitAllowingStateLoss();
             });
-            
+
         }
     }
 }

@@ -4,6 +4,7 @@ using AndroidX.Preference;
 using Bumptech.Glide;
 using Bumptech.Glide.Request;
 using Java.Lang;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.HelperClasses
 {
@@ -97,17 +98,17 @@ namespace Oyadieyie3D.HelperClasses
 
         internal void SetImageResource(ImageView imageview, string url, PlaceholderType placeholderType)
         {
-            int placeholder = Resource.Drawable.placeholder;
+            int placeholder = R.Drawable.placeholder;
             switch (placeholderType)
             {
                 case PlaceholderType.Normal:
-                    placeholder = Resource.Drawable.placeholder;
+                    placeholder = R.Drawable.placeholder;
                     break;
                 case PlaceholderType.Profile:
-                    placeholder = Resource.Drawable.ic_account_circle;
+                    placeholder = R.Drawable.ic_account_circle;
                     break;
                 case PlaceholderType.Landscape:
-                    placeholder = Resource.Drawable.placeholder;
+                    placeholder = R.Drawable.placeholder;
                     break;
             }
             var op = new RequestOptions();
