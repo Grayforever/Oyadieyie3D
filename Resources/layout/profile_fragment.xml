@@ -5,31 +5,29 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="@color/colorPrimary"
     tools:ignore="HardcodedText,ContentDescription">
 
-    <TextView
+    <androidx.appcompat.widget.Toolbar
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Create Profile"
-        android:padding="16dp"
-        android:textColor="@android:color/white"
-        android:textAppearance="?attr/textAppearanceHeadline6"
+        android:id="@+id/create_profile_toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:title="Create Profile"
+        app:navigationIcon="@drawable/ic_arrow_back"
         />
 
     <de.hdodenhof.circleimageview.CircleImageView
-        android:layout_width="144dp"
-        android:layout_height="144dp"
+        android:layout_width="128dp"
+        android:layout_height="128dp"
         android:id="@+id/pro_prof_iv"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/create_profile_toolbar"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toTopOf="@+id/pro_nest_container"
         android:src="@drawable/user"
         android:padding="8dp"
-        android:layout_marginTop="16dp"
         app:civ_border_width="1dp"
         app:civ_border_color="@android:color/white"
         />
@@ -61,7 +59,6 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:id="@+id/det_const"
-            android:background="@drawable/round_edges"
             android:padding="16dp"
             android:clipToPadding="false">
 
@@ -171,12 +168,15 @@
                 android:layout_width="0dp"
                 android:layout_height="56dp"
                 android:id="@+id/pro_cont_btn"
-                android:text="Continue"
+                style="@style/Widget.MaterialComponents.Button.Icon"
+                android:text="Next"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toBottomOf="@+id/pro_loc_et"
-                android:enabled="true"
+                android:enabled="false"
+                app:icon="@drawable/ic_arrow_forward"
+                app:iconGravity="end"
                 />
 
         </androidx.constraintlayout.widget.ConstraintLayout>

@@ -1,0 +1,161 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.cardview.widget.CardView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="248dp"
+    android:layout_margin="8dp"
+    android:clickable="true"
+    app:cardCornerRadius="8dp"
+    android:foreground="?android:attr/selectableItemBackgroundBorderless">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:paddingBottom="4dp">
+
+        <com.google.android.material.imageview.ShapeableImageView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/banner_iv"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent="0.45"
+            android:scaleType="centerCrop"
+            />
+
+        <com.google.android.material.chip.Chip
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/rating_chip"
+            app:layout_constraintTop_toBottomOf="@+id/banner_iv"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintBottom_toBottomOf="@+id/banner_iv"
+            android:textAppearance="?attr/textAppearanceBody1"
+            app:chipIconEnabled="true"
+            app:chipIcon="@drawable/ic_rating_star"
+            android:clickable="false"
+            android:elevation="2dp"
+            app:chipBackgroundColor="@color/colorAccent"
+            android:textColor="?android:attr/colorControlNormal"
+            app:chipIconTint="?android:attr/colorControlNormal"
+            app:chipIconSize="24dp"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/client_name_tv"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/rating_chip"
+            android:textAppearance="?attr/textAppearanceHeadline5"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center"
+            android:fontFamily="@font/raleway_bold"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/client_location_tv"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/client_name_tv"
+            android:textAppearance="?attr/textAppearanceBody2"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:gravity="center"
+            />
+
+        <View
+            android:layout_width="0dp"
+            android:layout_height="1dp"
+            android:id="@+id/seaparator_view1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/client_location_tv"
+            app:layout_constraintBottom_toTopOf="@+id/bird_box_const"
+            android:background="@color/gray_light"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/open_tv"
+            android:text="Open"
+            app:layout_constraintTop_toBottomOf="@+id/seaparator_view1"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintEnd_toStartOf="@+id/meters_away_tv"
+            android:textAppearance="?attr/textAppearanceBody1"
+            android:fontFamily="@font/raleway_bold"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/open_label"
+            app:layout_constraintStart_toStartOf="@+id/open_tv"
+            app:layout_constraintEnd_toEndOf="@+id/open_tv"
+            app:layout_constraintTop_toBottomOf="@+id/open_tv"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:gravity="center| bottom"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/meters_away_tv"
+            app:layout_constraintTop_toBottomOf="@+id/seaparator_view1"
+            app:layout_constraintStart_toEndOf="@+id/open_tv"
+            app:layout_constraintEnd_toStartOf="@+id/favs_tv"
+            android:textAppearance="?attr/textAppearanceBody1"
+            android:fontFamily="@font/raleway_bold"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/meters_away_label"
+            app:layout_constraintStart_toStartOf="@+id/meters_away_tv"
+            app:layout_constraintEnd_toEndOf="@+id/meters_away_tv"
+            app:layout_constraintTop_toBottomOf="@+id/meters_away_tv"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="Away"
+            android:gravity="center| bottom"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:id="@+id/favs_tv"
+            app:layout_constraintTop_toBottomOf="@+id/seaparator_view1"
+            app:layout_constraintStart_toEndOf="@+id/meters_away_tv"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:textAppearance="?attr/textAppearanceBody1"
+            android:fontFamily="@font/raleway_bold"
+            android:gravity="center"
+            />
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            android:id="@+id/favs_label"
+            app:layout_constraintStart_toStartOf="@+id/favs_tv"
+            app:layout_constraintEnd_toEndOf="@+id/favs_tv"
+            app:layout_constraintTop_toBottomOf="@+id/favs_tv"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:text="Favorites"
+            android:gravity="center| bottom"
+            />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</androidx.cardview.widget.CardView>

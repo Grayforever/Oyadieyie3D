@@ -1,119 +1,126 @@
 ﻿using Android.App;
-using Android.Content;
 using Android.OS;
-using Android.Views;
-using Android.Widget;
 using AndroidX.AppCompat.App;
-using AndroidX.ConstraintLayout.Widget;
-using AndroidX.Core.App;
 using AndroidX.Preference;
-using BumpTech.GlideLib;
-using BumpTech.GlideLib.Requests;
-using DE.Hdodenhof.CircleImageViewLib;
 using Google.Android.Material.AppBar;
-using Oyadieyie3D.Fragments;
-using Oyadieyie3D.Parcelables;
-using Oyadieyie3D.HelperClasses;
+using static AndroidX.Fragment.App.FragmentManager;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Activities
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
+    [Activity(Label = "Settings", Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
-    public class SettingsActivity : AppCompatActivity, ISharedPreferencesOnSharedPreferenceChangeListener
+    public class SettingsActivity : AppCompatActivity, PreferenceFragmentCompat.IOnPreferenceStartFragmentCallback
     {
-        private ConstraintLayout profileConstraint;
-        private CircleImageView profileIv;
-        private Bundle extras;
-        private ProfileParcelable parcelable;
-        private TextView username_tv;
-        private TextView status_tv;
-        private string imgUrl;
-        private string username;
-        private string phone;
-        private string email;
-        private string status;
-        private string[] userPro;
+        private const string SettingsKey = "Settings";
+        private Toolbar toolbar;
+
+        private string tag;
 
         protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
 
-            SetContentView(Resource.Layout.settings_activity);
-            extras = Intent.Extras;
-            parcelable = (ProfileParcelable)extras.GetParcelable(Constants.PROFILE_DATA_EXTRA);
+            SetContentView(R.Layout.settings_activity);
+            var appBar = FindViewById<AppBarLayout>(R.Id.settings_appbar);
+            toolbar = appBar.FindViewById<Toolbar>(R.Id.main_toolbar);
 
-            username_tv = FindViewById<TextView>(Resource.Id.set_prof_name_tv);
-            status_tv = FindViewById<TextView>(Resource.Id.set_prof_extras_tv);
-            var appBar = FindViewById<AppBarLayout>(Resource.Id.settings_appbar);
-            var toolbar = appBar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
-            profileConstraint = FindViewById<ConstraintLayout>(Resource.Id.profile_const);
-            profileIv = FindViewById<CircleImageView>(Resource.Id.set_prof_iv);
-            
-            toolbar.Title = "Settings";
+            if (savedInstanceState == null)
+            {
+                var fragment = SupportFragmentManager.FindFragmentByTag(SettingsFragment.FRAGMENT_TAG);
+                if (fragment == null)
+                {
+                    fragment = new SettingsFragment();
+                }
+
+                var ft = SupportFragmentManager.BeginTransaction();
+                ft.Replace(R.Id.frag_container_s, fragment, SettingsFragment.FRAGMENT_TAG);
+                ft.Commit();
+
+            }
+            else
+            {
+                Title = savedInstanceState.GetCharSequence(SettingsKey);
+            }
+
+            SupportFragmentManager.AddOnBackStackChangedListener(new OnBackStackChangedlistener(() =>
+            {
+                var id = SupportFragmentManager.BackStackEntryCount;
+                if (SupportFragmentManager.BackStackEntryCount == 0)
+                {
+                    SetTitle(R.String.settings_title);
+                }
+
+            }));
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
-            toolbar.NavigationClick += Toolbar_NavigationClick;
-            SupportFragmentManager.BeginTransaction()
-                .Replace(Resource.Id.frag_container_s, new SettingsFragment())
-                .CommitAllowingStateLoss();
-
-            var prefs = PreferenceManager.GetDefaultSharedPreferences(this);
-            prefs.RegisterOnSharedPreferenceChangeListener(this);
-            var isOnline = prefs.GetBoolean(Constants.SWITCH_VALUE_EXTRA, false);
-            SetOnlineStatus(isOnline);
-
-            profileConstraint.Click += ProfileConstraint_Click;
-
-            RequestOptions requestOptions = new RequestOptions();
-            requestOptions.Placeholder(Resource.Drawable.user);
-
-            imgUrl = parcelable.UserProfile.ProfileImgUrl;
-            username = parcelable.UserProfile.Username;
-            phone = parcelable.UserProfile.Phone;
-            email = parcelable.UserProfile.Email;
-            status = parcelable.UserProfile.Status;
-            userPro = new string[] { imgUrl, username, phone, status };
-
-            Glide.With(this)
-                .SetDefaultRequestOptions(requestOptions)
-                .Load(imgUrl)
-                .Into(profileIv);
-
-            username_tv.Text = username;
-            status_tv.Text = status;
         }
 
-        private void SetOnlineStatus(bool isOnline)
+        protected override void OnSaveInstanceState(Bundle outState)
         {
-            Toast.MakeText(this, isOnline.ToString(), ToastLength.Short).Show();
+            base.OnSaveInstanceState(outState);
+            outState.PutCharSequence(SettingsKey, Title);
         }
 
-        public override bool OnCreateOptionsMenu(IMenu menu)
+        public override bool OnSupportNavigateUp()
         {
-            MenuInflater.Inflate(Resource.Menu.help_menu, menu);
-            return base.OnCreateOptionsMenu(menu);
+            base.OnBackPressed();
+            return true;
         }
 
-        public override bool OnOptionsItemSelected(IMenuItem item)
+        public bool OnPreferenceStartFragment(PreferenceFragmentCompat caller, Preference pref)
         {
-            Toast.MakeText(this, "Help me", ToastLength.Short).Show();
-            return base.OnOptionsItemSelected(item);
+            tag = pref.Key;
+            var ft = SupportFragmentManager.BeginTransaction();
+
+            Bundle args = pref.Extras;
+            var fragment = SupportFragmentManager.FragmentFactory.Instantiate(ClassLoader, pref.Fragment);
+            args.PutString(PreferenceFragmentCompat.ArgPreferenceRoot, pref.Key);
+            fragment.Arguments = args;
+            fragment.SetTargetFragment(caller, 0);
+
+            ft.SetCustomAnimations(R.Animation.enter, R.Animation.exit, R.Animation.pop_enter, R.Animation.pop_exit);
+            ft.Replace(R.Id.frag_container_s, fragment, pref.Key);
+            ft.AddToBackStack(null);
+            ft.Commit();
+
+            Title = pref.Title;
+            return true;
         }
 
-        private void ProfileConstraint_Click(object sender, System.EventArgs e)
+        internal sealed class OnBackStackChangedlistener : Java.Lang.Object, IOnBackStackChangedListener
         {
-            var intent = new Intent(this, typeof(ProfileActivity));
-            intent.PutStringArrayListExtra("extra_details", userPro);
-            ActivityOptionsCompat op = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, profileIv, "profile_holder");
-            StartActivity(intent, op.ToBundle());
+            private System.Action onBackStackChanged;
+            public OnBackStackChangedlistener(System.Action onBackStackChanged)
+            {
+                this.onBackStackChanged = onBackStackChanged;
+            }
+            public void OnBackStackChanged()
+            {
+                onBackStackChanged?.Invoke();
+            }
         }
 
-        private void Toolbar_NavigationClick(object sender, Toolbar.NavigationClickEventArgs e) => OnBackPressed();
-
-        public void OnSharedPreferenceChanged(ISharedPreferences sharedPreferences, string key)
+        internal sealed class SettingsFragment : PreferenceFragmentCompat
         {
+            public static string FRAGMENT_TAG = "my_preference_fragment";
+            public SettingsFragment()
+            {
 
+            }
+
+            public override void OnCreatePreferences(Bundle savedInstanceState, string rootKey)
+            {
+                SetPreferencesFromResource(R.Xml.settings_pref, rootKey);
+            }
+
+            public override AndroidX.Fragment.App.Fragment CallbackFragment => this;
+
+            public override void OnNavigateToScreen(PreferenceScreen preferenceScreen)
+            {
+                base.OnNavigateToScreen(preferenceScreen);
+            }
         }
     }
 }

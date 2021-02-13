@@ -1,0 +1,18 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+	<shortcut
+		android:shortcutId="find"
+		android:enabled="true"
+		android:icon="@drawable/ic_search"
+		android:shortcutShortLabel="@string/shtkt_find_tailor"
+		android:shortcutLongLabel="@string/shtkt_find_tailor"
+		android:shortcutDisabledMessage="@string/shtkt_find_tailor">
+
+		<intent
+			android:action="android.intent.action.VIEW"
+			android:targetPackage="com.graylabs.oyadieyie3d"
+			android:targetClass="id.Oyadieyie3D.Activities.FinderActivity"/>
+
+		<categories android:name="android.shortcut.conversation"/>
+	</shortcut>
+</shortcuts>

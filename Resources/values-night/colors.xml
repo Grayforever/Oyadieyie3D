@@ -1,0 +1,11 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<resources>
+	<color name="colorPrimary">#F48Fb1</color>
+	<color name="colorPrimaryDark">#000000</color>
+	<color name="colorAccent">#80CBC4</color>
+
+	<color name="temperature_text">@android:color/black</color>
+
+	<color name="linen">#a94064</color>
+	<color name="ghost">#f8f8ff</color>
+</resources>

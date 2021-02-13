@@ -1,8 +1,9 @@
 ﻿using Android.Content;
+using Android.Content.Res;
 using Android.Graphics;
 using Android.OS;
 using Android.Text;
-using Android.Text.Method;
+using Android.Text.Style;
 using Android.Views;
 using Android.Widget;
 using Com.Goodiebag.Pinview;
@@ -15,180 +16,212 @@ using Oyadieyie3D.Activities;
 using Oyadieyie3D.Callbacks;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.HelperClasses;
-using Oyadieyie3D.Utils;
 using System;
-using static Com.Goodiebag.Pinview.Pinview;
+using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Fragments
 {
-    public class GetSmsFragment : AndroidX.Fragment.App.Fragment, IPinViewEventListener
+    public class GetSmsFragment : AndroidX.Fragment.App.Fragment
     {
         private Pinview otpView;
         private FloatingActionButton verifiyBtn;
         private MaterialButton resendBtn;
-        
-        private FirebaseAuth auth;
-        private CountDownTimer cdTimer;
+        private TextView numTv;
 
+        //private CountDownTimer resendBtnTimer;
         private string verificationId { get; set; }
         private string phone { get; set; }
 
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            phone = Arguments.GetString(EnterPhoneFragment.phoneKey);
-            SendVerificationCode();
+            PreferenceHelper.Init(Context);
+            phone = Arguments.GetString(Constants.PHONE_KEY);
+            PhoneAuthProvider.VerifyPhoneNumber(PhoneAuthOptions.NewBuilder()
+                .SetPhoneNumber(phone)
+                .SetTimeout((Java.Lang.Long)30L, TimeUnit.Seconds)
+                .SetActivity(Activity)
+                .SetCallbacks(VerificationCallback)
+                .Build());
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.get_sms_fragment, container, false);
+            return inflater.Inflate(R.Layout.get_sms_fragment, container, false);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            otpView = view.FindViewById<Pinview>(Resource.Id.otp_tv);
-            verifiyBtn = view.FindViewById<FloatingActionButton>(Resource.Id.verify_otp_fab);
-            resendBtn = view.FindViewById<MaterialButton>(Resource.Id.resend_code_btn);
-            var numTv = view.FindViewById<TextView>(Resource.Id.get_sms_sub2);
-            new Spanner(Activity, false).SetSpan(numTv, new string[] { "Enter OTP code sent on ", phone});
-            verifiyBtn.Click += VerifyBtn_Click;
-            resendBtn.Click += ResendBtn_Click;
-            otpView.SetPinViewEventListener(this);
+            otpView = view.FindViewById<Pinview>(R.Id.otp_tv);
+            verifiyBtn = view.FindViewById<FloatingActionButton>(R.Id.verify_otp_fab);
+            resendBtn = view.FindViewById<MaterialButton>(R.Id.resend_code_btn);
+            numTv = view.FindViewById<TextView>(R.Id.get_sms_sub2);
+            var editNumTv  = view.FindViewById<TextView>(R.Id.get_sms_sub3);
+            var toolbarMain = view.FindViewById<Toolbar>(R.Id.get_sms_toolbar);
 
-            cdTimer = new CountdownTimer(40000, 1000, () =>
-            {
-                resendBtn.Enabled = true;
-                resendBtn.Text = "resend otp";
-            }, (millisUntilFinished) =>
-            {
-                resendBtn.Text = "Resend OTP in " + millisUntilFinished / 1000;
-            }).Start();
-        }
+            string smsTxt = "An SMS code was sent to\n";
+            var ss = new SpannableString(smsTxt + phone);
+            ss.SetSpan(new StyleSpan(TypefaceStyle.Bold), smsTxt.Length, smsTxt.Length + phone.Length, SpanTypes.ExclusiveExclusive);
+            numTv.TextFormatted = ss;
 
-        private void ResendBtn_Click(object sender, EventArgs e)
-        {
-            
-        }
+            toolbarMain.NavigationClick += (s1, e1) => Activity.OnBackPressed();
+            editNumTv.Click += (s2, e2) => ChildFragmentManager.PopBackStackImmediate();
+            resendBtn.Click += (s3, e3) => { };
+            verifiyBtn.Click += (s4, e4) => VerifyCode(otpView.Value);
 
-        public void OnDataEntered(Pinview p0, bool p1)
-        {
-            verifiyBtn.Post(() => { verifiyBtn.Enabled = p0.Value.Length == 6; });
-        }
-
-        private void VerifyBtn_Click(object sender, EventArgs e)
-        {
-            resendBtn.PostDelayed(() => { VerifyCode(otpView.Value); }, 1000);
+            //resendBtnTimer = new CountdownTimer(30000, 1000, 
+            //onFinsh: () =>
+            //{
+            //    resendBtn.Enabled = true;
+            //    resendBtn.Text = "resend otp";
+            //}, onTick: (millisUntilFinished) =>
+            //{
+            //    resendBtn.Text = "Resend OTP in " + millisUntilFinished / 1000;
+            //}).Start();
         }
 
         private void VerifyCode(string code)
         {
-            OnboardingActivity.ShowLoader();
-            PhoneAuthCredential cred = PhoneAuthProvider.GetCredential(verificationId, code);
-            auth.SignInWithCredential(cred)
-                .AddOnCompleteListener(new OncompleteListener(
-                onComplete: (t) =>
-                {
-                    try
+            try
+            {
+                OnboardingActivity.Instance.ShowLoader();
+                PhoneAuthCredential cred = PhoneAuthProvider.GetCredential(verificationId, code);
+                SessionManager.GetFirebaseAuth().SignInWithCredential(cred)
+                    .AddOnCompleteListener(new OncompleteListener(
+                    onComplete: (t) =>
                     {
-                        switch (t.IsSuccessful)
+                        try
                         {
-                            case false:
-                                throw t.Exception;
+                            switch (t.IsSuccessful)
+                            {
+                                case false:
+                                    throw t.Exception;
 
-                            default:
-                                CheckUserAvailability();
-                                break;
+                                default:
+                                    CheckUserAvailability();
+                                    break;
+                            }
                         }
-                    }
-                    catch (FirebaseAuthInvalidCredentialsException fiace)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowError(fiace.Source, fiace.Message);
-                    }
-                    catch (FirebaseTooManyRequestsException ftmre)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowError(ftmre.Source, ftmre.Message);
-                    }
-                    catch (FirebaseAuthInvalidUserException fiue)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowError(fiue.Source, fiue.Message);
-                    }
-                    catch (FirebaseNetworkException)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowNoNetDialog(false);
-                    }
-                    catch (Exception e)
-                    {
-                        OnboardingActivity.DismissLoader();
-                        OnboardingActivity.ShowError(e.Source, e.Message);
-                    }
-                }));
+                        catch (FirebaseAuthInvalidCredentialsException fiace)
+                        {
+                            OnboardingActivity.Instance.DismissLoader();
+                            OnboardingActivity.Instance.ShowError(fiace.Source, fiace.Message);
+                        }
+                        catch (FirebaseTooManyRequestsException ftmre)
+                        {
+                            OnboardingActivity.Instance.DismissLoader();
+                            OnboardingActivity.Instance.ShowError(ftmre.Source, ftmre.Message);
+                        }
+                        catch (FirebaseAuthInvalidUserException fiue)
+                        {
+                            OnboardingActivity.Instance.DismissLoader();
+                            OnboardingActivity.Instance.ShowError(fiue.Source, fiue.Message);
+                        }
+                        catch (FirebaseNetworkException)
+                        {
+                            OnboardingActivity.Instance.DismissLoader();
+                            OnboardingActivity.Instance.ShowNoNetDialog(false);
+                        }
+                        catch (Exception e)
+                        {
+                            OnboardingActivity.Instance.DismissLoader();
+                            OnboardingActivity.Instance.ShowError(e.Source, e.Message);
+                        }
+
+
+                    }));
+            }
+            catch (Exception e)
+            {
+                OnboardingActivity.Instance.DismissLoader();
+                OnboardingActivity.Instance.ShowError(e.Source, e.Message);
+
+            }
+            
         }
 
         private void CheckUserAvailability()
         {
-            try
+            var statusRef = SessionManager.GetFireDB().GetReference("session");
+            statusRef.OrderByKey().EqualTo(SessionManager.GetFirebaseAuth().CurrentUser.Uid).AddListenerForSingleValueEvent(
+            new SingleValueListener((s) =>
             {
-                var userRef = SessionManager.UserRef.Child(SessionManager.UserId);
-                userRef.AddValueEventListener(new SingleValueListener(
-                onDataChange: (s) =>
+                if (s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Exists())
                 {
-                    if (!s.Exists())
+                    string stage = s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD) != null ?
+                    s.Child(SessionManager.GetFirebaseAuth().CurrentUser.Uid).Child(Constants.SESION_CHILD).Value.ToString() : "";
+
+                    if (!stage.Contains(Constants.REG_STAGE_DONE))
                     {
-                        GotoProfile();
+                        OnboardingActivity.Instance.GetStage(stage);
+                        OnboardingActivity.Instance.DismissLoader();
                     }
                     else
-                    {
-                        var firstname = s.Child("profile").Child("fname") == null ? "" : s.Child("profile").Child("fname").Value.ToString();
-                        GotoMain(firstname);
-                    }
-                },
-                onCancelled: (e) =>
-                {
+                        SetUserAndGoHome();
+                }
+                else
+                    GotoProfile();
 
-                }));
-            }
-            catch (Exception e)
+            }, (e) =>
             {
-                OnboardingActivity.ShowError(e.Source, e.Message);
-            }
+                OnboardingActivity.Instance.DismissLoader();
+                OnboardingActivity.Instance.ShowError("Database error", e.Message);
+            }));
         }
 
-        private void GotoMain(string name)
+        private void SetUserAndGoHome()
         {
-            SetStatus("done");
-            var intent = new Intent(Activity, typeof(MainActivity));
-            intent.PutExtra("firstName", name);
-            intent.AddFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
-            StartActivity(intent);
-            OnboardingActivity.DismissLoader();
-        }
+            PreferenceHelper.Instance.SetString("firstRun", "regd");
 
-        public static void SetStatus(string status)
-        {
-            var statusRef = SessionManager.GetFireDB().GetReference($"userSessions/{SessionManager.UserId}");
-            statusRef.Child("status").SetValueAsync(status);
+            string userId = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
+            var userRef = SessionManager.GetFireDB().GetReference($"users/{userId}/profile");
+            userRef.AddValueEventListener(new SingleValueListener(
+            onDataChange: (snapshot) =>
+            {
+                if (!snapshot.Exists())
+                    return;
+
+
+                PreferenceHelper.Instance.SetString(Constants.Username_Key, snapshot.Child(Constants.SNAPSHOT_FNAME) != null ? 
+                    snapshot.Child(Constants.SNAPSHOT_FNAME).Value.ToString() : "");
+
+                PreferenceHelper.Instance.SetString(Constants.Status_Key, snapshot.Child(Constants.SNAPSHOT_GENDER) != null ? 
+                    snapshot.Child(Constants.SNAPSHOT_GENDER).Value.ToString() : "");
+
+                PreferenceHelper.Instance.SetString(Constants.Profile_Url_Key, snapshot.Child(Constants.SNAPSHOT_PHOTO_URL) != null ? 
+                    snapshot.Child(Constants.SNAPSHOT_PHOTO_URL).Value.ToString() : "");
+
+                PreferenceHelper.Instance.SetString(Constants.Email_Key, snapshot.Child(Constants.SNAPSHOT_EMAIL) != null ? 
+                    snapshot.Child(Constants.SNAPSHOT_EMAIL).Value.ToString() : "");
+
+                PreferenceHelper.Instance.SetString(Constants.Phone_Key, snapshot.Child(Constants.SNAPSHOT_PHONE) != null ? 
+                    snapshot.Child(Constants.SNAPSHOT_PHONE).Value.ToString() : "");
+
+                OnboardingActivity.Instance.DismissLoader();
+                var intent = new Intent(Activity, typeof(MainActivity));
+                intent.SetFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                StartActivity(intent);
+                
+
+            }, onCancelled: (error) =>
+            {
+                Toast.MakeText(Context, error.Message, ToastLength.Short).Show();
+            }));  
         }
 
         private void GotoProfile()
         {
-            SetStatus("create_profile");
-            OnboardingActivity.DismissLoader();
+            OnboardingActivity.Instance.SetStatus(Constants.REG_STAGE_CREATE_PROFILE);
+            OnboardingActivity.Instance.DismissLoader();
             ParentFragmentManager.BeginTransaction()
-                .Replace(Resource.Id.frag_container, new CreateProfileFragment())
+                .Replace(R.Id.frag_container, new CreateProfileFragment())
                 .CommitAllowingStateLoss();
         }
 
-        private void SendVerificationCode()
-        {
-            auth = SessionManager.GetFirebaseAuth();
-            PhoneAuthProvider.GetInstance(auth)
-                .VerifyPhoneNumber(phone, 30, TimeUnit.Seconds, Activity, new PhoneVerificationCallbacks(
+        private PhoneVerificationCallbacks VerificationCallback => new PhoneVerificationCallbacks
+            (
                 onVerificationCompleted: (cred) =>
                 {
                     var code = cred.SmsCode;
@@ -197,42 +230,45 @@ namespace Oyadieyie3D.Fragments
 
                     otpView.Value = code;
                     VerifyCode(code);
-                }, onVerificationFailed: (e) =>
+                },
+                onVerificationFailed: (e) =>
                 {
                     try
                     {
-                        resendBtn.Enabled = false;
-                        cdTimer.Cancel();
                         throw e;
                     }
-                    catch (FirebaseNetworkException)                    
+                    catch (FirebaseNetworkException)
                     {
-                        OnboardingActivity.ShowNoNetDialog(false);
+                        OnboardingActivity.Instance.ShowNoNetDialog(false);
                     }
                     catch (FirebaseTooManyRequestsException ftmre)
                     {
-                        OnboardingActivity.ShowError(ftmre.Source, ftmre.Message);
+                        OnboardingActivity.Instance.ShowError(ftmre.Source, ftmre.Message);
                     }
                     catch (FirebaseAuthInvalidCredentialsException faice)
                     {
-                        OnboardingActivity.ShowError(faice.Source, faice.Message);
+                        OnboardingActivity.Instance.ShowError(faice.Source, faice.Message);
                     }
                     catch (FirebaseAuthInvalidUserException fiue)
                     {
-                        OnboardingActivity.ShowError(fiue.Source, fiue.Message);
+                        OnboardingActivity.Instance.ShowError(fiue.Source, fiue.Message);
                     }
                     catch (Exception ex)
                     {
-                        OnboardingActivity.ShowError(ex.Source, ex.Message);
+                        OnboardingActivity.Instance.ShowError(ex.Source, ex.Message);
                     }
-                    
-                }, onCodeSent: (code, token) =>
+                    finally
+                    {
+                        resendBtn.Visibility = ViewStates.Invisible;
+                        numTv.SetText(R.String.wrong_num_msg);
+                        numTv.SetTextColor(ColorStateList.ValueOf(Color.Red));
+                    }
+
+                },
+                onCodeSent: (code, token) =>
                 {
                     verificationId = code;
-                }));
-            
-        }
-
-
+                }
+            );
     }
 }

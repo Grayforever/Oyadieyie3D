@@ -13,6 +13,7 @@ using Oyadieyie3D.Utils;
 using System;
 using static AndroidX.Core.Content.FileProvider;
 using Uri = Android.Net.Uri;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -42,15 +43,15 @@ namespace Oyadieyie3D.Fragments
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            return inflater.Inflate(Resource.Layout.change_profile_bottomsheet, container, false);
+            return inflater.Inflate(R.Layout.change_profile_bottomsheet, container, false);
         }
 
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             base.OnViewCreated(view, savedInstanceState);
-            var camBtn = view.FindViewById<CircleImageView>(Resource.Id.camera_btn);
-            var galBtn = view.FindViewById<CircleImageView>(Resource.Id.gallery_btn);
-            var remBtn = view.FindViewById<CircleImageView>(Resource.Id.remove_btn);
+            var camBtn = view.FindViewById<CircleImageView>(R.Id.camera_btn);
+            var galBtn = view.FindViewById<CircleImageView>(R.Id.gallery_btn);
+            var remBtn = view.FindViewById<CircleImageView>(R.Id.remove_btn);
             
             camBtn.Click += CamBtn_Click;
             galBtn.Click += GalBtn_Click;
@@ -113,9 +114,9 @@ namespace Oyadieyie3D.Fragments
             Uri destinationUri = Uri.FromFile(new File(Context.CacheDir, QueryName(Context.ContentResolver, selectedImageURI)));
             UCrop.Options options = new UCrop.Options();
             options.SetCompressionQuality(IMAGE_COMPRESSION);
-            options.SetToolbarColor(ContextCompat.GetColor(Context, Resource.Color.colorPrimary));
-            options.SetStatusBarColor(ContextCompat.GetColor(Context, Resource.Color.colorPrimaryDark));
-            options.SetActiveControlsWidgetColor(ContextCompat.GetColor(Context, Resource.Color.colorAccent));
+            options.SetToolbarColor(ContextCompat.GetColor(Context, R.Color.colorPrimary));
+            options.SetStatusBarColor(ContextCompat.GetColor(Context, R.Color.colorPrimaryDark));
+            options.SetActiveControlsWidgetColor(ContextCompat.GetColor(Context, R.Color.colorAccent));
 
             if (lockAspectRatio)
                 options.WithAspectRatio(ASPECT_RATIO_X, ASPECT_RATIO_Y);

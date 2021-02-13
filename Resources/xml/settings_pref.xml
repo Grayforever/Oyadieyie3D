@@ -1,18 +1,21 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
-    xmlns:app="http://schemas.android.com/apk/res-auto">
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	app:title="Settings"
+	app:key="settings">
 
 	<SwitchPreferenceCompat
         app:key="online_switch"
-        app:summaryOff="Offline"
-        app:summaryOn="Online"
+        app:summaryOff="Not available for work"
+        app:summaryOn="Available for work"
         app:defaultValue="false"
-        app:title="Online status"
+        app:title="My availability"
 		app:icon="@drawable/ic_public"
 		/>
 
 	<Preference
-		app:fragment="com.graylabs.oyadieyie3d.Fragments.AccountFragment"
+		app:fragment="id.Oyadieyie3D.Fragments.PrefAccountFragment"
         app:key="account"
         app:title="Account"
         app:summary="Privacy, security, change number"
@@ -20,7 +23,7 @@
 		/>
 
 	<Preference
-		app:fragment="com.graylabs.oyadieyie3d.Fragments.Notifications"
+		app:fragment="id.Oyadieyie3D.Fragments.PrefNotifsFragment"
         app:key="notification"
         app:title="Notifications"
         app:summary="In-app and app alert tones"
@@ -28,9 +31,25 @@
 		/>
 
 	<Preference
+		app:fragment="id.Oyadieyie3D.Fragments.PrefHelpFragment"
         app:key="help"
         app:title="Help"
         app:summary="Terms, privacy policy, contact us"
 		app:icon="@drawable/ic_help"/>
+
+	<PreferenceCategory app:iconSpaceReserved="false">
+		<Preference
+			app:key="premium"
+			app:title="Get Premium"
+			app:icon="@drawable/medal"
+			app:iconTint="@null">
+
+				<intent
+					android:targetPackage="com.graylabs.oyadieyie3d"
+					android:targetClass="id.Oyadieyie3D.Activities.GetPremiumActivity"/>
+
+			</Preference>
+
+	</PreferenceCategory>
 
 </PreferenceScreen>

@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:id="@+id/delete_root"
+    android:clickable="true"
+    android:focusable="true"
+    android:focusableInTouchMode="true">
+
+    <include
+        layout="@layout/parent_appbar"
+        android:id="@+id/delete_appbar"/>
+
+    <androidx.core.widget.NestedScrollView 
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:fillViewport="true"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:padding="16dp"
+            android:clipToPadding="false">
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/delete_header"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:text="Deleting your account will:"
+                android:textColor="@color/mtrl_error"
+                android:drawableStart="@drawable/ic_info"
+                android:drawableTint="@color/mtrl_error"
+                android:drawablePadding="16dp"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textStyle="bold"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/things_todelete_tv"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/delete_header"
+                android:paddingStart="40dp"
+                android:text="-Delete your account from Oyadieyie3D\n-Erase your message history"
+                />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/delete_septor1"
+                android:background="@color/gray_btn_bg_color"
+                app:layout_constraintTop_toBottomOf="@+id/things_todelete_tv"
+                android:layout_marginTop="16dp"
+                android:layout_marginStart="40dp"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/change_num_header"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/delete_septor1"
+                android:text="Change number instead?"
+                android:drawableStart="@drawable/ic_change_number"
+                android:drawablePadding="16dp"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:textStyle="bold"
+                android:layout_marginTop="16dp"
+                />
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:id="@+id/change_num_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/change_num_header"
+                android:text="change number"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="16dp"
+                />
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:id="@+id/delete_septor"
+                android:background="@color/gray_btn_bg_color"
+                app:layout_constraintTop_toBottomOf="@+id/change_num_btn"
+                android:layout_marginTop="16dp"
+                />
+
+            <TextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/todelete_text"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/delete_septor"
+                android:text="To delete your account, confirm your country code and enter your phone number."
+                android:paddingStart="40dp"
+                android:layout_marginTop="16dp"
+                />
+
+            <androidx.appcompat.widget.AppCompatAutoCompleteTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/dialcode_et"
+                android:layout_marginStart="40dp"
+                app:layout_constraintWidth_percent="0.2"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/todelete_text"
+                app:layout_constraintEnd_toStartOf="@+id/phone_number_et"
+                android:hint="@string/us_dialcode"
+                android:inputType="phone"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:clickable="true"
+                android:focusable="false"
+                />
+
+            <com.google.android.material.textfield.TextInputEditText
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/phone_number_et"
+                app:layout_constraintStart_toEndOf="@+id/dialcode_et"
+                app:layout_constraintTop_toBottomOf="@+id/todelete_text"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:hint="phone number"
+                android:inputType="phone"
+                android:textAppearance="?attr/textAppearanceBody1"
+                android:maxLength="10"
+                />
+
+
+            <com.google.android.material.button.MaterialButton
+                android:layout_width="wrap_content"
+                android:layout_height="0dp"
+                android:id="@+id/confirm_delete_btn"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toBottomOf="@+id/phone_number_et"
+                android:text="Delete my account"
+                android:layout_marginStart="40dp"
+                android:layout_marginTop="16dp"
+                android:backgroundTint="@color/mtrl_error"
+                android:enabled="false"
+                />
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+    </androidx.core.widget.NestedScrollView>
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>

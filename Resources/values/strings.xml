@@ -15,4 +15,25 @@
 	<string name="no_net_retry1">Retry</string>
 	<string name="no_net_retry2">Retrying...</string>
 	<string name="no_net_opn_sttngs">Open settings</string>
+	<string name="wrong_num_msg">You entered an invalid phone number!</string>
+
+	<string name="settings_title">Settings</string>
+	<string name="pref_faq_title">FAQ</string>
+
+	<string name="get_started_txt">Get started with your phone number</string>
+	<string name="us_dialcode">+1</string>
+	<string name="phone_number_hint">1234 567 890</string>
+
+	<string name="default_lock">1000</string>
+	<string name="shtkt_find_tailor">Find tailor</string>
+
+	<string name="text1">This design was made with the finest batik designs from the Eastern Region. Originally designed by Dr Paa Bobo.</string>
+	<string name="text2">Specifically made for the elite in the society.</string>
+	<string name="text3">Love brewed in the African pot. Im just writing something.</string>
+	<string name="text4">Master of designs made in the greater part of Ghana. Im just writing something.</string>
+	<string name="text5">Modern life designs crafted for the indigens. Im just writing something.</string>
+
+	<string name="change_num_hdr">Change number</string>
+	<string name="change_num_msg"></string>
+
 </resources>

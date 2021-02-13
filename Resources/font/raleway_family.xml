@@ -9,4 +9,9 @@
         app:fontStyle="italic"
         app:fontWeight="400"
         app:font="@font/raleway_italic" />
+
+	<font
+		app:fontStyle="italic"
+		app:fontWeight="400"
+		app:font="@font/raleway_bold" />
 </font-family>

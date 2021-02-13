@@ -2,27 +2,28 @@
 using Android.Content;
 using Android.Graphics;
 using Android.OS;
-using Android.Provider;
 using Android.Views;
+using Android.Widget;
 using AndroidX.AppCompat.App;
 using AndroidX.AppCompat.Widget;
 using AndroidX.Core.App;
 using AndroidX.Core.View;
-using BumpTech.GlideLib;
-using BumpTech.GlideLib.Requests;
+using Bumptech.Glide;
+using Bumptech.Glide.Request;
 using CN.Pedant.SweetAlert;
 using DE.Hdodenhof.CircleImageViewLib;
+using Firebase.Database;
 using Firebase.Storage;
+using Google.Android.Material.AppBar;
 using Google.Android.Material.FloatingActionButton;
 using Google.Android.Material.TextField;
+using Oyadieyie3D.Adapters;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.Fragments;
 using Oyadieyie3D.HelperClasses;
-using Oyadieyie3D.Models;
-using Oyadieyie3D.Parcelables;
 using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
+using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Activities
 {
@@ -30,79 +31,86 @@ namespace Oyadieyie3D.Activities
         ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = SoftInput.StateAlwaysHidden)]
     public class ProfileActivity : AppCompatActivity, View.IOnClickListener
     {
+
         private FloatingActionButton camFab;
         private CircleImageView profileImageView;
-        private TextInputLayout usernameEt;
-        private TextInputLayout phoneEt;
-        private TextInputLayout statusEt;
+        private TextInputEditText usernameEditText;
+        private TextInputEditText phoneEditText;
+        private AppCompatAutoCompleteTextView statusEditText;
+        private DatabaseReference statusUpdateRef;
+        private string img_url;
         private ProfileChooserFragment profileChooserFrag;
         private SweetAlertDialog loaderDialog;
-        private User user;
 
-        protected override async void OnCreate(Bundle savedInstanceState)
+        protected override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.profile_activity);
-            var bundle = Intent.Extras;
-            await LazyCreateUserAsync(bundle.GetStringArrayList("extra_details"));
-            var toolbar = FindViewById<Toolbar>(Resource.Id.profile_toolbar);
-            camFab = FindViewById<FloatingActionButton>(Resource.Id.cam_fab);
-            profileImageView = FindViewById<CircleImageView>(Resource.Id.prof_prof_iv);
-            usernameEt = FindViewById<TextInputLayout>(Resource.Id.prof_fname_et);
-            phoneEt = FindViewById<TextInputLayout>(Resource.Id.prof_phone_et);
-            statusEt = FindViewById<TextInputLayout>(Resource.Id.prof_about_et);
+            SetContentView(R.Layout.profile_activity);
+            PreferenceHelper.Init(this);
+
+            var appBar = FindViewById<AppBarLayout>(R.Id.profile_appbar);
+            var toolbar = appBar.FindViewById<Toolbar>(R.Id.main_toolbar);
+
+            camFab = FindViewById<FloatingActionButton>(R.Id.cam_fab);
+            profileImageView = FindViewById<CircleImageView>(R.Id.prof_prof_iv);
+            var usernameEt = FindViewById<TextInputLayout>(R.Id.prof_fname_et);
+            var phoneEt = FindViewById<TextInputLayout>(R.Id.prof_phone_et);
+            var statusEt = FindViewById<TextInputLayout>(R.Id.prof_about_et);
+            phoneEditText = phoneEt.FindViewById<TextInputEditText>(R.Id.phone_edittext);
+            usernameEditText = usernameEt.FindViewById<TextInputEditText>(R.Id.name_edittext);
+            statusEditText = statusEt.FindViewById<AppCompatAutoCompleteTextView>(R.Id.status_autocomplete);
+
             toolbar.Title = "Profile";
             SetSupportActionBar(toolbar);
             SupportActionBar.SetDisplayHomeAsUpEnabled(true);
             toolbar.NavigationClick += Toolbar_NavigationClick;
+
             camFab.Click += CamFab_Click;
             profileChooserFrag = new ProfileChooserFragment();
             profileChooserFrag.OnCropComplete += ProfileChooserFrag_OnCropComplete;
 
             RequestOptions requestOptions = new RequestOptions();
-            requestOptions.Placeholder(Resource.Drawable.user);
-            
+            requestOptions.Placeholder(R.Drawable.user);
+
             profileImageView.Click += ProfileImageView_Click;
- 
-            phoneEt.EditText.Text = user.Phone;
-            usernameEt.EditText.Text = user.Username;
-            statusEt.EditText.Text = user.Status;
 
-            phoneEt.SetOnClickListener(this);
-            usernameEt.SetOnClickListener(this);
-            statusEt.SetOnClickListener(this);
-
-            Glide.With(this)
-                .SetDefaultRequestOptions(requestOptions)
-                .Load(user.ProfileImgUrl)
-                .Into(profileImageView);
-        }
-
-        private async Task<User> LazyCreateUserAsync(IList<string> res)
-        {
-            await Task.Run(() =>
+            statusUpdateRef = SessionManager.GetFireDB().GetReference($"users/{SessionManager.UserId}/profile");
+            img_url = PreferenceHelper.Instance.GetString("profile_url", "");
+            phoneEditText.Text = PreferenceHelper.Instance.GetString("phone", "");
+            usernameEditText.Text = PreferenceHelper.Instance.GetString("username", "");
+            statusEditText.Text = PreferenceHelper.Instance.GetString("status", "");
+            statusEditText.Adapter = ArrayAdapterClass.CreateArrayAdapter(this, new string[] { "Available", "Away", "Leave a message", "Busy", "Closed" });
+            statusEditText.ItemClick += (s1, e1) =>
             {
-                user = new User
+                var status = e1.Parent.GetItemAtPosition(e1.Position).ToString();
+
+                statusUpdateRef.Child("gender").SetValue(status).AddOnCompleteListener(new OncompleteListener(
+                (t) =>
                 {
-                    ProfileImgUrl = res[0],
-                    ID = "",
-                    Username = res[1],
-                    Email = "",
-                    Phone = res[2],
-                    Status = res[3]
-                };
-            });
-            return user;
+                    if (t.IsSuccessful)
+                    {
+                        PreferenceHelper.Instance.SetString("status", status);
+                    }
+                    else
+                    {
+                        Toast.MakeText(this, t.Exception.Message, ToastLength.Short).Show();
+                    }
+                }));
+
+            };
+
+            phoneEditText.SetOnClickListener(this);
+            usernameEditText.SetOnClickListener(this);
+
+            PreferenceHelper.Instance.SetImageResource(profileImageView, img_url, PlaceholderType.Profile);
         }
 
         private void ProfileImageView_Click(object sender, EventArgs e)
         {
             var intent = new Intent(this, typeof(FullscreenImageActivity));
-            var pp = new ProfileParcelable();
-            pp.UserProfile = user;
+            intent.PutExtra("img_url", img_url);
             intent.PutExtra(Constants.TRANSITION_NAME, ViewCompat.GetTransitionName(profileImageView));
-            intent.PutExtra(Constants.PROFILE_DATA_EXTRA, pp);
-            intent.PutExtra(Constants.PARCEL_TYPE, 1);
+
             var options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, profileImageView,
                 ViewCompat.GetTransitionName(profileImageView));
             StartActivity(intent, options.ToBundle());
@@ -117,7 +125,8 @@ namespace Oyadieyie3D.Activities
                 StorageReference storageReference = FirebaseStorage.Instance.GetReference("userProfile/" + userId);
 
                 var stream = new System.IO.MemoryStream();
-                var bitmap = MediaStore.Images.Media.GetBitmap(ContentResolver, e.imageUri);
+                var source = ImageDecoder.CreateSource(ContentResolver, e.imageUri);
+                var bitmap = ImageDecoder.DecodeBitmap(source);
                 await bitmap.CompressAsync(Bitmap.CompressFormat.Webp, 70, stream);
                 var imgArray = stream.ToArray();
                 storageReference.PutBytes(imgArray)
@@ -129,7 +138,7 @@ namespace Oyadieyie3D.Activities
                         Glide.With(this).Load(e.imageUri).Into(profileImageView);
                         DismissLoading();
                     }));
-                
+
             }
             catch (Exception)
             {
@@ -173,28 +182,29 @@ namespace Oyadieyie3D.Activities
             }, 2000);
         }
 
-        private void ShowEditSheet(int which)
-        {
-            var profileEdit = new ProfileEditSheet(which);
-            var ft = SupportFragmentManager.BeginTransaction();
-            ft.Add(profileEdit, "edit_text");
-            ft.CommitAllowingStateLoss();
-        }
-
         public void OnClick(View v)
         {
             switch (v.Id)
             {
-                case Resource.Id.prof_phone_et:
-                    ShowEditSheet(1);
+                case R.Id.phone_edittext:
+                    MainActivity.Instance.ShowWarning(this, "Change number", "Do you wish to change your number?", ConfirmYes());
                     break;
-                case Resource.Id.prof_fname_et:
-                    ShowEditSheet(0);
-                    break;
-                case Resource.Id.prof_about_et:
-                    ShowEditSheet(2);
+                case R.Id.name_edittext:
+
                     break;
             }
+        }
+
+        private SweetConfirmClick ConfirmYes()
+        {
+            var confirmClick = new SweetConfirmClick(
+                    (s) =>
+                    {
+                        s.DismissWithAnimation();
+                        var i = new Intent(this, typeof(ChangeNumberActivity));
+                        StartActivity(i);
+                    });
+            return confirmClick;
         }
     }
 }

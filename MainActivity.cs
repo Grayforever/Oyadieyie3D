@@ -1,399 +1,222 @@
 ﻿using Android.App;
 using Android.Content;
-using Android.Gms.Location;
 using Android.OS;
-using Android.Runtime;
 using Android.Views;
 using Android.Widget;
 using AndroidX.AppCompat.App;
-using AndroidX.ConstraintLayout.Widget;
-using AndroidX.Core.App;
-using AndroidX.Core.View;
-using AndroidX.RecyclerView.Widget;
-using AndroidX.SwipeRefreshLayout.Widget;
+using AndroidX.ViewPager2.Widget;
 using CN.Pedant.SweetAlert;
-using Com.Apps.Norris.Paywithslydepay.Core;
-using Firebase.Storage;
+using DE.Hdodenhof.CircleImageViewLib;
 using Google.Android.Material.AppBar;
-using Google.Android.Material.FloatingActionButton;
+using Google.Android.Material.BottomAppBar;
+using Google.Android.Material.Button;
+using Google.Android.Material.Tabs;
+using Google.Android.Material.TextField;
 using Oyadieyie3D.Activities;
 using Oyadieyie3D.Adapters;
-using Oyadieyie3D.Callbacks;
 using Oyadieyie3D.Events;
 using Oyadieyie3D.Fragments;
 using Oyadieyie3D.HelperClasses;
 using Oyadieyie3D.Models;
-using Oyadieyie3D.Parcelables;
-using Oyadieyie3D.Utils;
-using System;
 using System.Collections.Generic;
-using System.Threading.Tasks;
-using ActionMode = Android.Views.ActionMode;
-using SearchView = AndroidX.AppCompat.Widget.SearchView;
+using static CN.Pedant.SweetAlert.SweetAlertDialog;
+using R = Oyadieyie3D.Resource;
 using Toolbar = AndroidX.AppCompat.Widget.Toolbar;
 
 namespace Oyadieyie3D
 {
-    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
-        ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | Android.Content.PM.ConfigChanges.SmallestScreenSize | Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = Android.Views.SoftInput.AdjustResize)]
+    [Activity(Label = "@string/app_name", Theme = "@style/AppTheme", 
+        ScreenOrientation = Android.Content.PM.ScreenOrientation.Portrait,
+        ConfigurationChanges = Android.Content.PM.ConfigChanges.ScreenLayout | 
+        Android.Content.PM.ConfigChanges.SmallestScreenSize |
+        Android.Content.PM.ConfigChanges.Orientation, WindowSoftInputMode = SoftInput.AdjustResize)]
     public class MainActivity : AppCompatActivity
     {
-        
-        private RecyclerView mainRecycler;
-        private ConstraintLayout emptyRoot;
-        private SwipeRefreshLayout swipe_container;
-        private FloatingActionButton addPostFab;
-        private PostAdapter postAdapter;
-        private CreatePostFragment createPost;
-        private RecyclerViewEmptyObserver emptyObserver;
-        private User user { get; set; }
-        private List<Post> posts;
-        PostEventListener postEventListener = new PostEventListener();
-        private ProfileParcelable profileParcelable = new ProfileParcelable();
-        private SweetAlertDialog loaderDialog;
-        private ActionModeCallback actionModeCallback;
-        private ActionMode actionMode;
+        private AppBarLayout appBarLayout;
+        private Toolbar toolbar;
+        private TabLayout tabLayout;
+        private ViewPager2 viewPager;
+        private TextInputEditText searchBox;
+        private ImageView filterBtn;
+        private PagerAdapter pagerAdapter;
 
-        protected async override void OnCreate(Bundle savedInstanceState)
+        private string[] tabTitle = { "All", "Popular", "Nearby", "Recent" };
+        private ActionAllFragment all;
+        private ActionPopularFragment popular;
+        private ActionNearbyFragment nearby;
+        private ActionRecentFragment recent;
+        private BottomAppBar appbar;
+        private CircleImageView profileImageView;
+        private string profileImgUrl;
+        private string phone;
+        private string username;
+        private PreferenceHelper prefInstance = PreferenceHelper.Instance;
+        public static MainActivity Instance { get; private set; }
+
+        protected override void OnCreate(Bundle savedInstanceState)
         {
+            PreferenceHelper.Init(this);
+            AppCompatDelegate.DefaultNightMode = prefInstance.GetBoolean("theme") ?
+                AppCompatDelegate.ModeNightYes : AppCompatDelegate.ModeNightNo;
+
             base.OnCreate(savedInstanceState);
-            SetContentView(Resource.Layout.activity_main);
-            mainRecycler = FindViewById<RecyclerView>(Resource.Id.main_recycler);
-            emptyRoot = FindViewById<ConstraintLayout>(Resource.Id.rv_empty_view);
-            swipe_container = FindViewById<SwipeRefreshLayout>(Resource.Id.main_refresher);
-            addPostFab = FindViewById<FloatingActionButton>(Resource.Id.post_fab);
-            var appbar = FindViewById<AppBarLayout>(Resource.Id.activity_main_appbar);
-            var toolbar = appbar.FindViewById<Toolbar>(Resource.Id.main_toolbar);
-            SetSupportActionBar(toolbar);
-            addPostFab.Click += AddPostFab_Click;
-            mainRecycler.AddOnScrollListener(new OnscrollListener(
-            onScrolled: (r, dx, dy) =>
-            {
-                if (dy > 0)
-                {
-                    addPostFab.Hide();
-                }
-                else if (dy < 0)
-                {
-                    addPostFab.Show();
-                }
-            }));
+            SetContentView(R.Layout.activity_main);
+            Instance = this;
 
-            DividerItemDecoration decoration = new DividerItemDecoration(mainRecycler.Context, DividerItemDecoration.Vertical);
-            mainRecycler.AddItemDecoration(decoration);
-            posts = new List<Post>();
-           
+            all = new ActionAllFragment();
+            popular = new ActionPopularFragment();
+            nearby = new ActionNearbyFragment();
+            recent = new ActionRecentFragment();
 
-            profileParcelable.WriteTOParcelFailed += ProfileParcelable_WriteTOParcelFailed;
+            FindViews();
+            SetUpViews();
 
-            new SlydepayPayment(this).InitCredentials("grahamasare62@gmail.com", "J33899SJS8EJDJDJJ");
-            await GetUserFromFireAsync();
-            postEventListener.FetchPost();
-            postEventListener.OnPostRetrieved += PostEventListener_OnPostRetrieved;
+            profileImgUrl = prefInstance.GetString(Constants.Profile_Url_Key, "");
+            username = prefInstance.GetString(Constants.Username_Key, "");
+            phone = prefInstance.GetString(Constants.Phone_Key, "");
+            prefInstance.SetImageResource(profileImageView, profileImgUrl, PlaceholderType.Profile);
         }
 
-        private void PostEventListener_OnPostRetrieved(object sender, PostEventListener.PostEventArgs e)
+        private void FindViews()
         {
-            if (e.Posts == null)
-                return;
-
-            posts = e.Posts;
-            SetUpRecycler();
+            appbar = FindViewById<BottomAppBar>(R.Id.bottomAppBar);
+            profileImageView = appbar.FindViewById<CircleImageView>(R.Id.profile_iv);
+            appBarLayout = FindViewById<AppBarLayout>(R.Id.action_appbar);
+            toolbar = FindViewById<Toolbar>(R.Id.action_toolbar);
+            tabLayout = FindViewById<TabLayout>(R.Id.action_tablayout);
+            viewPager = FindViewById<ViewPager2>(R.Id.action_viewpager);
+            searchBox = FindViewById<TextInputEditText>(R.Id.actionSearchField);
+            filterBtn = FindViewById<ImageView>(R.Id.filterBtn);
         }
 
-        private void SetUpActionMode()
+        private void SetUpViews()
         {
-            actionModeCallback = new ActionModeCallback(
-                onActionItemClicked: (mode, item)=> 
-                {
-                    switch (item.ItemId) 
-                    {
-                        case Resource.Id.action_help:
-                            mode.Finish();
-                            break;
-                        default:
-                            break;
-                    }
-
-                }, onCreateActionMode: (mode, menu)=> 
-                {
-                    MenuInflater inflater = mode.MenuInflater;
-                    inflater.Inflate(Resource.Menu.help_menu, menu);
-
-                }, onDestroyActionMode: (mode)=> 
-                {
-                    mode = null;
-                });
-        }
-
-        private void ProfileParcelable_WriteTOParcelFailed(object sender, EventArgs e) => ShowToast("No network connection");
-
-        private void AddPostFab_Click(object sender, EventArgs e)
-        {
-            addPostFab.Post(() =>
+            //appbar
+            appbar.MenuItemClick += (s2, e2) =>
             {
-                try
+                switch (e2.Item.ItemId)
                 {
-                    createPost = new CreatePostFragment();
-                    createPost.Cancelable = false;
-                    var b = new Bundle();
-                    b.PutString(Constants.IMG_URL_KEY, user.ProfileImgUrl);
-                    createPost.Arguments = b;
-                    createPost.OnPostComplete += CreatePost_OnPostComplete;
-                    createPost.OnErrorEncounted += CreatePost_OnErrorEncounted;
-                    var ft = base.SupportFragmentManager.BeginTransaction();
-                    ft.Add(createPost, "createPost");
-                    ft.CommitAllowingStateLoss();
+                    case R.Id.action_market:
+                        var marketIntent = new Intent(this, typeof(StoreActivity));
+                        StartActivity(marketIntent);
+                        break;
+
+                    case R.Id.action_dark_theme:
+                        AppCompatDelegate.DefaultNightMode = AppCompatDelegate.ModeNightYes;
+                        PreferenceHelper.Instance.SetBoolean("theme", true);
+                        break;
+
+                    case R.Id.action_light_theme:
+                        AppCompatDelegate.DefaultNightMode = AppCompatDelegate.ModeNightNo;
+                        PreferenceHelper.Instance.SetBoolean("theme", false);
+                        break;
+
+                    default:
+                        var intent = new Intent(this, typeof(SettingsActivity));
+                        StartActivity(intent);
+                        break;
                 }
-                catch (Exception)
+            };
+            profileImageView.Click += (s4, e4)
+                => ShowProfileDialog();
+
+            //pager
+            pagerAdapter = new PagerAdapter(this);
+            pagerAdapter.AddFragment(all);
+            pagerAdapter.AddFragment(popular);
+            pagerAdapter.AddFragment(nearby);
+            pagerAdapter.AddFragment(recent);
+            viewPager.Adapter = pagerAdapter;
+            new TabLayoutMediator(tabLayout, viewPager, new TabConfigStrategy
+            {
+                ConfigureTab = (tab, position) =>
                 {
-                    ShowToast("No network connection");
+                    tab.SetText(tabTitle[position]);
+                    viewPager.SetCurrentItem(tab.Position, true);
                 }
-            });
-        }
+            }).Attach();
 
-        private void CreatePost_OnPostComplete(object sender, EventArgs e) => ShowSuccess();
-
-        private void CreatePost_OnErrorEncounted(object sender, CreatePostFragment.ErrorEventArgs e) => ShowError(e.ErrorMsg);
-
-
-        private void SetUpRecycler()
-        {
-            postAdapter = new PostAdapter(this, posts);
-            mainRecycler.SetAdapter(postAdapter);
-            emptyObserver = new RecyclerViewEmptyObserver(mainRecycler, emptyRoot);
-            postAdapter.RegisterAdapterDataObserver(emptyObserver);
-            postAdapter.ItemLongClick += (s1, e1) =>
+            filterBtn.Click += (s1, e1) =>
             {
-                string postID = posts[e1.Position].ID;
-                string ownerID = posts[e1.Position].OwnerId;
-
-                if (SessionManager.GetFirebaseAuth().CurrentUser.Uid != ownerID)
-                    return;
-
-                var sweetDialog = new SweetAlertDialog(this, SweetAlertDialog.WarningType);
-                sweetDialog.SetTitleText("Post Options");
-                sweetDialog.SetContentText("Do you want to edit or delete selected post?");
-                sweetDialog.SetCancelText("Delete");
-                sweetDialog.SetConfirmText("Edit");
-                sweetDialog.SetConfirmClickListener(new SweetConfirmClick(
-                onClick: d1 =>
-                {
-                    d1.ChangeAlertType(SweetAlertDialog.SuccessType);
-                    d1.SetTitleText("Done");
-                    d1.SetContentText("");
-                    d1.ShowCancelButton(false);
-                    d1.SetConfirmText("OK");
-                    d1.SetConfirmClickListener(null);
-                    d1.Show();
-                }));
-                sweetDialog.SetCancelClickListener(new SweetConfirmClick(
-                onClick: d2 =>
-                {
-                    SessionManager.GetFireDB().GetReference("posts").Child(postID).RemoveValue()
-                        .AddOnCompleteListener(new OncompleteListener((onComplete)=>
-                        {
-                            switch (onComplete.IsSuccessful)
-                            {
-                                case false:
-                                    break;
-                                default:
-                                    StorageReference storageReference = FirebaseStorage.Instance.GetReference("postImages/" + postID);
-                                    storageReference.DeleteAsync();
-                                    postAdapter.NotifyItemRemoved(e1.Position);
-                                    postAdapter.NotifyItemRangeChanged(e1.Position, posts.Count);
-                                    break;
-                            }
-                        }));
-                    d2.ChangeAlertType(SweetAlertDialog.SuccessType);
-                    d2.SetTitleText("Deleted");
-                    d2.SetContentText("");
-                    d2.ShowCancelButton(false);
-                    d2.SetConfirmText("OK");
-                    d2.SetConfirmClickListener(null);
-                    d2.Show();
-                }));
-                sweetDialog.Show();
-            }; 
-
-            postAdapter.ItemClick += (s2, e2) =>
-            {
-                var intent = new Intent(this, typeof(FullscreenImageActivity));
-
-                PostParcelable postParcelable = new PostParcelable();
-                postParcelable.PostItem = posts[e2.Position];
-
-                intent.PutExtra(Constants.TRANSITION_NAME, ViewCompat.GetTransitionName(e2.ImageView));
-                intent.PutExtra(Constants.POST_DATA_EXTRA, postParcelable);
-                intent.PutExtra(Constants.PARCEL_TYPE, 0);
-                var options = ActivityOptionsCompat.MakeSceneTransitionAnimation(this, e2.ImageView,
-                    ViewCompat.GetTransitionName(e2.ImageView));
-                StartActivity(intent, options.ToBundle());
+                ShowFilterSheet();
             };
         }
 
-        public override bool OnCreateOptionsMenu(IMenu menu)
+        private void ShowProfileDialog()
         {
-            MenuInflater.Inflate(Resource.Menu.main_menu, menu);
-            var searchView = menu.FindItem(Resource.Id.action_search).ActionView as SearchView;
-            if(searchView != null)
+            var view = LayoutInflater.From(this).Inflate(R.Layout.profile_popup_window, null);
+            var dialog = new AndroidX.AppCompat.App.AlertDialog.Builder(this)
+                .SetView(view)
+                .Create();
+
+            dialog.Window.SetBackgroundDrawableResource(Android.Resource.Color.Transparent);
+            dialog.Show();
+
+            var image_view = view.FindViewById<CircleImageView>(R.Id.popup_prof_iv);
+            var username = view.FindViewById<TextView>(R.Id.popup_user_tv);
+            var phone = view.FindViewById<TextView>(R.Id.popup_phone_tv);
+            var manage = view.FindViewById<MaterialButton>(R.Id.popup_manage_btn);
+            var logout = view.FindViewById<ImageButton>(R.Id.dialog_logout_btn);
+
+            prefInstance.SetImageResource(image_view, profileImgUrl, PlaceholderType.Profile);
+
+            username.Text = this.username;
+            phone.Text = this.phone;
+            manage.Click += (s, e) =>
             {
-                searchView.QueryTextChange += SearchView_QueryTextChange;
-            }
-            return base.OnCreateOptionsMenu(menu);
-        }
-
-        private void SearchView_QueryTextChange(object sender, SearchView.QueryTextChangeEventArgs e)
-        {
-            //try
-            //{
-            //    List<Post> searchResult =
-            //            (from post in posts
-            //             where post.PostBody.ToLower().Contains(e.NewText.ToLower())
-            //             select post).ToList();
-
-            //    postAdapter = new PostAdapter(this, searchResult);
-            //    postAdapter.RegisterAdapterDataObserver(emptyObserver);
-            //    mainRecycler.SetAdapter(postAdapter);
-            //}
-            //catch (Exception)
-            //{
-            //    Toast.MakeText(this, "No data yet", ToastLength.Short).Show();
-            //}
-        }
-
-        public override bool OnOptionsItemSelected(IMenuItem item)
-        {
-            switch (item.ItemId)
-            {
-                case Resource.Id.action_refresh:
-                    PayWithSlydepay.Pay(this, "beans", 4.50, "gob3", "graham", "email@gmail.com", "500", "0203870543", 500);
-                    break;
-                    
-                case Resource.Id.action_finder:
-                    
-                    break;
-
-                case Resource.Id.action_settings:
-                    var intent = new Intent(this, typeof(SettingsActivity));
-                    profileParcelable.UserProfile = user;
-                    intent.PutExtra(Constants.PROFILE_DATA_EXTRA, profileParcelable);
+                manage.Post(() =>
+                {
+                    var intent = new Intent(this, typeof(ProfileActivity));
                     StartActivity(intent);
-                    break;
-            }
-            return base.OnOptionsItemSelected(item);
-        }
-
-        protected override void OnActivityResult(int requestCode, [GeneratedEnum] Result resultCode, Intent data)
-        {
-            base.OnActivityResult(requestCode, resultCode, data);
-            if (requestCode == 500)
+                    dialog.Dismiss();
+                });
+            };
+            logout.Click += (s1, e1) =>
             {
-                switch (resultCode)
-                {
-                    case Result.Ok:
-                        ShowSuccess();
-                        break;
-                    case Result.Canceled:
-                        ShowError("slydepay failed");
-                        break;
-                    case Result.FirstUser:
-                        ShowError("You naa cancel the thing");
-                        break;
-                }
-            }
-        }
-
-        public async Task<User> GetUserFromFireAsync()
-        {
-            await Task.Run(() =>
-            {
-                try
-                {
-                    string userId = SessionManager.GetFirebaseAuth().CurrentUser.Uid;
-                    var userRef = SessionManager.GetFireDB().GetReference($"users/{userId}/profile");
-                    userRef.AddValueEventListener(new SingleValueListener(
-                    onDataChange: (snapshot) =>
+                var confirmClick = new SweetConfirmClick(
+                    (s) =>
                     {
-                        if (!snapshot.Exists())
-                            return;
+                        s.DismissWithAnimation();
+                        SessionManager.GetFirebaseAuth().SignOut();
+                        PreferenceHelper.Instance.ClearPrefs();
 
-                        var _user = new User
-                        {
-                            ID = snapshot.Key,
-                            Username = snapshot.Child(Constants.SNAPSHOT_FNAME) != null ? snapshot.Child(Constants.SNAPSHOT_FNAME).Value.ToString() : "",
-                            Status = snapshot.Child(Constants.SNAPSHOT_GENDER) != null ? snapshot.Child(Constants.SNAPSHOT_GENDER).Value.ToString() : "",
-                            ProfileImgUrl = snapshot.Child(Constants.SNAPSHOT_PHOTO_URL) != null ? snapshot.Child(Constants.SNAPSHOT_PHOTO_URL).Value.ToString() : "",
-                            Email = snapshot.Child(Constants.SNAPSHOT_EMAIL) != null ? snapshot.Child(Constants.SNAPSHOT_EMAIL).Value.ToString() : "",
-                            Phone = snapshot.Child(Constants.SNAPSHOT_PHONE) != null ? snapshot.Child(Constants.SNAPSHOT_PHONE).Value.ToString() : ""
-                        };
-                        user = _user;
-                    }, onCancelled: (exception) =>
-                    {
-                        Toast.MakeText(Application.Context, exception.Message, ToastLength.Short).Show();
-                    }));
-                    userRef.KeepSynced(true);
-                }
-                catch (Exception e)
-                {
-                    Toast.MakeText(this, e.Message, ToastLength.Short).Show();
-                }
-            });
-            return user;
+                        var i = new Intent(this, typeof(OnboardingActivity));
+                        i.AddFlags(ActivityFlags.ClearTask | ActivityFlags.ClearTop | ActivityFlags.NewTask);
+                        StartActivity(i);
+                    });
+
+                ShowWarning(this, "Sign out", "Are you sure you want to sign-out?", confirmClick);
+            };
         }
 
-        private void ShowLoading()
+        public void ShowWarning(Context context, string title, string warn, IOnSweetClickListener listener)
         {
-            loaderDialog = new SweetAlertDialog(this, SweetAlertDialog.ProgressType);
-            loaderDialog.SetTitleText("Finding the nearest Oyadieyie...");
-            loaderDialog.ShowCancelButton(false);
-            loaderDialog.Show();
+            var warnDialog = new SweetAlertDialog(context, WarningType);
+            warnDialog.SetTitleText(title);
+            warnDialog.SetContentText(warn);
+            warnDialog.SetConfirmText("Yes");
+            warnDialog.SetCancelText("No");
+            warnDialog.SetConfirmClickListener(listener);
+            warnDialog.Show();
         }
 
-        private void ShowSuccess()
-        {
-            var sweetprogress = new SweetAlertDialog(this, SweetAlertDialog.SuccessType);
-            sweetprogress.SetTitleText("Success");
-            sweetprogress.SetConfirmText("OK");
-            sweetprogress.SetConfirmClickListener(null);
-            sweetprogress.ShowCancelButton(false);
-            sweetprogress.Show();
-        }
 
-        private void DismissLoading()
+        private void ShowFilterSheet()
         {
-            if (!loaderDialog.IsShowing)
-                return;
+            var view = LayoutInflater.From(this).Inflate(R.Layout.filter_sheet, null);
+            var dialog = new AndroidX.AppCompat.App.AlertDialog.Builder(this)
+                .SetView(view)
+                .Create();
 
-            loaderDialog.DismissWithAnimation();
-        }
-        private void ShowError(string errorMsg)
-        {
-            new SweetAlertDialog(this, SweetAlertDialog.ErrorType)
-                .SetTitleText("OOps...")
-                .SetContentText(errorMsg)
-                .SetConfirmText("OK")
-                .ShowCancelButton(false)
-                .SetConfirmClickListener(null)
-                .Show();
-        }
+            dialog.Window.SetBackgroundDrawableResource(Android.Resource.Color.Transparent);
+            dialog.Show();     
 
-        private void ShowToast(string msg)
-        {
-            Toast.MakeText(this, msg, ToastLength.Short).Show();
-        }
+            var expandableListView = FindViewById<ExpandableListView>(R.Id.filter_listExpander);
+            var listDetail = ExpandableListDataPump.GetData();
+            List<string> expandableListTitle = new List<string>(listDetail.Keys);
+            var listAdapter = new CustomExpandableListAdapter(this, expandableListTitle, listDetail);
 
-        internal sealed class MyLocationCallback : LocationCallback
-        {
-            private Action<LocationResult> _onLocationresult;
-            public MyLocationCallback(Action<LocationResult> onLocationresult)
-            {
-                _onLocationresult = onLocationresult;
-            }
-            public override void OnLocationResult(LocationResult result)
-            {
-                _onLocationresult?.Invoke(result);
-            }
+            expandableListView.SetAdapter(listAdapter);
         }
     }
 }

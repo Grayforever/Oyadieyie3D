@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<declare-styleable name="CheckableCardView">
+		<attr name="planTitle" format="string|reference" />
+		<attr name="planOffer" format="string|reference" />
+		<attr name="planTerms" format="string|reference" />
+	</declare-styleable>
+</resources>

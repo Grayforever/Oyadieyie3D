@@ -10,6 +10,7 @@ using Java.IO;
 using Java.Lang;
 using System.Threading.Tasks;
 using Process = Java.Lang.Process;
+using R = Oyadieyie3D.Resource;
 
 namespace Oyadieyie3D.Fragments
 {
@@ -23,13 +24,13 @@ namespace Oyadieyie3D.Fragments
         private Runtime runtime;
         private Process mIpAddrProcess;
 
-        private int retryText1 = Resource.String.no_net_retry1; 
-        private int headerText1 = Resource.String.no_net_header1;
-        private int subTitle1 = Resource.String.no_net_sub1;
+        private int retryText1 = R.String.no_net_retry1; 
+        private int headerText1 = R.String.no_net_header1;
+        private int subTitle1 = R.String.no_net_sub1;
 
-        private int retryText2 = Resource.String.no_net_retry2;
-        private int headerText2 = Resource.String.no_net_header2;
-        private int subTitle2 = Resource.String.no_net_sub2;
+        private int retryText2 = R.String.no_net_retry2;
+        private int headerText2 = R.String.no_net_header2;
+        private int subTitle2 = R.String.no_net_sub2;
         private FragmentActivity _context;
         private bool isPinging = false;
 
@@ -41,13 +42,13 @@ namespace Oyadieyie3D.Fragments
         public override void OnCreate(Bundle savedInstanceState)
         {
             base.OnCreate(savedInstanceState);
-            SetStyle(StyleNormal, Resource.Style.AppTheme_ModalDialog);
+            SetStyle(StyleNormal, R.Style.Widget_MaterialComponents_BottomSheet_Modal);
             
         }
 
         public override View OnCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState)
         {
-            var view = inflater.Inflate(Resource.Layout.no_net_btmsht, container, false);
+            var view = inflater.Inflate(R.Layout.no_net_btmsht, container, false);
             runtime = Runtime.GetRuntime();
             return view; 
         }
@@ -55,11 +56,11 @@ namespace Oyadieyie3D.Fragments
         public override void OnViewCreated(View view, Bundle savedInstanceState)
         {
             //base.OnViewCreated(view, savedInstanceState);
-            noNetHeader = view.FindViewById<TextView>(Resource.Id.no_net_hdr);
-            noNetSub = view.FindViewById<TextView>(Resource.Id.no_net_sbttl);
-            progress = view.FindViewById<ProgressBar>(Resource.Id.no_net_prgs);
-            btnRetry = view.FindViewById<MaterialButton>(Resource.Id.no_net_btn);
-            btnOpenSettings = view.FindViewById<MaterialButton>(Resource.Id.no_net_btn_opn_stn);
+            noNetHeader = view.FindViewById<TextView>(R.Id.no_net_hdr);
+            noNetSub = view.FindViewById<TextView>(R.Id.no_net_sbttl);
+            progress = view.FindViewById<ProgressBar>(R.Id.no_net_prgs);
+            btnRetry = view.FindViewById<MaterialButton>(R.Id.no_net_btn);
+            btnOpenSettings = view.FindViewById<MaterialButton>(R.Id.no_net_btn_opn_stn);
             btnRetry.Click += (s1, e1) => SetLoading(true);
             btnOpenSettings.Click += (s2, e2) => SetLoading(false);
         }

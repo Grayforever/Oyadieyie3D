@@ -2,7 +2,17 @@
 <resources>
     <color name="colorPrimary">#E91E63</color>
     <color name="colorPrimaryDark">#C2185B</color>
-    <color name="colorAccent">#ff009688</color>
+    <color name="colorAccent">#80CBC4</color>
 	<color name="black_alpha_87">#87000000</color>
 	<color name="facebook_colorPrimary">#3F51B5</color>
+	<color name="onboard_color_1">#F48FB1</color>
+	<color name="onboard_color_2">#CE93D8</color>
+	<color name="onboard_color_3">#80CBC4</color>
+	<color name="gray_light">#E0E0E0</color>
+	<color name="gray_dark">#777777</color>
+	<color name="linen">#faf0e6</color>
+	<color name="ghost">#f8f8ff</color>
+
+	<color name="blue">#348af7</color>
+    <color name="temperature_text">@android:color/white</color>
 </resources>

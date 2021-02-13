@@ -1,7 +1,7 @@
 <resources>
 
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.MaterialComponents.Light.NoActionBar">
+    <style name="AppTheme" parent="Theme.MaterialComponents.DayNight.NoActionBar">
         <!-- Customize your theme here. -->
 		<item name="android:windowActionBar">false</item>
         <item name="colorPrimary">@color/colorPrimary</item>
@@ -9,7 +9,19 @@
         <item name="colorAccent">@color/colorAccent</item>
 		<item name="textInputStyle">@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox</item>
 		<item name="android:fontFamily">@font/raleway_family</item>
+		<item name="android:windowSharedElementsUseOverlay">true</item>
+        <item name="android:windowSharedElementEnterTransition">@transition/smooth_transition</item>
+        <item name="android:windowSharedElementExitTransition">@transition/smooth_transition</item>
+		<item name="tabStyle">@style/Widget.App.TabLayout</item>
     </style>
+
+	<style name="Widget.App.TabLayout" parent="Widget.MaterialComponents.TabLayout">
+		<item name="tabTextAppearance">@style/TabTextAppearance</item>
+	</style>
+
+	<style name="TabTextAppearance" parent="TextAppearance.Design.Tab">
+		<item name="textAllCaps">false</item>
+	</style>
 
 	<style name="AppTheme.Splash" parent="Theme.MaterialComponents.Light.NoActionBar">
 		<item name="android:windowFullscreen">true</item>
@@ -17,24 +29,37 @@
 		<item name="android:windowNoTitle">true</item>
 	</style>
 
-	<style name="BottomSheetDialog_Rounded" parent="@style/ThemeOverlay.MaterialComponents.BottomSheetDialog">
-		<item name="bottomSheetStyle">@style/BottomSheet_Rounded</item>
+
+	<style name="AppTheme.CustomFeaturedTheme">
+		<item name="android:windowDrawsSystemBarBackgrounds">true</item>
+		<item name="android:statusBarColor">@android:color/transparent</item>
 	</style>
 
-	<style name="BottomSheet_Rounded" parent="Widget.MaterialComponents.BottomSheet">
-		<item name="shapeAppearanceOverlay">@style/ShapeAppearanceBottomSheetDialog_Rounded</item>
+	<style name="ShapeAppearanceOverlay.App.CornerSize10Percent" parent="">
+		<item name="cornerSize">10%</item>
 	</style>
 
-	<style name="ShapeAppearanceBottomSheetDialog_Rounded" parent="">
-		<item name="cornerFamily">rounded</item>
-		<item name="cornerSizeTopRight">24dp</item>
-		<item name="cornerSizeTopLeft">24dp</item>
-		<item name="cornerSizeBottomRight">0dp</item>
-		<item name="cornerSizeBottomLeft">0dp</item>
+	<style name="AppTheme.RatingTextView">
+		<item name="android:textSize">18sp</item>
+		<item name="android:textColor">@color/temperature_text</item>
+		<item name="android:gravity">center</item>
+		<item name="android:textStyle">bold</item>
 	</style>
 
-	<style name="AppTheme.ModalDialog" parent="ThemeOverlay.MaterialComponents.BottomSheetDialog">
-		<item name="windowNoTitle">true</item>
+	<style name="AppTheme.NameTextView">
+		<item name="android:textAppearance">?attr/textAppearanceHeadline6</item>
+		<item name="android:gravity">center</item>
+	</style>
+
+	<style name="AppTheme.ClockTextView">
+		<item name="android:textAppearance">?attr/textAppearanceBody1</item>
+		<item name="android:gravity">center</item>
+	</style>
+
+	<style name="AppTheme.DescriptionTextView">
+		<item name="android:textAppearance">?attr/textAppearanceBody1</item>
+		<item name="android:maxLines">2</item>
+		<item name="android:ellipsize">end</item>
 	</style>
 
 </resources>

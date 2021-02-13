@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:android="http://schemas.android.com/apk/res/android"
+	app:title="Account"
+	app:key="account">
+
+	<Preference
+		app:fragment="id.Oyadieyie3D.Fragments.PrefPrivacyFragment"
+        app:key="privacy"
+        app:title="Privacy"
+		app:icon="@drawable/ic_privacy"
+		/>
+
+	<Preference
+        app:key="security"
+        app:title="Security"
+		app:icon="@drawable/ic_security"
+		>
+
+		<intent
+			android:targetPackage="com.graylabs.oyadieyie3d"
+			android:targetClass="id.Oyadieyie3D.Activities.SecurityActivity"/>
+	
+	</Preference>
+
+	<Preference
+        app:key="change_number"
+        app:title="Change number"
+		app:icon="@drawable/ic_change_number"
+		>
+
+		<intent
+			android:targetPackage="com.graylabs.oyadieyie3d"
+			android:targetClass="id.Oyadieyie3D.Activities.ChangeNumberActivity"/>
+	
+	</Preference>
+
+	<Preference
+        app:key="delete_account"
+        app:title="Delete my account"
+		app:icon="@drawable/ic_delete_bin">
+
+		<intent
+			android:targetPackage="com.graylabs.oyadieyie3d"
+			android:targetClass="id.Oyadieyie3D.Activities.DeleteAccountActivity"/>
+	
+	</Preference>
+
+</PreferenceScreen>
